@@ -211,7 +211,7 @@ export default function Home() {
             <FaInfoCircle 
               className="absolute -right-6 text-purple-600 cursor-pointer" 
               data-tooltip-id="desktop-mode-info"
-              data-tooltip-content="Cari mentor, magang, beasiswa, dan info lomba klik disini!"
+              data-tooltip-content="Find mentors, internships, scholarships, and competition information, click here!"
             />
             <Tooltip id="desktop-mode-info" place="bottom" />
           </div>
@@ -419,7 +419,21 @@ export default function Home() {
             </section>
           </AnimatedSection>
         </main>
-        
+        <AnimatedSection>
+        <section id="featured-on" className="py-16 md:py-24 bg-gray-100">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="section-title mb-12">Featured On</h2>
+            <div className="flex flex-wrap justify-center items-center gap-8">
+              <a href="https://techbasedirectory.com/product/learnitab-6095/?utm_source=featured_embed" target="_blank" rel="noopener noreferrer">
+                <img src="https://techbasedirectory.com/api/featured-embed" alt="Learnitab | Techbasedirectory.com" width="200" height="54"/>
+              </a>
+              <a href="https://www.producthunt.com/posts/learnitab?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-learnitab" target="_blank" rel="noopener noreferrer">
+                <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=496388&theme=light" alt="Learnitab - Productivity, Career, Study at Your Fingertips | Product Hunt" width="250" height="54" />
+              </a>
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
         <footer className="bg-gray-800 text-white py-8">
           <div className="max-w-7xl mx-auto px-4 text-center">
             <p>&copy; 2024 Learnitab. All rights reserved.</p>
