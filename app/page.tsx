@@ -814,7 +814,7 @@ export default function Home() {
       </button>
     </div>
     <iframe
-      src="https://learnitab.netlify.app/"
+      src="https://learnitab.com/app/"
       className="w-full h-full border-none"
       title="Learnitab Desktop Mode"
     />
