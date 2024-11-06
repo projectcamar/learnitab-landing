@@ -1,8 +1,8 @@
-   /** @type {import('next').NextConfig} */
-   const nextConfig = {
-    eslint: {
-      ignoreDuringBuilds: true,
-    },
-  }
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    domains: ['od.lk', 'e7.pngegg.com'], // Added the new domain
+  },
+}
 
-  module.exports = nextConfig
+module.exports = nextConfig 
