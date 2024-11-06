@@ -1,4 +1,3 @@
-'use client'
 
 import { useState, useEffect, useCallback, useRef, ReactElement, Key, JSXElementConstructor, ReactNode } from 'react';
 import Image from 'next/image';
@@ -32,14 +31,33 @@ type CalendarEvent = {
   deadline: string;
 };
 
+// 1. Add proper error handling for localStorage
+const getInitialState = () => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = localStorage.getItem('favorites');
+    return saved ? JSON.parse(saved) : [];
+  } catch (e) {
+    return [];
+  }
+};
+
 export default function Home() {
   const postsPerPage = 10;
 
-  // 1. Move localStorage-dependent state to useEffect
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  // 2. Initialize state with null checks for browser APIs
+  const [favorites, setFavorites] = useState<string[]>(() => getInitialState());
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved = localStorage.getItem('calendarEvents');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
 
-  // 2. Initialize other state variables
+  // 3. Initialize other state variables
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentCategory, setCurrentCategory] = useState('');
   const [selectedPostTitle, setSelectedPostTitle] = useState<string | null>(null);
@@ -49,22 +67,21 @@ export default function Home() {
   const [visiblePosts, setVisiblePosts] = useState<Post[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
-  // 3. Separate useEffect for localStorage initialization
+  // 4. Move browser-specific code into useEffect
   useEffect(() => {
-    // Initialize favorites from localStorage
+    // Initialize localStorage items here
     const savedFavorites = localStorage.getItem('favorites');
     if (savedFavorites) {
       setFavorites(JSON.parse(savedFavorites));
     }
 
-    // Initialize calendar events from localStorage
     const savedEvents = localStorage.getItem('calendarEvents');
     if (savedEvents) {
       setCalendarEvents(JSON.parse(savedEvents));
     }
   }, []);
 
-  // 4. Update the posts count display
+  // 5. Update the posts count display
   const getPostsCount = () => {
     if (showSaved) {
       return favorites.length;
@@ -245,7 +262,7 @@ export default function Home() {
     });
   };
 
-  // 5. Add copy feedback component
+  // 6. Add copy feedback component
   const renderCopyFeedback = () => {
     if (copiedLink) {
       return (
