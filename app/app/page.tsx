@@ -1,3 +1,4 @@
+'use client';
 
 import { useState, useEffect, useCallback, useRef, ReactElement, Key, JSXElementConstructor, ReactNode } from 'react';
 import Image from 'next/image';
