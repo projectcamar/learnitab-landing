@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, ReactElement, Key, JSXElementConstructor, ReactNode, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
@@ -43,24 +43,63 @@ const getInitialState = () => {
   }
 };
 
+// Create a loading component
+function LoadingSpinner() {
+  return (
+    <div className="h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  );
+}
+
+// Create an error component
+function ErrorDisplay({ error }: { error: Error }) {
+  return (
+    <div className="h-screen flex items-center justify-center flex-col gap-4">
+      <h2 className="text-xl font-bold text-red-500">Something went wrong!</h2>
+      <p>{error.message}</p>
+      <button 
+        onClick={() => window.location.reload()}
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Try Again
+      </button>
+    </div>
+  );
+}
+
 // Create a separate component for the search params functionality
 function SearchParamsWrapper() {
   const searchParams = useSearchParams()!;
   const [posts, setPosts] = useState<Post[]>([]);
-  // ... other state and logic that depends on searchParams ...
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      // ... your existing fetchPosts logic ...
+      try {
+        setIsLoading(true);
+        setError(null);
+        // Your fetch logic here
+        // const response = await fetch(...);
+        // const data = await response.json();
+        // setPosts(data);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to fetch posts'));
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchPosts();
   }, [searchParams]);
 
+  if (error) return <ErrorDisplay error={error} />;
+  if (isLoading) return <LoadingSpinner />;
+
   return (
-    // Return your existing JSX here
     <div className="h-screen overflow-hidden w-full flex flex-col">
-      {/* ... your existing JSX ... */}
+      {/* Your existing JSX */}
     </div>
   );
 }
@@ -68,12 +107,10 @@ function SearchParamsWrapper() {
 // Main component with Suspense boundary
 export default function Home() {
   return (
-    <Suspense fallback={
-      <div className="h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    }>
-      <SearchParamsWrapper />
+    <Suspense fallback={<LoadingSpinner />}>
+      <CustomErrorBoundary>
+        <SearchParamsWrapper />
+      </CustomErrorBoundary>
     </Suspense>
   );
 }
