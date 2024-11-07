@@ -526,11 +526,11 @@ export default function Home() {
           className="rounded-lg shadow-lg mb-8"
         />
         
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2 mt-4">
           Welcome to Learnitab
         </h2>
         
-        <p className="text-gray-600 mb-8 max-w-lg">
+        <p className="text-gray-600 mb-8 max-w-lg mt-2">
           Your gateway to discovering amazing opportunities in internships, competitions, scholarships, and mentorship. Select an opportunity from the left to get started!
         </p>
 
