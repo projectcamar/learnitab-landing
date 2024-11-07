@@ -523,14 +523,14 @@ export default function Home() {
           alt="Welcome to Learnitab"
           width={600}
           height={400}
-          className="rounded-lg shadow-lg mb-8"
+          className="rounded-lg shadow-lg mb-4"
         />
         
-        <h2 className="text-2xl font-bold text-gray-800 mb-2 mt-4">
+        <h2 className="text-2xl font-bold text-gray-800 mb-1 mt-2">
           Welcome to Learnitab
         </h2>
         
-        <p className="text-gray-600 mb-8 max-w-lg mt-2">
+        <p className="text-gray-600 mb-4 max-w-lg mt-1">
           Your gateway to discovering amazing opportunities in internships, competitions, scholarships, and mentorship. Select an opportunity from the left to get started!
         </p>
 
