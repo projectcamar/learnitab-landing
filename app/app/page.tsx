@@ -654,7 +654,7 @@ export default function Home() {
         </header>
 
         {/* Modified main content */}
-        <main className="flex flex-col md:flex-row gap-4 relative z-10 h-[calc(100vh-80px)]">
+        <main className="flex flex-col md:flex-row gap-2 relative z-10 h-[calc(100vh-80px)]">
           {/* List View - added padding inside the container instead */}
           <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
             {/* Search bar container */}
