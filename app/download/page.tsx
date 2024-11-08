@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { FaApple, FaWindows, FaLightbulb, FaUsers, FaBook } from 'react-icons/fa';
+import { FaApple, FaWindows, FaLinux, FaLightbulb, FaUsers, FaBook } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
 const DownloadPage = () => {
@@ -32,12 +32,20 @@ const DownloadPage = () => {
             Download for Windows
           </motion.a>
           <motion.a 
-            href="#" 
+            href="/LearnitabMacOSSetup.exe" 
             className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-full flex items-center shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
-            // Add macOS download link if available
+            download
           >
             <FaApple className="mr-2" />
             Download for macOS
+          </motion.a>
+          <motion.a 
+            href="/LearnitabLinuxSetup.exe" 
+            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-full flex items-center shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
+            download
+          >
+            <FaLinux className="mr-2" />
+            Download for Linux
           </motion.a>
         </div>
 
