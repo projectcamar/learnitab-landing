@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
 import { Post } from '../models/Post';
@@ -114,6 +114,13 @@ export default function Home() {
 
   // Add new loading state
   const [isLoading, setIsLoading] = useState(true);
+
+  const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
+
+  // Function to toggle dark mode
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => !prev);
+  };
 
   // Single effect to handle initial data loading, URL params, and visible posts
   useEffect(() => {
@@ -603,6 +610,14 @@ export default function Home() {
                   />
                 </div>
                 <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Learnitab</h1>
+                {/* Attractive Download Button with Icon moved closer */}
+                <button 
+                  onClick={() => window.open('https://learnitab.com/download', '_blank')} // Updated URL
+                  className="ml-2 flex items-center px-3 py-1 text-sm font-bold bg-white shadow-lg rounded-md hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
+                >
+                  <FiDownload className="mr-2" /> {/* Download Icon */}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Download Learnitab Opportunity Desktop App</span>
+                </button>
               </div>
               <nav className="hidden md:flex space-x-4">
                 {categories.map((category) => (
@@ -628,33 +643,11 @@ export default function Home() {
                 {isMobileMenuOpen ? <IoMdClose size={24} /> : <FiMenu size={24} />}
               </button>
             </div>
-
-            {/* Mobile Menu */}
-            {isMobileMenuOpen && (
-              <div className="md:hidden mt-4 space-y-2">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    className={`w-full text-left px-4 py-2 rounded-md ${
-                      currentCategory === category
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                    onClick={() => {
-                      setCurrentCategory(category);
-                      setIsMobileMenuOpen(false);
-                    }}
-                  >
-                    {category === '' ? 'All Opportunities' : category.charAt(0).toUpperCase() + category.slice(1)}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </header>
 
         {/* Modified main content */}
-        <main className="flex flex-col md:flex-row gap-2 relative z-10 h-[calc(100vh-80px)]">
+        <main className="flex flex-col md:flex-row -mx-2 relative z-10 h-[calc(100vh-80px)]">
           {/* List View - added padding inside the container instead */}
           <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
             {/* Search bar container */}
@@ -714,7 +707,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Detail View - added padding inside the container */}
+          {/* Detail View - Ensure it's visible in mobile mode */}
           <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar font-['Plus_Jakarta_Sans'] 
             ${showMobileDetail ? 'fixed inset-0 z-50 bg-white' : 'hidden md:block'}`}>
             <div className="bg-white rounded-xl shadow-lg p-4 transition-all duration-300">
@@ -1055,6 +1048,26 @@ export default function Home() {
           /* Hide horizontal scrollbar */
           .custom-scrollbar::-webkit-scrollbar-horizontal {
             display: none;
+          }
+        `}</style>
+
+        <style jsx>{`
+          .shine-animation {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8));
+            background-size: 200% 100%;
+            animation: shine 1.5s infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: black;
+          }
+
+          @keyframes shine {
+            0% {
+              background-position: 200% 0;
+            }
+            100% {
+              background-position: -200% 0;
+            }
           }
         `}</style>
       </div>

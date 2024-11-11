@@ -248,6 +248,14 @@ const Header = () => {
           >
             Try Now
           </motion.a>
+          <a 
+            href="https://learnitab.com/app" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="bg-white text-purple-600 font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition duration-300"
+          >
+            Find Opportunity
+          </a>
           <button className="text-gray-600 hover:text-purple-600 transition duration-300">
             <FaChrome className="text-2xl" />
           </button>
@@ -305,12 +313,12 @@ const Footer = () => {
         <div className="text-center">
           <h4 className="text-xl font-semibold mb-4">Quick Links</h4>
           <ul className="space-y-2">
-            {['Features', 'FAQ', 'Support'].map((item) => (
+            {['Features', 'Support'].map((item) => (
               <li key={item}><a href={`#${item.toLowerCase().replace(' ', '-')}`} className="hover:text-purple-300 transition duration-300">{item}</a></li>
             ))}
             <li>
               <a 
-                href="https://learnitab.vercel.app/privacy.html" 
+                href="https://learnitab.com/privacy" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="hover:text-purple-300 transition duration-300"
@@ -318,7 +326,6 @@ const Footer = () => {
                 Privacy Policy
               </a>
             </li>
-            <li><a href="#terms-of-service" className="hover:text-purple-300 transition duration-300">Terms of Service</a></li>
           </ul>
         </div>
         <div className="text-center md:text-right">
@@ -423,12 +430,14 @@ export default function Home() {
           <FaChrome className="inline-block mr-2" />
           <span>Add to Chrome</span>
         </a>
-        <button 
-          onClick={() => setDesktopModeOpen(true)}
+        <a 
+          href="https://learnitab.com/app"
+          target="_blank" 
+          rel="noopener noreferrer" 
           className="btn-secondary glow-effect"
         >
-          Explore Desktop Mode
-        </button>
+          Learnitab Opportunity Portal
+        </a>
       </motion.div>
     </div>
 
@@ -694,7 +703,7 @@ export default function Home() {
                 >
                   <p className="text-2xl font-semibold mb-4">Ready to innovate with us?</p>
                   <a 
-                    href="#" 
+                    href="mailto:learnitab@gmail.com" 
                     className="inline-block bg-white text-purple-700 font-bold text-lg py-3 px-8 rounded-full hover:bg-purple-100 transition duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                   >
                     Start a Conversation
@@ -771,22 +780,41 @@ export default function Home() {
         <div className="text-center">
           <h4 className="text-xl font-semibold mb-4">Quick Links</h4>
           <ul className="space-y-2">
-            {['Features', 'FAQ', 'Support', 'Privacy Policy', 'Terms of Service'].map((item) => (
+            {['Features', 'Support'].map((item) => (
               <li key={item}><a href={`#${item.toLowerCase().replace(' ', '-')}`} className="hover:text-purple-300 transition duration-300">{item}</a></li>
             ))}
+            <li>
+              <a 
+                href="https://learnitab.com/privacy.html" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-purple-300 transition duration-300"
+              >
+                Privacy Policy
+              </a>
+            </li>
           </ul>
         </div>
         <div className="text-center md:text-right">
           <h4 className="text-xl font-semibold mb-4">Connect With Us</h4>
           <div className="flex justify-center md:justify-end space-x-4 mb-4">
-            {[FaTwitter, FaLinkedin, FaGithub, FaEnvelope].map((Icon, index) => (
-              <a key={index} href="#" className="text-2xl hover:text-purple-300 transition duration-300">
-                <Icon />
-              </a>
-            ))}
+            <a href="https://www.instagram.com/learnitab" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-purple-300 transition duration-300">
+              <FaInstagram />
+            </a>
+            <a href="https://www.linkedin.com/company/learnitab" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-purple-300 transition duration-300">
+              <FaLinkedin />
+            </a>
+            <a href="mailto:learnitab@gmail.com" className="text-2xl hover:text-purple-300 transition duration-300">
+              <FaEnvelope />
+            </a>
           </div>
-          <p className="text-sm">Email: support@learnitab.com</p>
-          <p className="text-sm">Phone: +1 (555) 123-4567</p>
+          <p className="text-sm">Email: learnitab@gmail.com</p>
+          <p className="text-sm">Follow on Instagram: @learnitab</p>
+          <p className="text-sm">
+            <a href="https://www.linkedin.com/company/learnitab" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300 transition duration-300">
+              Connect on LinkedIn: Learnitab
+            </a>
+          </p>
         </div>
       </div>
       <div className="mt-8 pt-8 border-t border-gray-700 text-center relative z-10">
