@@ -538,7 +538,7 @@ export default function Home() {
         </h2>
         
         <p className="text-gray-600 mb-4 max-w-lg mt-1">
-          Your gateway to discovering amazing opportunities in internships, competitions, scholarships, and mentorship. Select an opportunity from the left to get started!
+          Your gateway to discovering amazing opportunities in internships, competitions, scholarships, and mentorship. Select an opportunity from the left to get started~!
         </p>
 
         <div className="flex items-center gap-6">
