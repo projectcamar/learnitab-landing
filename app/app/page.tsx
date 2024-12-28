@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc, FiDownload } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload, FiMapPin, FiGlobe, FiExternalLink } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
 import { Post } from '../models/Post';
@@ -387,6 +387,126 @@ export default function Home() {
   };
 
   const displayFullPost = (post: Post) => {
+    if (post.category === 'Job') {
+      return (
+        <div className="post-full space-y-8 font-['Plus_Jakarta_Sans']">
+          {/* Header Section */}
+          <div className="flex flex-col space-y-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-lg text-gray-600">{post.labels['Company']}</span>
+                  <span className="px-2 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
+                    {post.source}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(post.title);
+                  }}
+                  className={`p-2 rounded-lg transition-colors ${
+                    favorites.includes(post.title)
+                      ? 'bg-pink-50 text-pink-500 border border-pink-200'
+                      : 'text-gray-400 hover:text-pink-500 hover:bg-pink-50'
+                  }`}
+                >
+                  <FiHeart className={favorites.includes(post.title) ? 'fill-current' : ''} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    copyPostLink(post);
+                  }}
+                  className="p-2 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400 transition-colors"
+                >
+                  <FiLink size={20} />
+                </button>
+              </div>
+
+              <a
+                href={post.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium ml-auto"
+              >
+                Apply Now
+              </a>
+            </div>
+          </div>
+
+          {/* Job Details Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg">
+            <div className="flex items-center gap-2">
+              <FiBriefcase className="text-gray-500" />
+              <div>
+                <p className="text-sm text-gray-500">Job Type</p>
+                <p className="font-medium">{post.jobTypes?.[0] || 'Full Time'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <FiMapPin className="text-gray-500" />
+              <div>
+                <p className="text-sm text-gray-500">Location</p>
+                <p className="font-medium">{post.location}</p>
+              </div>
+            </div>
+            {post.remote && (
+              <div className="flex items-center gap-2">
+                <FiGlobe className="text-gray-500" />
+                <div>
+                  <p className="text-sm text-gray-500">Work Type</p>
+                  <p className="font-medium">Remote</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Job Description */}
+          <div className="prose max-w-none">
+            <h2 className="text-xl font-semibold mb-4">Job Description</h2>
+            <div 
+              className="text-gray-700 space-y-4"
+              dangerouslySetInnerHTML={{ 
+                __html: typeof post.body === 'string' 
+                  ? post.body
+                    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+                  : Array.isArray(post.body) 
+                    ? post.body.join('<br><br>') 
+                    : ''
+              }}
+            />
+          </div>
+
+          {/* Application Section */}
+          <div className="mt-8 border-t pt-8">
+            <h2 className="text-xl font-semibold mb-4">How to Apply</h2>
+            <p className="text-gray-700 mb-4">
+              Click the apply button to submit your application directly on the company's website.
+            </p>
+            <a
+              href={post.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Apply for this position
+              <FiExternalLink className="ml-2" />
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    // Return original display for other categories
     return (
       <div className="post-full space-y-8 font-['Plus_Jakarta_Sans']">
         {/* Header with Title and Company */}
