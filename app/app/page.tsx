@@ -43,6 +43,36 @@ const getInitialState = () => {
   }
 };
 
+interface ArbeitnowJob {
+  slug: string;
+  title: string;
+  company_name: string;
+  description: string;
+  url: string;
+  location: string;
+  remote: boolean;
+}
+
+interface RemotiveJob {
+  id: string;
+  title: string;
+  company_name: string;
+  description: string;
+  url: string;
+  candidate_required_location: string;
+  publication_date: string;
+}
+
+interface JobicyJob {
+  id: string;
+  jobTitle: string;
+  companyName: string;
+  jobDescription: string;
+  url: string;
+  jobGeo: string;
+  pubDate: string;
+}
+
 export default function Home() {
   const postsPerPage = 10;
 
@@ -131,16 +161,16 @@ export default function Home() {
         const regularResponse = await fetch('/api/posts');
         const regularData = await regularResponse.json();
 
-        // Fetch job posts from multiple sources
+        // Fetch job posts from multiple sources with type annotations
         const [arbeitnowJobs, remotiveJobs, jobicyJobs] = await Promise.all([
-          fetch('https://www.arbeitnow.com/api/job-board-api').then(res => res.json()),
-          fetch('https://remotive.com/api/remote-jobs?limit=100').then(res => res.json()),
-          fetch('https://jobicy.com/api/v2/remote-jobs?count=50').then(res => res.json())
+          fetch('https://www.arbeitnow.com/api/job-board-api').then(res => res.json()) as Promise<{ data: ArbeitnowJob[] }>,
+          fetch('https://remotive.com/api/remote-jobs?limit=100').then(res => res.json()) as Promise<{ jobs: RemotiveJob[] }>,
+          fetch('https://jobicy.com/api/v2/remote-jobs?count=50').then(res => res.json()) as Promise<{ jobs: JobicyJob[] }>
         ]);
 
-        // Transform job data
+        // Transform job data with proper typing
         const transformedJobs = [
-          ...arbeitnowJobs.data.map(job => ({
+          ...arbeitnowJobs.data.map((job: ArbeitnowJob) => ({
             _id: `arbeitnow-${job.slug}`,
             title: job.title,
             category: 'Job',
@@ -152,7 +182,7 @@ export default function Home() {
             remote: job.remote,
             source: 'Arbeitnow'
           })),
-          ...remotiveJobs.jobs.map(job => ({
+          ...remotiveJobs.jobs.map((job: RemotiveJob) => ({
             _id: `remotive-${job.id}`,
             title: job.title,
             category: 'Job',
@@ -164,7 +194,7 @@ export default function Home() {
             remote: true,
             source: 'Remotive'
           })),
-          ...jobicyJobs.jobs.map(job => ({
+          ...jobicyJobs.jobs.map((job: JobicyJob) => ({
             _id: `jobicy-${job.id}`,
             title: job.jobTitle,
             category: 'Job',
