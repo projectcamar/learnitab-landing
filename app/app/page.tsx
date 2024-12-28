@@ -78,6 +78,8 @@ interface JobPost {
   category: string;
   labels: {
     [key: string]: string | string[];
+    'Mentoring Topic'?: string[];
+    'Company': string;
   };
   deadline?: string | null;
   link: string;
@@ -100,13 +102,11 @@ interface JobPost {
   expired?: boolean;
   daysLeft?: number;
   image?: string;
-  // Social media fields
   linkedin?: string;
+  instagram?: string;
   twitter?: string;
   github?: string;
   website?: string;
-  instagram?: string;
-  // Additional mentor-specific fields
   mentorTopics?: string[];
   availability?: string;
   timezone?: string;
@@ -453,93 +453,61 @@ export default function Home() {
   };
 
   const displayFullPost = (post: JobPost) => {
-    if (post.category === 'Job') {
+    if (post.category === 'mentors') {
       return (
-        <div className="post-full space-y-8 font-['Plus_Jakarta_Sans']">
-          {/* Header Section */}
-          <div className="flex flex-col space-y-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-lg text-gray-600">{post.labels['Company']}</span>
-                  <span className="px-2 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
-                    {post.source}
+        <div className="mt-6 space-y-6">
+          {/* Mentoring Topics Section */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-4">Mentoring Topics</h2>
+            <div className="flex flex-wrap gap-2">
+              {Array.isArray(post.labels['Mentoring Topic']) && 
+                post.labels['Mentoring Topic'].map((topic, index) => (
+                  <span key={index} className="px-3 py-1 bg-blue-100 text-blue-900 rounded-full text-sm">
+                    {topic}
                   </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(post.title);
-                  }}
-                  className={`p-2 rounded-lg transition-colors ${
-                    favorites.includes(post.title)
-                      ? 'bg-pink-50 text-pink-500 border border-pink-200'
-                      : 'text-gray-400 hover:text-pink-500 hover:bg-pink-50'
-                  }`}
-                >
-                  <FiHeart className={favorites.includes(post.title) ? 'fill-current' : ''} />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    copyPostLink(post);
-                  }}
-                  className="p-2 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400 transition-colors"
-                >
-                  <FiLink size={20} />
-                </button>
-              </div>
-
-              <a
-                href={post.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium ml-auto"
-              >
-                Apply Now
-              </a>
+                ))
+              }
             </div>
           </div>
 
-          {/* Job Details Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg">
-            <div className="flex items-center gap-2">
-              <FiBriefcase className="text-gray-500" />
-              <div>
-                <p className="text-sm text-gray-500">Job Type</p>
-                <p className="font-medium">{post.jobTypes?.[0] || 'Full Time'}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <FiMapPin className="text-gray-500" />
-              <div>
-                <p className="text-sm text-gray-500">Location</p>
-                <p className="font-medium">{post.location}</p>
-              </div>
-            </div>
-            {post.remote && (
-              <div className="flex items-center gap-2">
-                <FiGlobe className="text-gray-500" />
-                <div>
-                  <p className="text-sm text-gray-500">Work Type</p>
-                  <p className="font-medium">Remote</p>
-                </div>
-              </div>
+          {/* Social Media Section */}
+          <div className="flex items-center gap-3 mt-2">
+            {post.linkedin && (
+              <a 
+                href={post.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700"
+              >
+                <FiLinkedin size={20} />
+              </a>
+            )}
+            {post.instagram && (
+              <a 
+                href={post.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-pink-600 hover:text-pink-700"
+              >
+                <FiInstagram size={20} />
+              </a>
             )}
           </div>
 
-          {/* Job Description */}
+          {/* Rest of the mentor display code */}
+        </div>
+      );
+    }
+
+    // Job display section
+    return (
+      <div className="mt-6 space-y-6">
+        {/* Job Details */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-4">Job Details</h2>
           <div className="prose max-w-none">
-            <h2 className="text-xl font-semibold mb-4">Job Description</h2>
             <div 
-              className="text-gray-700 space-y-4"
+              className="text-gray-700"
               dangerouslySetInnerHTML={{ 
                 __html: typeof post.body === 'string' 
                   ? post.body
@@ -551,104 +519,18 @@ export default function Home() {
               }}
             />
           </div>
-
-          {/* Application Section */}
-          <div className="mt-8 border-t pt-8">
-            <h2 className="text-xl font-semibold mb-4">How to Apply</h2>
-            <p className="text-gray-700 mb-4">
-              Click the apply button to submit your application directly on the company's website.
-            </p>
-            <a
-              href={post.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              Apply for this position
-              <FiExternalLink className="ml-2" />
-            </a>
-          </div>
-        </div>
-      );
-    }
-
-    // Return original display for other categories
-    return (
-      <div className="post-full space-y-8 font-['Plus_Jakarta_Sans']">
-        {/* Header with Title and Company */}
-        <div className="flex flex-col space-y-4">
-          {/* Title and Company */}
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
-              <p className="text-lg text-gray-600 mt-2">
-                {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons Bar */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => toggleFavorite(post.title)}
-                className={`p-2 rounded-lg transition-colors ${
-                  favorites.includes(post.title)
-                    ? 'bg-pink-50 text-pink-500 border border-pink-200'
-                    : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
-                }`}
-              >
-                <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
-              </button>
-
-              <button
-                onClick={() => copyPostLink(post)}
-                className="p-2 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400 transition-colors"
-              >
-                <FiLink size={20} />
-              </button>
-
-              {(post.category === 'competitions' || post.category === 'scholarships') && (
-                <button
-                  onClick={() => toggleCalendarPanel(post)}
-                  className="p-2 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400 transition-colors"
-                >
-                  <FiCalendar size={20} />
-                </button>
-              )}
-            </div>
-
-            <a
-              href={post.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium ml-auto"
-            >
-              {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'}
-            </a>
-          </div>
         </div>
 
-        <div className="border-t pt-6">
-          {/* Description Section */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900">Description</h2>
-            <div className="prose max-w-none text-gray-700">
-              {Array.isArray(post.body) ? (
-                post.body.map((paragraph, index) => (
-                  <p key={index} className="mb-4">{paragraph}</p>
-                ))
-              ) : (
-                <p>{post.body}</p>
-              )}
-            </div>
+        {/* Additional Information */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-4">Additional Information</h2>
+          <div className="space-y-2">
+            {post.location && <p><strong>Location:</strong> {post.location}</p>}
+            {post.workType && <p><strong>Work Type:</strong> {post.workType}</p>}
+            {post.remote && <p><strong>Remote:</strong> Yes</p>}
+            {post.source && <p><strong>Source:</strong> {post.source}</p>}
           </div>
-
-          {/* Rest of the sections */}
-          {/* ... */}
         </div>
-
-        {/* Remove the footer section entirely since we moved the actions up */}
       </div>
     );
   };
@@ -695,18 +577,7 @@ export default function Home() {
         className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] cursor-pointer border border-gray-100"
       >
         <div className="flex items-start gap-4 max-w-full">
-          <Image
-            src={post.image || 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'}
-            alt={`${post.labels['Company']} logo`}
-            width={60}
-            height={60}
-            className="rounded-lg object-contain"
-            priority={true}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png';
-            }}
-          />
+          <PostImage post={post} />
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-900 truncate">{post.title}</h3>
             <p className="text-sm text-gray-600 truncate">
@@ -857,6 +728,21 @@ export default function Home() {
     }
   };
 
+  const PostImage = ({ post }: { post: JobPost }) => (
+    <Image
+      src={post.image || 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'}
+      alt={`${post.labels['Company']} logo`}
+      width={60}
+      height={60}
+      className="rounded-lg object-contain"
+      priority={true}
+      onError={(e) => {
+        const target = e.target as HTMLImageElement;
+        target.src = 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png';
+      }}
+    />
+  );
+
   return (
     <CustomErrorBoundary>
       <div className="h-screen overflow-hidden w-full flex flex-col">
@@ -990,18 +876,7 @@ export default function Home() {
                         {/* Title, Image, and Close Button */}
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex items-center gap-4">
-                            <Image
-                              src={post.image || 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'}
-                              alt={`${post.labels['Company']} logo`}
-                              width={80}
-                              height={80}
-                              className="rounded-lg object-cover"
-                              priority={true}
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png';
-                              }}
-                            />
+                            <PostImage post={post} />
                             <div>
                               <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
                               <p className="text-lg text-gray-600">
@@ -1255,6 +1130,7 @@ export default function Home() {
             <div className="space-y-4">
               {calendarEvents
                 .filter(event => !filterDays || isAfter(parseISO(event.deadline), new Date()) && isBefore(parseISO(event.deadline), addDays(new Date(), filterDays)))
+              )
                 .map(event => (
                   <div key={event.id} className="flex justify-between items-center p-3 bg-gray-100 rounded-md">
                     <div>
