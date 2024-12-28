@@ -389,15 +389,11 @@ export default function Home() {
   const displayFullPost = (post: Post) => {
     return (
       <div className="post-full space-y-8 font-['Plus_Jakarta_Sans']">
-        {/* Header with Title and Company */}
         <div className="flex flex-col space-y-4">
-          {/* Title and Company */}
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
-              <p className="text-lg text-gray-600 mt-2">
-                {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
-              </p>
+              <p className="text-lg text-gray-600 mt-2">{post.labels['Company']}</p>
             </div>
           </div>
 
@@ -444,25 +440,60 @@ export default function Home() {
         </div>
 
         <div className="border-t pt-6">
-          {/* Description Section */}
+          {/* Description Section - Modified for Arbeitnow jobs */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900">Description</h2>
-            <div className="prose max-w-none text-gray-700">
-              {Array.isArray(post.body) ? (
-                post.body.map((paragraph, index) => (
-                  <p key={index} className="mb-4">{paragraph}</p>
-                ))
-              ) : (
-                <p>{post.body}</p>
-              )}
-            </div>
+            {post.source === 'Arbeitnow' ? (
+              <>
+                {/* Job Details for Arbeitnow */}
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Job Details</h2>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600">Location</p>
+                      <p className="font-medium">{post.location}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Job Type</p>
+                      <p className="font-medium">{post.remote ? 'Remote' : 'On-site'}</p>
+                    </div>
+                    {post.tags && (
+                      <div className="col-span-2">
+                        <p className="text-sm text-gray-600 mb-2">Industry</p>
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags.map((tag, index) => (
+                            <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Job Description */}
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Description</h2>
+                  <div 
+                    className="prose max-w-none text-gray-700"
+                    dangerouslySetInnerHTML={{ __html: post.body }}
+                  />
+                </div>
+              </>
+            ) : (
+              // Original description display for non-Arbeitnow jobs
+              <div className="prose max-w-none text-gray-700">
+                {Array.isArray(post.body) ? (
+                  post.body.map((paragraph, index) => (
+                    <p key={index} className="mb-4">{paragraph}</p>
+                  ))
+                ) : (
+                  <p>{post.body}</p>
+                )}
+              </div>
+            )}
           </div>
-
-          {/* Rest of the sections */}
-          {/* ... */}
         </div>
-
-        {/* Remove the footer section entirely since we moved the actions up */}
       </div>
     );
   };
@@ -513,7 +544,7 @@ export default function Home() {
             src={
               post.category === 'Job' 
                 ? 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'
-                : (post.image || '/default-image.png')
+                : (post.image || '/https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png')
             }
             alt={post.title}
             width={60}
