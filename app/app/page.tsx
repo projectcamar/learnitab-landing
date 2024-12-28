@@ -105,6 +105,7 @@ interface JobPost {
   twitter?: string;
   github?: string;
   website?: string;
+  instagram?: string;
   // Additional mentor-specific fields
   mentorTopics?: string[];
   availability?: string;
@@ -226,7 +227,8 @@ export default function Home() {
             linkedin: null,
             twitter: null,
             github: null,
-            website: null
+            website: null,
+            instagram: null
           })),
           ...remotiveJobs.jobs.map((job: RemotiveJob) => ({
             _id: `remotive-${job.id}`,
@@ -245,7 +247,8 @@ export default function Home() {
             linkedin: null,
             twitter: null,
             github: null,
-            website: null
+            website: null,
+            instagram: null
           })),
           ...jobicyJobs.jobs.map((job: JobicyJob) => ({
             _id: `jobicy-${job.id}`,
@@ -264,7 +267,8 @@ export default function Home() {
             linkedin: null,
             twitter: null,
             github: null,
-            website: null
+            website: null,
+            instagram: null
           }))
         ];
 
@@ -697,6 +701,7 @@ export default function Home() {
             width={60}
             height={60}
             className="rounded-lg object-contain"
+            priority={true}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png';
@@ -991,6 +996,7 @@ export default function Home() {
                               width={80}
                               height={80}
                               className="rounded-lg object-cover"
+                              priority={true}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 target.src = 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png';
