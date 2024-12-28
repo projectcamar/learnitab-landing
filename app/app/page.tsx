@@ -100,6 +100,16 @@ interface JobPost {
   expired?: boolean;
   daysLeft?: number;
   image?: string;
+  // Social media fields
+  linkedin?: string;
+  twitter?: string;
+  github?: string;
+  website?: string;
+  // Additional mentor-specific fields
+  mentorTopics?: string[];
+  availability?: string;
+  timezone?: string;
+  languages?: string[];
 }
 
 export default function Home() {
@@ -212,7 +222,11 @@ export default function Home() {
             source: 'Arbeitnow',
             expired: false,
             daysLeft: null,
-            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'
+            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png',
+            linkedin: null,
+            twitter: null,
+            github: null,
+            website: null
           })),
           ...remotiveJobs.jobs.map((job: RemotiveJob) => ({
             _id: `remotive-${job.id}`,
@@ -227,7 +241,11 @@ export default function Home() {
             source: 'Remotive',
             expired: false,
             daysLeft: null,
-            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'
+            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png',
+            linkedin: null,
+            twitter: null,
+            github: null,
+            website: null
           })),
           ...jobicyJobs.jobs.map((job: JobicyJob) => ({
             _id: `jobicy-${job.id}`,
@@ -242,7 +260,11 @@ export default function Home() {
             source: 'Jobicy',
             expired: false,
             daysLeft: null,
-            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'
+            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png',
+            linkedin: null,
+            twitter: null,
+            github: null,
+            website: null
           }))
         ];
 
