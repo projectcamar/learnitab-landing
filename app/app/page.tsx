@@ -9,7 +9,6 @@ import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin,
          FiBookOpen, FiUsers, FiDisc, FiDownload, FiMapPin, FiGlobe, FiExternalLink } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
-import { Post } from '../models/Post';
 import { format, parseISO, isAfter, isBefore, addDays } from 'date-fns';
 import { CustomErrorBoundary } from '../components/ErrorBoundary';
 import { Plus_Jakarta_Sans } from 'next/font/google';
@@ -73,7 +72,7 @@ interface JobicyJob {
   pubDate: string;
 }
 
-interface Post {
+interface JobPost {
   _id: string;
   title: string;
   category: string;
@@ -116,13 +115,13 @@ export default function Home() {
   });
 
   // 3. Initialize other state variables
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<JobPost[]>([]);
   const [currentCategory, setCurrentCategory] = useState('');
   const [selectedPostTitle, setSelectedPostTitle] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showSaved, setShowSaved] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [visiblePosts, setVisiblePosts] = useState<Post[]>([]);
+  const [visiblePosts, setVisiblePosts] = useState<JobPost[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
   // 4. Move browser-specific code into useEffect
@@ -152,14 +151,14 @@ export default function Home() {
   const categories = ['', 'Job', 'competitions', 'scholarships', 'mentors'];
   const listRef = useRef<HTMLDivElement>(null);
   const [showCalendarPanel, setShowCalendarPanel] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Post | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<JobPost | null>(null);
   const [showCalendarManagement, setShowCalendarManagement] = useState(false);
   const [sortOrder, setSortOrder] = useState<'default' | 'days-left'>('default');
   const [filterDays, setFilterDays] = useState<number | null>(null);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [showBanner, setShowBanner] = useState(true);
-  const [recommendations, setRecommendations] = useState<Post[]>([]);
+  const [recommendations, setRecommendations] = useState<JobPost[]>([]);
 
   // Add new state for mobile view control
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -322,7 +321,7 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-  function copyPostLink(post: Post): void {
+  function copyPostLink(post: JobPost): void {
     // Get the current pathname and combine it with the post parameter
     const currentPath = window.location.pathname;
     const url = `${window.location.origin}${currentPath}?post=${post._id}`;
@@ -349,7 +348,7 @@ export default function Home() {
     });
   }
 
-  const toggleCalendarPanel = (post: Post) => {
+  const toggleCalendarPanel = (post: JobPost) => {
     setSelectedEvent(post);
     setShowCalendarPanel(true);
     setIsOverlayVisible(true);
@@ -401,7 +400,7 @@ export default function Home() {
     return [...new Map(filteredPosts.map(post => [post._id, post])).values()];
   };
 
-  const getSortedPosts = (filteredPosts: Post[]) => {
+  const getSortedPosts = (filteredPosts: JobPost[]) => {
     const activePosts = filteredPosts.filter(post => !post.expired);
     const expiredPosts = filteredPosts.filter(post => post.expired);
 
@@ -413,7 +412,7 @@ export default function Home() {
     return [...activePosts, ...expiredPosts];
   };
 
-  const displayFullPost = (post: Post) => {
+  const displayFullPost = (post: JobPost) => {
     if (post.category === 'Job') {
       return (
         <div className="post-full space-y-8 font-['Plus_Jakarta_Sans']">
@@ -629,7 +628,7 @@ export default function Home() {
     }
   };
 
-  const renderPosts = (posts: Post[]) => {
+  const renderPosts = (posts: JobPost[]) => {
     if (isLoading) {
       return Array(5).fill(0).map((_, index) => (
         <div key={index} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 animate-pulse">
@@ -806,7 +805,7 @@ export default function Home() {
   };
 
   // Add function to handle mobile post selection
-  const handlePostSelection = (post: Post) => {
+  const handlePostSelection = (post: JobPost) => {
     setSelectedPostTitle(post.title);
     if (window.innerWidth < 768) { // Mobile breakpoint
       setShowMobileDetail(true);
