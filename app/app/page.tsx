@@ -92,7 +92,7 @@ export default function Home() {
     ).length;
   };
 
-  const categories = ['', 'internship', 'competitions', 'scholarships', 'mentors'];
+  const categories = ['', 'Job', 'competitions', 'scholarships', 'mentors'];
   const listRef = useRef<HTMLDivElement>(null);
   const [showCalendarPanel, setShowCalendarPanel] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Post | null>(null);
@@ -127,34 +127,83 @@ export default function Home() {
     const fetchPosts = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('/api/posts');
-        const data = await response.json();
+        // Fetch regular posts for other categories
+        const regularResponse = await fetch('/api/posts');
+        const regularData = await regularResponse.json();
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to fetch posts');
-        }
-        
-        if (data.data) {
-          const transformedPosts = Object.entries(data.data).flatMap(([category, categoryPosts]: [string, unknown]) =>
-            Array.isArray(categoryPosts) ? categoryPosts.map(post => ({
-              ...post,
-              category,
-              expired: post.deadline ? new Date(post.deadline) < new Date() : false,
-              daysLeft: post.deadline ? Math.ceil((new Date(post.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0
-            })) : []
-          );
-          setPosts(transformedPosts);
+        // Fetch job posts from multiple sources
+        const [arbeitnowJobs, remotiveJobs, jobicyJobs] = await Promise.all([
+          fetch('https://www.arbeitnow.com/api/job-board-api').then(res => res.json()),
+          fetch('https://remotive.com/api/remote-jobs?limit=100').then(res => res.json()),
+          fetch('https://jobicy.com/api/v2/remote-jobs?count=50').then(res => res.json())
+        ]);
+
+        // Transform job data
+        const transformedJobs = [
+          ...arbeitnowJobs.data.map(job => ({
+            _id: `arbeitnow-${job.slug}`,
+            title: job.title,
+            category: 'Job',
+            labels: { Company: job.company_name },
+            deadline: null,
+            link: job.url,
+            body: job.description,
+            location: job.location,
+            remote: job.remote,
+            source: 'Arbeitnow'
+          })),
+          ...remotiveJobs.jobs.map(job => ({
+            _id: `remotive-${job.id}`,
+            title: job.title,
+            category: 'Job',
+            labels: { Company: job.company_name },
+            deadline: null,
+            link: job.url,
+            body: job.description,
+            location: job.candidate_required_location || 'Remote',
+            remote: true,
+            source: 'Remotive'
+          })),
+          ...jobicyJobs.jobs.map(job => ({
+            _id: `jobicy-${job.id}`,
+            title: job.jobTitle,
+            category: 'Job',
+            labels: { Company: job.companyName },
+            deadline: null,
+            link: job.url,
+            body: job.jobDescription,
+            location: job.jobGeo || 'Remote',
+            remote: true,
+            source: 'Jobicy'
+          }))
+        ];
+
+        // Combine regular posts with job posts
+        if (regularData.data) {
+          const otherPosts = Object.entries(regularData.data)
+            .filter(([category]) => category !== 'internship') // Exclude old internship category
+            .flatMap(([category, categoryPosts]: [string, unknown]) =>
+              Array.isArray(categoryPosts) ? categoryPosts.map(post => ({
+                ...post,
+                category,
+                expired: post.deadline ? new Date(post.deadline) < new Date() : false,
+                daysLeft: post.deadline ? Math.ceil((new Date(post.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0
+              })) : []
+            );
+
+          const allPosts = [...transformedJobs, ...otherPosts];
+          setPosts(allPosts);
 
           // Handle URL parameters after posts are loaded
           const searchParams = new URLSearchParams(window.location.search);
           const postId = searchParams.get('post');
           if (postId) {
-            const targetPost = transformedPosts.find(post => post._id === postId);
+            const targetPost = allPosts.find(post => post._id === postId);
             if (targetPost) {
               setSelectedPostTitle(targetPost.title);
               setCurrentCategory(targetPost.category);
               
-              const filteredPosts = transformedPosts.filter(post => 
+              const filteredPosts = allPosts.filter(post => 
                 post.category === targetPost.category
               );
               setVisiblePosts(filteredPosts.slice(0, postsPerPage));
