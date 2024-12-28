@@ -99,6 +99,7 @@ interface JobPost {
   email?: string;
   expired?: boolean;
   daysLeft?: number;
+  image?: string;
 }
 
 export default function Home() {
@@ -210,7 +211,8 @@ export default function Home() {
             remote: job.remote,
             source: 'Arbeitnow',
             expired: false,
-            daysLeft: null
+            daysLeft: null,
+            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'
           })),
           ...remotiveJobs.jobs.map((job: RemotiveJob) => ({
             _id: `remotive-${job.id}`,
@@ -224,7 +226,8 @@ export default function Home() {
             remote: true,
             source: 'Remotive',
             expired: false,
-            daysLeft: null
+            daysLeft: null,
+            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'
           })),
           ...jobicyJobs.jobs.map((job: JobicyJob) => ({
             _id: `jobicy-${job.id}`,
@@ -238,7 +241,8 @@ export default function Home() {
             remote: true,
             source: 'Jobicy',
             expired: false,
-            daysLeft: null
+            daysLeft: null,
+            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'
           }))
         ];
 
@@ -666,11 +670,15 @@ export default function Home() {
       >
         <div className="flex items-start gap-4 max-w-full">
           <Image
-            src={post.image || '/default-image.png'}
-            alt={post.title}
+            src={post.image || 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'}
+            alt={`${post.labels['Company']} logo`}
             width={60}
             height={60}
-            className="rounded-lg object-cover flex-shrink-0"
+            className="rounded-lg object-contain"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png';
+            }}
           />
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-900 truncate">{post.title}</h3>
@@ -956,11 +964,15 @@ export default function Home() {
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex items-center gap-4">
                             <Image
-                              src={post.image || '/default-image.png'}
-                              alt={post.title}
+                              src={post.image || 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'}
+                              alt={`${post.labels['Company']} logo`}
                               width={80}
                               height={80}
                               className="rounded-lg object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png';
+                              }}
                             />
                             <div>
                               <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
