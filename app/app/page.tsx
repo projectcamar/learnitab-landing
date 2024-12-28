@@ -393,11 +393,45 @@ export default function Home() {
         <div className="flex flex-col space-y-4">
           {/* Title and Company */}
           <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
-              <p className="text-lg text-gray-600 mt-2">
-                {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
-              </p>
+            <div className="flex items-center gap-4">
+              <Image
+                src="https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png"
+                alt={post.title}
+                width={80}
+                height={80}
+                className="rounded-lg object-cover"
+              />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
+                <p className="text-lg text-gray-600">
+                  {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
+                </p>
+                {/* Social Media Icons for Mentors */}
+                {post.category === 'mentors' && (
+                  <div className="flex items-center gap-3 mt-2">
+                    {post.linkedin && (
+                      <a 
+                        href={post.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        <FiLinkedin size={20} />
+                      </a>
+                    )}
+                    {post.instagram && (
+                      <a 
+                        href={post.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-pink-600 hover:text-pink-700"
+                      >
+                        <FiInstagram size={20} />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -510,7 +544,7 @@ export default function Home() {
       >
         <div className="flex items-start gap-4 max-w-full">
           <Image
-            src={post.image || '/default-image.png'}
+            src="https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png"
             alt={post.title}
             width={60}
             height={60}
@@ -800,7 +834,7 @@ export default function Home() {
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex items-center gap-4">
                             <Image
-                              src={post.image || '/default-image.png'}
+                              src="https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png"
                               alt={post.title}
                               width={80}
                               height={80}
