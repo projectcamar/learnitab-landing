@@ -97,6 +97,8 @@ interface JobPost {
   prize?: string;
   eligibility?: string;
   email?: string;
+  expired?: boolean;
+  daysLeft?: number;
 }
 
 export default function Home() {
@@ -206,7 +208,9 @@ export default function Home() {
             body: job.description,
             location: job.location,
             remote: job.remote,
-            source: 'Arbeitnow'
+            source: 'Arbeitnow',
+            expired: false,
+            daysLeft: null
           })),
           ...remotiveJobs.jobs.map((job: RemotiveJob) => ({
             _id: `remotive-${job.id}`,
@@ -218,7 +222,9 @@ export default function Home() {
             body: job.description,
             location: job.candidate_required_location || 'Remote',
             remote: true,
-            source: 'Remotive'
+            source: 'Remotive',
+            expired: false,
+            daysLeft: null
           })),
           ...jobicyJobs.jobs.map((job: JobicyJob) => ({
             _id: `jobicy-${job.id}`,
@@ -230,7 +236,9 @@ export default function Home() {
             body: job.jobDescription,
             location: job.jobGeo || 'Remote',
             remote: true,
-            source: 'Jobicy'
+            source: 'Jobicy',
+            expired: false,
+            daysLeft: null
           }))
         ];
 
@@ -405,8 +413,10 @@ export default function Home() {
     const expiredPosts = filteredPosts.filter(post => post.expired);
 
     if (sortOrder === 'days-left') {
-      activePosts.sort((a, b) => (a.daysLeft ?? Infinity) - (b.daysLeft ?? Infinity));
-      expiredPosts.sort((a, b) => (a.daysLeft ?? Infinity) - (b.daysLeft ?? Infinity));
+      return [
+        ...activePosts.sort((a, b) => (a.daysLeft || 0) - (b.daysLeft || 0)),
+        ...expiredPosts
+      ];
     }
 
     return [...activePosts, ...expiredPosts];
