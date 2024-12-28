@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef, ReactElement, Key, JSXElementConstructor, ReactNode, Suspense, Component, ErrorInfo } from 'react';
+import { useState, useEffect, useCallback, useRef, ReactElement, Key, JSXElementConstructor, ReactNode, Suspense } from 'react';
 import Image from 'next/image';
 import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc, FiDownload, FiMapPin, FiGlobe, FiExternalLink } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
+import { Post } from '../models/Post';
 import { format, parseISO, isAfter, isBefore, addDays } from 'date-fns';
 import { CustomErrorBoundary } from '../components/ErrorBoundary';
 import { Plus_Jakarta_Sans } from 'next/font/google';
@@ -42,121 +43,6 @@ const getInitialState = () => {
   }
 };
 
-interface ArbeitnowJob {
-  slug: string;
-  title: string;
-  company_name: string;
-  description: string;
-  url: string;
-  location: string;
-  remote: boolean;
-}
-
-interface RemotiveJob {
-  id: string;
-  title: string;
-  company_name: string;
-  description: string;
-  url: string;
-  candidate_required_location: string;
-  publication_date: string;
-}
-
-interface JobicyJob {
-  id: string;
-  jobTitle: string;
-  companyName: string;
-  jobDescription: string;
-  url: string;
-  jobGeo: string;
-  pubDate: string;
-}
-
-interface JobPost {
-  _id: string;
-  title: string;
-  category: string;
-  labels: {
-    [key: string]: string | string[];
-    'Mentoring Topic'?: string[];
-    'Company': string;
-  };
-  deadline?: string | null;
-  link: string;
-  body: string | string[];
-  location?: string;
-  remote?: boolean;
-  source?: string;
-  jobTypes?: string[];
-  experience?: string[];
-  education?: string[];
-  responsibilities?: string[];
-  requirements?: string[];
-  workLocation?: string;
-  duration?: string;
-  stipend?: string;
-  workType?: string;
-  prize?: string;
-  eligibility?: string;
-  email?: string;
-  expired?: boolean;
-  daysLeft?: number;
-  image?: string;
-  linkedin?: string;
-  instagram?: string;
-  twitter?: string;
-  github?: string;
-  website?: string;
-  mentorTopics?: string[];
-  availability?: string;
-  timezone?: string;
-  languages?: string[];
-}
-
-// Add the ErrorBoundary component definition
-class CustomErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean; error: Error | null }
-> {
-  constructor(props: { children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center p-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Something went wrong
-            </h1>
-            <p className="text-gray-600 mb-4">
-              We apologize for the inconvenience. Please try refreshing the page.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Refresh Page
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
 export default function Home() {
   const postsPerPage = 10;
 
@@ -173,13 +59,13 @@ export default function Home() {
   });
 
   // 3. Initialize other state variables
-  const [posts, setPosts] = useState<JobPost[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [currentCategory, setCurrentCategory] = useState('');
   const [selectedPostTitle, setSelectedPostTitle] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showSaved, setShowSaved] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [visiblePosts, setVisiblePosts] = useState<JobPost[]>([]);
+  const [visiblePosts, setVisiblePosts] = useState<Post[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
   // 4. Move browser-specific code into useEffect
@@ -209,14 +95,14 @@ export default function Home() {
   const categories = ['', 'Job', 'competitions', 'scholarships', 'mentors'];
   const listRef = useRef<HTMLDivElement>(null);
   const [showCalendarPanel, setShowCalendarPanel] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<JobPost | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<Post | null>(null);
   const [showCalendarManagement, setShowCalendarManagement] = useState(false);
   const [sortOrder, setSortOrder] = useState<'default' | 'days-left'>('default');
   const [filterDays, setFilterDays] = useState<number | null>(null);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [showBanner, setShowBanner] = useState(true);
-  const [recommendations, setRecommendations] = useState<JobPost[]>([]);
+  const [recommendations, setRecommendations] = useState<Post[]>([]);
 
   // Add new state for mobile view control
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -245,16 +131,16 @@ export default function Home() {
         const regularResponse = await fetch('/api/posts');
         const regularData = await regularResponse.json();
 
-        // Fetch job posts from multiple sources with type annotations
+        // Fetch job posts from multiple sources
         const [arbeitnowJobs, remotiveJobs, jobicyJobs] = await Promise.all([
-          fetch('https://www.arbeitnow.com/api/job-board-api').then(res => res.json()) as Promise<{ data: ArbeitnowJob[] }>,
-          fetch('https://remotive.com/api/remote-jobs?limit=100').then(res => res.json()) as Promise<{ jobs: RemotiveJob[] }>,
-          fetch('https://jobicy.com/api/v2/remote-jobs?count=50').then(res => res.json()) as Promise<{ jobs: JobicyJob[] }>
+          fetch('https://www.arbeitnow.com/api/job-board-api').then(res => res.json()),
+          fetch('https://remotive.com/api/remote-jobs?limit=100').then(res => res.json()),
+          fetch('https://jobicy.com/api/v2/remote-jobs?count=50').then(res => res.json())
         ]);
 
-        // Transform job data with proper typing
+        // Transform job data
         const transformedJobs = [
-          ...arbeitnowJobs.data.map((job: ArbeitnowJob) => ({
+          ...arbeitnowJobs.data.map(job => ({
             _id: `arbeitnow-${job.slug}`,
             title: job.title,
             category: 'Job',
@@ -264,17 +150,9 @@ export default function Home() {
             body: job.description,
             location: job.location,
             remote: job.remote,
-            source: 'Arbeitnow',
-            expired: false,
-            daysLeft: null,
-            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png',
-            linkedin: null,
-            twitter: null,
-            github: null,
-            website: null,
-            instagram: null
+            source: 'Arbeitnow'
           })),
-          ...remotiveJobs.jobs.map((job: RemotiveJob) => ({
+          ...remotiveJobs.jobs.map(job => ({
             _id: `remotive-${job.id}`,
             title: job.title,
             category: 'Job',
@@ -284,17 +162,9 @@ export default function Home() {
             body: job.description,
             location: job.candidate_required_location || 'Remote',
             remote: true,
-            source: 'Remotive',
-            expired: false,
-            daysLeft: null,
-            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png',
-            linkedin: null,
-            twitter: null,
-            github: null,
-            website: null,
-            instagram: null
+            source: 'Remotive'
           })),
-          ...jobicyJobs.jobs.map((job: JobicyJob) => ({
+          ...jobicyJobs.jobs.map(job => ({
             _id: `jobicy-${job.id}`,
             title: job.jobTitle,
             category: 'Job',
@@ -304,15 +174,7 @@ export default function Home() {
             body: job.jobDescription,
             location: job.jobGeo || 'Remote',
             remote: true,
-            source: 'Jobicy',
-            expired: false,
-            daysLeft: null,
-            image: 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png',
-            linkedin: null,
-            twitter: null,
-            github: null,
-            website: null,
-            instagram: null
+            source: 'Jobicy'
           }))
         ];
 
@@ -403,7 +265,7 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-  function copyPostLink(post: JobPost): void {
+  function copyPostLink(post: Post): void {
     // Get the current pathname and combine it with the post parameter
     const currentPath = window.location.pathname;
     const url = `${window.location.origin}${currentPath}?post=${post._id}`;
@@ -430,7 +292,7 @@ export default function Home() {
     });
   }
 
-  const toggleCalendarPanel = (post: JobPost) => {
+  const toggleCalendarPanel = (post: Post) => {
     setSelectedEvent(post);
     setShowCalendarPanel(true);
     setIsOverlayVisible(true);
@@ -482,99 +344,95 @@ export default function Home() {
     return [...new Map(filteredPosts.map(post => [post._id, post])).values()];
   };
 
-  const getSortedPosts = (filteredPosts: JobPost[]) => {
+  const getSortedPosts = (filteredPosts: Post[]) => {
     const activePosts = filteredPosts.filter(post => !post.expired);
     const expiredPosts = filteredPosts.filter(post => post.expired);
 
     if (sortOrder === 'days-left') {
-      return [
-        ...activePosts.sort((a, b) => (a.daysLeft || 0) - (b.daysLeft || 0)),
-        ...expiredPosts
-      ];
+      activePosts.sort((a, b) => (a.daysLeft ?? Infinity) - (b.daysLeft ?? Infinity));
+      expiredPosts.sort((a, b) => (a.daysLeft ?? Infinity) - (b.daysLeft ?? Infinity));
     }
 
     return [...activePosts, ...expiredPosts];
   };
 
-  const displayFullPost = (post: JobPost) => {
-    if (post.category === 'mentors') {
-      return (
-        <div className="mt-6 space-y-6">
-          {/* Mentoring Topics Section */}
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">Mentoring Topics</h2>
-            <div className="flex flex-wrap gap-2">
-              {Array.isArray(post.labels['Mentoring Topic']) && 
-                post.labels['Mentoring Topic'].map((topic, index) => (
-                  <span key={index} className="px-3 py-1 bg-blue-100 text-blue-900 rounded-full text-sm">
-                    {topic}
-                  </span>
-                ))
-              }
+  const displayFullPost = (post: Post) => {
+    return (
+      <div className="post-full space-y-8 font-['Plus_Jakarta_Sans']">
+        {/* Header with Title and Company */}
+        <div className="flex flex-col space-y-4">
+          {/* Title and Company */}
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
+              <p className="text-lg text-gray-600 mt-2">
+                {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
+              </p>
             </div>
           </div>
 
-          {/* Social Media Section */}
-          <div className="flex items-center gap-3 mt-2">
-            {post.linkedin && (
-              <a 
-                href={post.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-700"
+          {/* Action Buttons Bar */}
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => toggleFavorite(post.title)}
+                className={`p-2 rounded-lg transition-colors ${
+                  favorites.includes(post.title)
+                    ? 'bg-pink-50 text-pink-500 border border-pink-200'
+                    : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
+                }`}
               >
-                <FiLinkedin size={20} />
-              </a>
-            )}
-            {post.instagram && (
-              <a 
-                href={post.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-pink-600 hover:text-pink-700"
+                <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
+              </button>
+
+              <button
+                onClick={() => copyPostLink(post)}
+                className="p-2 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400 transition-colors"
               >
-                <FiInstagram size={20} />
-              </a>
-            )}
-          </div>
+                <FiLink size={20} />
+              </button>
 
-          {/* Rest of the mentor display code */}
-        </div>
-      );
-    }
+              {(post.category === 'competitions' || post.category === 'scholarships') && (
+                <button
+                  onClick={() => toggleCalendarPanel(post)}
+                  className="p-2 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400 transition-colors"
+                >
+                  <FiCalendar size={20} />
+                </button>
+              )}
+            </div>
 
-    // Job display section
-    return (
-      <div className="mt-6 space-y-6">
-        {/* Job Details */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-4">Job Details</h2>
-          <div className="prose max-w-none">
-            <div 
-              className="text-gray-700"
-              dangerouslySetInnerHTML={{ 
-                __html: typeof post.body === 'string' 
-                  ? post.body
-                    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-                    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-                  : Array.isArray(post.body) 
-                    ? post.body.join('<br><br>') 
-                    : ''
-              }}
-            />
+            <a
+              href={post.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium ml-auto"
+            >
+              {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'}
+            </a>
           </div>
         </div>
 
-        {/* Additional Information */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-4">Additional Information</h2>
-          <div className="space-y-2">
-            {post.location && <p><strong>Location:</strong> {post.location}</p>}
-            {post.workType && <p><strong>Work Type:</strong> {post.workType}</p>}
-            {post.remote && <p><strong>Remote:</strong> Yes</p>}
-            {post.source && <p><strong>Source:</strong> {post.source}</p>}
+        <div className="border-t pt-6">
+          {/* Description Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-gray-900">Description</h2>
+            <div className="prose max-w-none text-gray-700">
+              {Array.isArray(post.body) ? (
+                post.body.map((paragraph, index) => (
+                  <p key={index} className="mb-4">{paragraph}</p>
+                ))
+              ) : (
+                <p>{post.body}</p>
+              )}
+            </div>
           </div>
+
+          {/* Rest of the sections */}
+          {/* ... */}
         </div>
+
+        {/* Remove the footer section entirely since we moved the actions up */}
       </div>
     );
   };
@@ -594,7 +452,7 @@ export default function Home() {
     }
   };
 
-  const renderPosts = (posts: JobPost[]) => {
+  const renderPosts = (posts: Post[]) => {
     if (isLoading) {
       return Array(5).fill(0).map((_, index) => (
         <div key={index} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 animate-pulse">
@@ -621,7 +479,13 @@ export default function Home() {
         className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] cursor-pointer border border-gray-100"
       >
         <div className="flex items-start gap-4 max-w-full">
-          <PostImage post={post} />
+          <Image
+            src={post.image || '/default-image.png'}
+            alt={post.title}
+            width={60}
+            height={60}
+            className="rounded-lg object-cover flex-shrink-0"
+          />
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-900 truncate">{post.title}</h3>
             <p className="text-sm text-gray-600 truncate">
@@ -765,27 +629,12 @@ export default function Home() {
   };
 
   // Add function to handle mobile post selection
-  const handlePostSelection = (post: JobPost) => {
+  const handlePostSelection = (post: Post) => {
     setSelectedPostTitle(post.title);
     if (window.innerWidth < 768) { // Mobile breakpoint
       setShowMobileDetail(true);
     }
   };
-
-  const PostImage = ({ post }: { post: JobPost }) => (
-    <Image
-      src={post.image || 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'}
-      alt={`${post.labels['Company']} logo`}
-      width={60}
-      height={60}
-      className="rounded-lg object-contain"
-      priority={true}
-      onError={(e) => {
-        const target = e.target as HTMLImageElement;
-        target.src = 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png';
-      }}
-    />
-  );
 
   return (
     <CustomErrorBoundary>
@@ -920,7 +769,13 @@ export default function Home() {
                         {/* Title, Image, and Close Button */}
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex items-center gap-4">
-                            <PostImage post={post} />
+                            <Image
+                              src={post.image || '/default-image.png'}
+                              alt={post.title}
+                              width={80}
+                              height={80}
+                              className="rounded-lg object-cover"
+                            />
                             <div>
                               <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
                               <p className="text-lg text-gray-600">
@@ -1174,7 +1029,6 @@ export default function Home() {
             <div className="space-y-4">
               {calendarEvents
                 .filter(event => !filterDays || isAfter(parseISO(event.deadline), new Date()) && isBefore(parseISO(event.deadline), addDays(new Date(), filterDays)))
-              )
                 .map(event => (
                   <div key={event.id} className="flex justify-between items-center p-3 bg-gray-100 rounded-md">
                     <div>
