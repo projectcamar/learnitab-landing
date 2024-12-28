@@ -73,6 +73,33 @@ interface JobicyJob {
   pubDate: string;
 }
 
+interface Post {
+  _id: string;
+  title: string;
+  category: string;
+  labels: {
+    [key: string]: string | string[];
+  };
+  deadline?: string | null;
+  link: string;
+  body: string | string[];
+  location?: string;
+  remote?: boolean;
+  source?: string;
+  jobTypes?: string[];
+  experience?: string[];
+  education?: string[];
+  responsibilities?: string[];
+  requirements?: string[];
+  workLocation?: string;
+  duration?: string;
+  stipend?: string;
+  workType?: string;
+  prize?: string;
+  eligibility?: string;
+  email?: string;
+}
+
 export default function Home() {
   const postsPerPage = 10;
 
