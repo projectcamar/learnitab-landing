@@ -43,15 +43,50 @@ const getInitialState = () => {
   }
 };
 
+// Define interfaces for Arbeitnow API response
 interface ArbeitnowJob {
   slug: string;
-  title: string;
   company_name: string;
+  title: string;
   description: string;
-  url: string;
-  location: string;
   remote: boolean;
+  url: string;
+  tags: string[];
+  job_types: string[];
+  location: string;
+  created_at: number;
 }
+
+// Update the Post interface to be a union type
+type Post = {
+  _id: string;
+  title: string;
+  category: string;
+  labels: {
+    Company: string;
+    Organization?: string;
+    'Mentoring Topic'?: string[];
+  };
+  deadline?: string;
+  link: string;
+  body: string | string[];
+  image?: string;
+  expired?: boolean;
+  daysLeft?: number;
+  experience?: string[];
+  education?: string[];
+  linkedin?: string;
+  instagram?: string;
+  workLocation?: string;
+  duration?: string;
+  stipend?: string;
+  workType?: string;
+  requirements?: string[];
+  responsibilities?: string[];
+  eligibility?: string;
+  prize?: string;
+  email?: string;
+} | (ArbeitnowJob & { source: 'Arbeitnow' });
 
 interface RemotiveJob {
   id: string;
@@ -387,6 +422,62 @@ export default function Home() {
   };
 
   const displayFullPost = (post: Post) => {
+    if ('source' in post && post.source === 'Arbeitnow') {
+      return (
+        <div className="post-full space-y-8 font-['Plus_Jakarta_Sans']">
+          <div className="flex flex-col space-y-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
+                <p className="text-lg text-gray-600 mt-2">{post.company_name}</p>
+              </div>
+            </div>
+
+            {/* Job Details for Arbeitnow */}
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Job Details</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Location</p>
+                  <p className="font-medium">{post.location}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Work Type</p>
+                  <p className="font-medium">{post.remote ? 'Remote' : 'On-site'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Job Type</p>
+                  <p className="font-medium">{post.job_types.join(', ')}</p>
+                </div>
+                {post.tags && (
+                  <div className="col-span-2">
+                    <p className="text-sm text-gray-600 mb-2">Industry</p>
+                    <div className="flex flex-wrap gap-2">
+                      {post.tags.map((tag, index) => (
+                        <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Job Description */}
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Description</h2>
+              <div 
+                className="prose max-w-none text-gray-700"
+                dangerouslySetInnerHTML={{ __html: post.description }}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Original display for non-Arbeitnow posts
     return (
       <div className="post-full space-y-8 font-['Plus_Jakarta_Sans']">
         <div className="flex flex-col space-y-4">
