@@ -6,7 +6,8 @@ import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc, FiDownload, FiMapPin, FiMonitor, FiBuilding, FiTag, FiClock, FiExternalLink } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload, FiMapPin, FiMonitor, 
+         FiHome, FiTag, FiClock, FiExternalLink } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
 import { Post } from '../models/Post';
@@ -482,7 +483,7 @@ export default function Home() {
             )}
             {post.company_name && (
               <p className="flex items-center">
-                <FiBuilding className="mr-2" />
+                <FiHome className="mr-2" />
                 <strong className="mr-2">Company:</strong> {post.company_name}
               </p>
             )}
