@@ -181,11 +181,9 @@ export default function Home() {
     const fetchPosts = async () => {
       setIsLoading(true);
       try {
-        // Fetch Arbeitnow jobs
         const arbeitnowResponse = await fetch('https://www.arbeitnow.com/api/job-board-api');
         const arbeitnowData: { data: ArbeitnowJob[] } = await arbeitnowResponse.json();
 
-        // Transform Arbeitnow jobs to Post format
         const arbeitnowPosts: Post[] = arbeitnowData.data.map(job => ({
           _id: job.slug,
           title: job.title,
@@ -193,7 +191,7 @@ export default function Home() {
           body: job.description,
           location: job.location,
           link: job.url,
-          remote: job.remote,
+          remote: job.remote as boolean,
           company_name: job.company_name,
           job_types: job.job_types,
           tags: job.tags,
@@ -206,9 +204,8 @@ export default function Home() {
           workLocation: job.location,
           workType: job.remote ? 'Remote' : 'On-site',
           expired: false
-        }));
+        } as Post));
 
-        // Set posts
         setPosts(arbeitnowPosts);
         setVisiblePosts(arbeitnowPosts.slice(0, postsPerPage));
         setHasMore(arbeitnowPosts.length > postsPerPage);
@@ -472,7 +469,7 @@ export default function Home() {
                 <strong className="mr-2">Location:</strong> {post.workLocation}
               </p>
             )}
-            {post.remote !== undefined && (
+            {typeof post.remote === 'boolean' && (
               <p className="flex items-center">
                 <FiMonitor className="mr-2" />
                 <strong className="mr-2">Remote Work:</strong> {post.remote ? 'Yes' : 'No'}
