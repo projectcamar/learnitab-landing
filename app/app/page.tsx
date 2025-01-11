@@ -191,7 +191,6 @@ export default function Home() {
           body: job.description,
           location: job.location,
           link: job.url,
-          remote: job.remote as boolean,
           company_name: job.company_name,
           job_types: job.job_types,
           tags: job.tags,
@@ -202,7 +201,7 @@ export default function Home() {
             Status: job.job_types?.[0] || 'Not specified'
           },
           workLocation: job.location,
-          workType: job.remote ? 'Remote' : 'On-site',
+          workType: 'On-site',
           expired: false
         } as Post));
 
@@ -448,31 +447,20 @@ export default function Home() {
 
   const renderPosts = (postsToRender: Post[]) => {
     return postsToRender.map((post) => (
-      <div 
-        key={post._id}
-        className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden"
-      >
+      <div key={post._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
         <div className="p-6">
-          {/* Post header with title and actions */}
           <div className="flex justify-between items-start mb-4">
             <h3 className="text-xl font-semibold text-gray-900 flex-grow">{post.title}</h3>
             <div className="flex space-x-2 ml-4">
-              {/* Existing favorite and calendar buttons */}
+              {/* Existing buttons */}
             </div>
           </div>
 
-          {/* Job details section */}
           <div className="space-y-2 text-gray-600">
             {post.workLocation && (
               <p className="flex items-center">
                 <FiMapPin className="mr-2" />
                 <strong className="mr-2">Location:</strong> {post.workLocation}
-              </p>
-            )}
-            {typeof post.remote === 'boolean' && (
-              <p className="flex items-center">
-                <FiMonitor className="mr-2" />
-                <strong className="mr-2">Remote Work:</strong> {post.remote ? 'Yes' : 'No'}
               </p>
             )}
             {post.job_types && post.job_types.length > 0 && (
@@ -493,10 +481,7 @@ export default function Home() {
                 <strong className="mr-2">Tags:</strong> 
                 <div className="flex flex-wrap gap-1">
                   {post.tags.map((tag, index) => (
-                    <span 
-                      key={index}
-                      className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                    >
+                    <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
                       {tag}
                     </span>
                   ))}
@@ -512,7 +497,6 @@ export default function Home() {
             )}
           </div>
 
-          {/* Apply button */}
           <div className="mt-4">
             <a
               href={post.link}
