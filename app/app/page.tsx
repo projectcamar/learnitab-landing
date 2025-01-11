@@ -46,12 +46,15 @@ const getInitialState = () => {
 
 interface ArbeitnowJob {
   slug: string;
-  title: string;
   company_name: string;
+  title: string;
   description: string;
-  url: string;
-  location: string;
   remote: boolean;
+  url: string;
+  tags: string[];
+  job_types: string[];
+  location: string;
+  created_at: number;
 }
 
 interface RemotiveJob {
@@ -180,7 +183,7 @@ export default function Home() {
       try {
         // Fetch Arbeitnow jobs
         const arbeitnowResponse = await fetch('https://www.arbeitnow.com/api/job-board-api');
-        const arbeitnowData: ArbeitnowResponse = await arbeitnowResponse.json();
+        const arbeitnowData: { data: ArbeitnowJob[] } = await arbeitnowResponse.json();
 
         // Transform Arbeitnow jobs to Post format
         const arbeitnowPosts: Post[] = arbeitnowData.data.map(job => ({
