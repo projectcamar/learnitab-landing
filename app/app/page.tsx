@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc, FiDownload } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload, FiMapPin, FiMonitor, FiBuilding, FiTag, FiClock, FiExternalLink } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
 import { Post } from '../models/Post';
@@ -71,6 +71,24 @@ interface JobicyJob {
   url: string;
   jobGeo: string;
   pubDate: string;
+}
+
+// Add interface for Arbeitnow response
+interface ArbeitnowResponse {
+  data: ArbeitnowJob[];
+  links: {
+    first: string;
+    last: string | null;
+    prev: string | null;
+    next: string | null;
+  };
+  meta: {
+    current_page: number;
+    from: number;
+    path: string;
+    per_page: number;
+    to: number;
+  };
 }
 
 export default function Home() {
@@ -152,103 +170,48 @@ export default function Home() {
     setIsDarkMode(prev => !prev);
   };
 
+  const [error, setError] = useState<string | null>(null);
+
   // Single effect to handle initial data loading, URL params, and visible posts
   useEffect(() => {
     const fetchPosts = async () => {
       setIsLoading(true);
       try {
-        // Fetch regular posts for other categories
-        const regularResponse = await fetch('/api/posts');
-        const regularData = await regularResponse.json();
+        // Fetch Arbeitnow jobs
+        const arbeitnowResponse = await fetch('https://www.arbeitnow.com/api/job-board-api');
+        const arbeitnowData: ArbeitnowResponse = await arbeitnowResponse.json();
 
-        // Fetch job posts from multiple sources with type annotations
-        const [arbeitnowJobs, remotiveJobs, jobicyJobs] = await Promise.all([
-          fetch('https://www.arbeitnow.com/api/job-board-api').then(res => res.json()) as Promise<{ data: ArbeitnowJob[] }>,
-          fetch('https://remotive.com/api/remote-jobs?limit=100').then(res => res.json()) as Promise<{ jobs: RemotiveJob[] }>,
-          fetch('https://jobicy.com/api/v2/remote-jobs?count=50').then(res => res.json()) as Promise<{ jobs: JobicyJob[] }>
-        ]);
+        // Transform Arbeitnow jobs to Post format
+        const arbeitnowPosts: Post[] = arbeitnowData.data.map(job => ({
+          _id: job.slug,
+          title: job.title,
+          category: 'Job',
+          body: job.description,
+          location: job.location,
+          link: job.url,
+          remote: job.remote,
+          company_name: job.company_name,
+          job_types: job.job_types,
+          tags: job.tags,
+          created_at: job.created_at,
+          labels: {
+            Company: job.company_name,
+            Position: job.title,
+            Status: job.job_types?.[0] || 'Not specified'
+          },
+          workLocation: job.location,
+          workType: job.remote ? 'Remote' : 'On-site',
+          expired: false
+        }));
 
-        // Transform job data with proper typing
-        const transformedJobs = [
-          ...arbeitnowJobs.data.map((job: ArbeitnowJob) => ({
-            _id: `arbeitnow-${job.slug}`,
-            title: job.title,
-            category: 'Job',
-            labels: { Company: job.company_name },
-            deadline: null,
-            link: job.url,
-            body: job.description,
-            location: job.location,
-            remote: job.remote,
-            source: 'Arbeitnow'
-          })),
-          ...remotiveJobs.jobs.map((job: RemotiveJob) => ({
-            _id: `remotive-${job.id}`,
-            title: job.title,
-            category: 'Job',
-            labels: { Company: job.company_name },
-            deadline: null,
-            link: job.url,
-            body: job.description,
-            location: job.candidate_required_location || 'Remote',
-            remote: true,
-            source: 'Remotive'
-          })),
-          ...jobicyJobs.jobs.map((job: JobicyJob) => ({
-            _id: `jobicy-${job.id}`,
-            title: job.jobTitle,
-            category: 'Job',
-            labels: { Company: job.companyName },
-            deadline: null,
-            link: job.url,
-            body: job.jobDescription,
-            location: job.jobGeo || 'Remote',
-            remote: true,
-            source: 'Jobicy'
-          }))
-        ];
-
-        // Combine regular posts with job posts
-        if (regularData.data) {
-          const otherPosts = Object.entries(regularData.data)
-            .filter(([category]) => category !== 'internship') // Exclude old internship category
-            .flatMap(([category, categoryPosts]: [string, unknown]) =>
-              Array.isArray(categoryPosts) ? categoryPosts.map(post => ({
-                ...post,
-                category,
-                expired: post.deadline ? new Date(post.deadline) < new Date() : false,
-                daysLeft: post.deadline ? Math.ceil((new Date(post.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0
-              })) : []
-            );
-
-          const allPosts = [...transformedJobs, ...otherPosts];
-          setPosts(allPosts);
-
-          // Handle URL parameters after posts are loaded
-          const searchParams = new URLSearchParams(window.location.search);
-          const postId = searchParams.get('post');
-          if (postId) {
-            const targetPost = allPosts.find(post => post._id === postId);
-            if (targetPost) {
-              setSelectedPostTitle(targetPost.title);
-              setCurrentCategory(targetPost.category);
-              
-              const filteredPosts = allPosts.filter(post => 
-                post.category === targetPost.category
-              );
-              setVisiblePosts(filteredPosts.slice(0, postsPerPage));
-              setHasMore(filteredPosts.length > postsPerPage);
-              
-              setTimeout(() => {
-                const postElement = document.getElementById(`post-${postId}`);
-                postElement?.scrollIntoView({ behavior: 'smooth' });
-              }, 100);
-            }
-          }
-        }
+        // Set posts
+        setPosts(arbeitnowPosts);
+        setVisiblePosts(arbeitnowPosts.slice(0, postsPerPage));
+        setHasMore(arbeitnowPosts.length > postsPerPage);
+        
       } catch (error) {
         console.error('Error fetching posts:', error);
-        setPosts([]);
+        setError('Failed to load jobs. Please try again later.');
       } finally {
         setIsLoading(false);
       }
@@ -482,90 +445,84 @@ export default function Home() {
     }
   };
 
-  const renderPosts = (posts: Post[]) => {
-    if (isLoading) {
-      return Array(5).fill(0).map((_, index) => (
-        <div key={index} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 animate-pulse">
-          <div className="flex items-start gap-4">
-            <div className="w-[60px] h-[60px] bg-gray-200 rounded-lg"></div>
-            <div className="flex-1">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
-              <div className="flex items-center gap-2">
-                <div className="h-5 bg-gray-200 rounded-full w-16"></div>
-              </div>
-            </div>
-            <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-          </div>
-        </div>
-      ));
-    }
-
-    return posts.map((post) => (
-      <div
+  const renderPosts = (postsToRender: Post[]) => {
+    return postsToRender.map((post) => (
+      <div 
         key={post._id}
-        id={`post-${post._id}`}
-        onClick={() => setSelectedPostTitle(post.title)}
-        className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] cursor-pointer border border-gray-100"
+        className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden"
       >
-        <div className="flex items-start gap-4 max-w-full">
-          <Image
-            src={
-              post.category === 'Job' 
-                ? 'https://od.lk/s/OTZfOTY3MjAxNDBf/magang-dummy.png'
-                : (post.image || '/default-image.png')
-            }
-            alt={post.title}
-            width={60}
-            height={60}
-            className="rounded-lg object-cover flex-shrink-0"
-          />
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">{post.title}</h3>
-            <p className="text-sm text-gray-600 truncate">
-              {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
-            </p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-full">
-                {post.category}
-              </span>
-              {post.deadline && (
-                <span className="text-xs text-gray-500 flex items-center gap-2">
-                  {post.category !== 'internship' && (
-                    <>Deadline: {format(parseISO(post.deadline), 'MMM dd, yyyy')}</>
-                  )}
-                  {post.category === 'internship' ? (
-                    post.expired && (
-                      <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600">
-                        Expired
-                      </span>
-                    )
-                  ) : (
-                    <span className={`px-2 py-0.5 rounded-full ${
-                      post.expired 
-                        ? 'bg-red-100 text-red-600'
-                        : 'bg-green-100 text-green-600'
-                    }`}>
-                      {post.expired ? 'Expired' : `${post.daysLeft} days left`}
-                    </span>
-                  )}
-                </span>
-              )}
+        <div className="p-6">
+          {/* Post header with title and actions */}
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-semibold text-gray-900 flex-grow">{post.title}</h3>
+            <div className="flex space-x-2 ml-4">
+              {/* Existing favorite and calendar buttons */}
             </div>
           </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFavorite(post.title);
-            }}
-            className={`flex-shrink-0 p-2 rounded-full transition-colors ${
-              favorites.includes(post.title)
-                ? 'text-pink-500 bg-pink-50'
-                : 'text-gray-400 hover:text-pink-500 hover:bg-pink-50'
-            }`}
-          >
-            <FiHeart className={favorites.includes(post.title) ? 'fill-current' : ''} />
-          </button>
+
+          {/* Job details section */}
+          <div className="space-y-2 text-gray-600">
+            {post.workLocation && (
+              <p className="flex items-center">
+                <FiMapPin className="mr-2" />
+                <strong className="mr-2">Location:</strong> {post.workLocation}
+              </p>
+            )}
+            {post.remote !== undefined && (
+              <p className="flex items-center">
+                <FiMonitor className="mr-2" />
+                <strong className="mr-2">Remote Work:</strong> {post.remote ? 'Yes' : 'No'}
+              </p>
+            )}
+            {post.job_types && post.job_types.length > 0 && (
+              <p className="flex items-center">
+                <FiBriefcase className="mr-2" />
+                <strong className="mr-2">Job Type:</strong> {post.job_types.join(', ')}
+              </p>
+            )}
+            {post.company_name && (
+              <p className="flex items-center">
+                <FiBuilding className="mr-2" />
+                <strong className="mr-2">Company:</strong> {post.company_name}
+              </p>
+            )}
+            {post.tags && post.tags.length > 0 && (
+              <p className="flex items-center">
+                <FiTag className="mr-2" />
+                <strong className="mr-2">Tags:</strong> 
+                <div className="flex flex-wrap gap-1">
+                  {post.tags.map((tag, index) => (
+                    <span 
+                      key={index}
+                      className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </p>
+            )}
+            {post.created_at && (
+              <p className="flex items-center text-gray-500 text-sm">
+                <FiClock className="mr-2" />
+                <strong className="mr-2">Posted:</strong> 
+                {format(new Date(post.created_at * 1000), 'MMM dd, yyyy')}
+              </p>
+            )}
+          </div>
+
+          {/* Apply button */}
+          <div className="mt-4">
+            <a
+              href={post.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+            >
+              <FiExternalLink className="mr-2" />
+              Apply Now
+            </a>
+          </div>
         </div>
       </div>
     ));
@@ -669,6 +626,15 @@ export default function Home() {
       setShowMobileDetail(true);
     }
   };
+
+  // Add loading skeleton
+  const LoadingSkeleton = () => (
+    <div className="animate-pulse space-y-4">
+      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+      <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+    </div>
+  );
 
   return (
     <CustomErrorBoundary>
@@ -956,31 +922,12 @@ export default function Home() {
                             <div className="mb-6">
                               <h2 className="text-xl font-semibold mb-4">Additional Information</h2>
                               <div className="space-y-2">
-                                {post.workLocation && <p><strong>Location:</strong> {post.location}</p>}
-                                {post.remote !== undefined && (
-                                  <p><strong>Remote Work:</strong> {post.remote ? 'Yes' : 'No'}</p>
-                                )}
-                                {post.job_types && (
-                                  <p><strong>Job Type:</strong> {post.job_types.join(', ')}</p>
-                                )}
-                                {post.tags && (
-                                  <p><strong>Tags:</strong> {post.tags.join(', ')}</p>
-                                )}
-                                {post.created_at && (
-                                  <p><strong>Posted:</strong> {new Date(post.created_at * 1000).toLocaleDateString()}</p>
-                                )}
+                                {post.workLocation && <p><strong>Location:</strong> {post.workLocation}</p>}
+                                {post.duration && <p><strong>Duration:</strong> {post.duration}</p>}
+                                {post.stipend && <p><strong>Stipend:</strong> {post.stipend}</p>}
+                                {post.workType && <p><strong>Work Type:</strong> {post.workType}</p>}
                               </div>
                             </div>
-
-                            {post.description && (
-                              <div className="mb-6">
-                                <h2 className="text-xl font-semibold mb-4">Job Description</h2>
-                                <div 
-                                  className="text-gray-700"
-                                  dangerouslySetInnerHTML={{ __html: post.description }}
-                                />
-                              </div>
-                            )}
                           </>
                         ) : (
                           <>
@@ -1172,6 +1119,21 @@ export default function Home() {
             }
           }
         `}</style>
+
+        {error && (
+          <div className="text-red-500 p-4 text-center">
+            {error}
+            <button 
+              onClick={() => {
+                setError(null);
+                fetchPosts();
+              }}
+              className="ml-2 text-blue-500 hover:underline"
+            >
+              Retry
+            </button>
+          </div>
+        )}
       </div>
     </CustomErrorBoundary>
   );
