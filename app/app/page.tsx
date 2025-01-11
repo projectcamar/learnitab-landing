@@ -6,12 +6,12 @@ import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc, FiDownload, FiMapPin, FiMonitor, 
-         FiHome, FiTag, FiClock, FiExternalLink } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
 import { Post } from '../models/Post';
 import { format, parseISO, isAfter, isBefore, addDays } from 'date-fns';
+import { CustomErrorBoundary } from '../components/ErrorBoundary';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import { useSearchParams } from 'next/navigation';
 
@@ -42,57 +42,6 @@ const getInitialState = () => {
     return [];
   }
 };
-
-interface ArbeitnowJob {
-  slug: string;
-  company_name: string;
-  title: string;
-  description: string;
-  remote: boolean;
-  url: string;
-  tags: string[];
-  job_types: string[];
-  location: string;
-  created_at: number;
-}
-
-interface RemotiveJob {
-  id: string;
-  title: string;
-  company_name: string;
-  description: string;
-  url: string;
-  candidate_required_location: string;
-  publication_date: string;
-}
-
-interface JobicyJob {
-  id: string;
-  jobTitle: string;
-  companyName: string;
-  jobDescription: string;
-  url: string;
-  jobGeo: string;
-  pubDate: string;
-}
-
-// Add interface for Arbeitnow response
-interface ArbeitnowResponse {
-  data: ArbeitnowJob[];
-  links: {
-    first: string;
-    last: string | null;
-    prev: string | null;
-    next: string | null;
-  };
-  meta: {
-    current_page: number;
-    from: number;
-    path: string;
-    per_page: number;
-    to: number;
-  };
-}
 
 export default function Home() {
   const postsPerPage = 10;
@@ -143,7 +92,7 @@ export default function Home() {
     ).length;
   };
 
-  const categories = ['', 'Job', 'competitions', 'scholarships', 'mentors'];
+  const categories = ['', 'internship', 'competitions', 'scholarships', 'mentors'];
   const listRef = useRef<HTMLDivElement>(null);
   const [showCalendarPanel, setShowCalendarPanel] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Post | null>(null);
@@ -173,44 +122,54 @@ export default function Home() {
     setIsDarkMode(prev => !prev);
   };
 
-  const [error, setError] = useState<string | null>(null);
-
   // Single effect to handle initial data loading, URL params, and visible posts
   useEffect(() => {
     const fetchPosts = async () => {
       setIsLoading(true);
       try {
-        const arbeitnowResponse = await fetch('https://www.arbeitnow.com/api/job-board-api');
-        const arbeitnowData: { data: ArbeitnowJob[] } = await arbeitnowResponse.json();
+        const response = await fetch('/api/posts');
+        const data = await response.json();
 
-        const arbeitnowPosts: Post[] = arbeitnowData.data.map(job => ({
-          _id: job.slug,
-          title: job.title,
-          category: 'Job',
-          body: job.description,
-          location: job.location,
-          link: job.url,
-          company_name: job.company_name,
-          job_types: job.job_types,
-          tags: job.tags,
-          created_at: job.created_at,
-          labels: {
-            Company: job.company_name,
-            Position: job.title,
-            Status: job.job_types?.[0] || 'Not specified'
-          },
-          workLocation: job.location,
-          workType: 'On-site',
-          expired: false
-        } as Post));
-
-        setPosts(arbeitnowPosts);
-        setVisiblePosts(arbeitnowPosts.slice(0, postsPerPage));
-        setHasMore(arbeitnowPosts.length > postsPerPage);
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch posts');
+        }
         
+        if (data.data) {
+          const transformedPosts = Object.entries(data.data).flatMap(([category, categoryPosts]: [string, unknown]) =>
+            Array.isArray(categoryPosts) ? categoryPosts.map(post => ({
+              ...post,
+              category,
+              expired: post.deadline ? new Date(post.deadline) < new Date() : false,
+              daysLeft: post.deadline ? Math.ceil((new Date(post.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0
+            })) : []
+          );
+          setPosts(transformedPosts);
+
+          // Handle URL parameters after posts are loaded
+          const searchParams = new URLSearchParams(window.location.search);
+          const postId = searchParams.get('post');
+          if (postId) {
+            const targetPost = transformedPosts.find(post => post._id === postId);
+            if (targetPost) {
+              setSelectedPostTitle(targetPost.title);
+              setCurrentCategory(targetPost.category);
+              
+              const filteredPosts = transformedPosts.filter(post => 
+                post.category === targetPost.category
+              );
+              setVisiblePosts(filteredPosts.slice(0, postsPerPage));
+              setHasMore(filteredPosts.length > postsPerPage);
+              
+              setTimeout(() => {
+                const postElement = document.getElementById(`post-${postId}`);
+                postElement?.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
+            }
+          }
+        }
       } catch (error) {
         console.error('Error fetching posts:', error);
-        setError('Failed to load jobs. Please try again later.');
+        setPosts([]);
       } finally {
         setIsLoading(false);
       }
@@ -444,6 +403,91 @@ export default function Home() {
     }
   };
 
+  const renderPosts = (posts: Post[]) => {
+    if (isLoading) {
+      return Array(5).fill(0).map((_, index) => (
+        <div key={index} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 animate-pulse">
+          <div className="flex items-start gap-4">
+            <div className="w-[60px] h-[60px] bg-gray-200 rounded-lg"></div>
+            <div className="flex-1">
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
+              <div className="flex items-center gap-2">
+                <div className="h-5 bg-gray-200 rounded-full w-16"></div>
+              </div>
+            </div>
+            <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+          </div>
+        </div>
+      ));
+    }
+
+    return posts.map((post) => (
+      <div
+        key={post._id}
+        id={`post-${post._id}`}
+        onClick={() => setSelectedPostTitle(post.title)}
+        className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] cursor-pointer border border-gray-100"
+      >
+        <div className="flex items-start gap-4 max-w-full">
+          <Image
+            src={post.image || '/default-image.png'}
+            alt={post.title}
+            width={60}
+            height={60}
+            className="rounded-lg object-cover flex-shrink-0"
+          />
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-gray-900 truncate">{post.title}</h3>
+            <p className="text-sm text-gray-600 truncate">
+              {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-full">
+                {post.category}
+              </span>
+              {post.deadline && (
+                <span className="text-xs text-gray-500 flex items-center gap-2">
+                  {post.category !== 'internship' && (
+                    <>Deadline: {format(parseISO(post.deadline), 'MMM dd, yyyy')}</>
+                  )}
+                  {post.category === 'internship' ? (
+                    post.expired && (
+                      <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600">
+                        Expired
+                      </span>
+                    )
+                  ) : (
+                    <span className={`px-2 py-0.5 rounded-full ${
+                      post.expired 
+                        ? 'bg-red-100 text-red-600'
+                        : 'bg-green-100 text-green-600'
+                    }`}>
+                      {post.expired ? 'Expired' : `${post.daysLeft} days left`}
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFavorite(post.title);
+            }}
+            className={`flex-shrink-0 p-2 rounded-full transition-colors ${
+              favorites.includes(post.title)
+                ? 'text-pink-500 bg-pink-50'
+                : 'text-gray-400 hover:text-pink-500 hover:bg-pink-50'
+            }`}
+          >
+            <FiHeart className={favorites.includes(post.title) ? 'fill-current' : ''} />
+          </button>
+        </div>
+      </div>
+    ));
+  };
+
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'internship':
@@ -543,78 +587,328 @@ export default function Home() {
     }
   };
 
-  // Add loading skeleton
-  const LoadingSkeleton = () => (
-    <div className="animate-pulse space-y-4">
-      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-      <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-    </div>
-  );
-
   return (
-    <div className="h-screen overflow-hidden w-full flex flex-col">
-      <div className="absolute -top-48 -left-48 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply opacity-70 animate-blob"></div>
-      <div className="absolute -top-48 -right-48 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply opacity-70 animate-blob animation-delay-2000"></div>
-      <div className="absolute -bottom-48 -left-48 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply opacity-70 animate-blob animation-delay-4000"></div>
+    <CustomErrorBoundary>
+      <div className="h-screen overflow-hidden w-full flex flex-col">
+        <div className="absolute -top-48 -left-48 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply opacity-70 animate-blob"></div>
+        <div className="absolute -top-48 -right-48 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-48 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply opacity-70 animate-blob animation-delay-4000"></div>
 
-      <main className="flex-1 overflow-hidden">
-        <div className="h-full flex">
-          {/* Sidebar */}
-          <div className="w-64 bg-white border-r border-gray-200 p-4 flex flex-col">
-            {/* ... rest of your sidebar code ... */}
+        {/* Modified header with mobile menu */}
+        <header className="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
+          <div className="w-full px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="relative cursor-pointer" onClick={() => window.open('https://learnitab.com', '_blank')}>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full animate-pulse"></div>
+                  <Image
+                    src={Logo}
+                    alt="Learnitab Logo"
+                    width={40}
+                    height={40}
+                    className="relative z-10 mr-4"
+                  />
+                </div>
+                <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Learnitab</h1>
+                {/* Attractive Download Button with Icon moved closer */}
+                <button 
+                  onClick={() => window.open('https://learnitab.com/download', '_blank')} // Updated URL
+                  className="ml-2 flex items-center px-3 py-1 text-sm font-bold bg-white shadow-lg rounded-md hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
+                >
+                  <FiDownload className="mr-2" /> {/* Download Icon */}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Download Learnitab Opportunity Desktop App</span>
+                </button>
+              </div>
+              <nav className="hidden md:flex space-x-4">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative ${
+                      currentCategory === category
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md transform scale-105'
+                        : 'text-gray-700 hover:bg-gray-200'
+                    }`}
+                    onClick={() => setCurrentCategory(category)}
+                  >
+                    <span>
+                      {category === '' ? 'All Opportunities' : category.charAt(0).toUpperCase() + category.slice(1)}
+                    </span>
+                  </button>
+                ))}
+              </nav>
+              <button 
+                className="md:hidden text-blue-900"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? <IoMdClose size={24} /> : <FiMenu size={24} />}
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Modified main content */}
+        <main className="flex flex-col md:flex-row -mx-2 relative z-10 h-[calc(100vh-80px)]">
+          {/* List View - added padding inside the container instead */}
+          <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
+            {/* Search bar container */}
+            <div className="bg-white bg-opacity-90 rounded-lg shadow-lg p-4 transition-all duration-300">
+              <div className="flex flex-col sm:flex-row items-stretch justify-between space-y-4 sm:space-y-0 sm:space-x-4">
+                <div className="relative flex-grow">
+                  <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search opportunities..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700 bg-opacity-50 font-['Plus_Jakarta_Sans']"
+                  />
+                </div>
+                
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setShowSaved(!showSaved)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-md ${
+                      showSaved 
+                        ? 'bg-pink-50 text-pink-600 border border-pink-200' 
+                        : 'bg-white hover:bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    <FiHeart className={`w-5 h-5 ${showSaved ? 'text-pink-500' : 'text-gray-400'}`} />
+                    <span className="text-sm font-['Plus_Jakarta_Sans']">{favorites.length}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowCalendarManagement(true);
+                      setIsOverlayVisible(true);
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 rounded-md bg-white hover:bg-gray-50 border border-gray-200"
+                  >
+                    <FiCalendar className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm font-['Plus_Jakarta_Sans']">{calendarEvents.length}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* List container with fixed height - adjusted height calculation */}
+            <div 
+              ref={listRef}
+              className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white bg-opacity-90 rounded-lg shadow-lg"
+              style={{ height: 'calc(100vh - 224px)' }}
+            >
+              <div className="p-4">
+                <div className="space-y-4">
+                  {showSaved ? 
+                    renderPosts(posts.filter(post => favorites.includes(post.title))) :
+                    renderPosts(getSortedPosts(getFilteredPosts()))
+                  }
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Main content */}
-          <div className="flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto custom-scrollbar">
-              {posts.length > 0 ? (
-                <div className="grid gap-4 p-6">
-                  {visiblePosts.map((post) => (
-                    <div 
-                      key={post._id} 
-                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden"
-                    >
-                      <div className="p-6">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                          {post.title}
-                        </h3>
-
-                        <div className="space-y-2 text-gray-600">
-                          {post.workLocation && (
-                            <p className="flex items-center">
-                              <FiMapPin className="mr-2" />
-                              <strong className="mr-2">Location:</strong> {post.workLocation}
-                            </p>
-                          )}
-
-                          {post.labels?.Company && (
-                            <p className="flex items-center">
-                              <FiHome className="mr-2" />
-                              <strong className="mr-2">Company:</strong> {post.labels.Company}
-                            </p>
-                          )}
-
-                          {post.created_at && (
-                            <p className="flex items-center text-gray-500 text-sm">
-                              <FiClock className="mr-2" />
-                              <strong className="mr-2">Posted:</strong> 
-                              {format(new Date(post.created_at * 1000), 'MMM dd, yyyy')}
-                            </p>
-                          )}
+          {/* Detail View - Ensure it's visible in mobile mode */}
+          <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar font-['Plus_Jakarta_Sans'] 
+            ${showMobileDetail ? 'fixed inset-0 z-50 bg-white' : 'hidden md:block'}`}>
+            <div className="bg-white rounded-xl shadow-lg p-4 transition-all duration-300">
+              {selectedPostTitle ? (
+                <div className="bg-white rounded-lg p-4">
+                  {posts.filter(post => post.title === selectedPostTitle).map(post => (
+                    <div key={post._id}>
+                      {/* Header Section */}
+                      <div className="border-b pb-6">
+                        {/* Title, Image, and Close Button */}
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center gap-4">
+                            <Image
+                              src={post.image || '/default-image.png'}
+                              alt={post.title}
+                              width={80}
+                              height={80}
+                              className="rounded-lg object-cover"
+                            />
+                            <div>
+                              <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
+                              <p className="text-lg text-gray-600">
+                                {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
+                              </p>
+                              {/* Social Media Icons for Mentors */}
+                              {post.category === 'mentors' && (
+                                <div className="flex items-center gap-3 mt-2">
+                                  {post.linkedin && (
+                                    <a 
+                                      href={post.linkedin}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:text-blue-700"
+                                    >
+                                      <FiLinkedin size={20} />
+                                    </a>
+                                  )}
+                                  {post.instagram && (
+                                    <a 
+                                      href={post.instagram}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-pink-600 hover:text-pink-700"
+                                    >
+                                      <FiInstagram size={20} />
+                                    </a>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <button 
+                            onClick={() => setSelectedPostTitle(null)}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            <IoMdClose size={24} />
+                          </button>
                         </div>
 
-                        <div className="mt-4">
+                        {/* Action Buttons Row */}
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="flex items-center space-x-3">
+                            <button
+                              onClick={() => toggleFavorite(post.title)}
+                              className={`p-2.5 rounded-lg ${
+                                favorites.includes(post.title)
+                                  ? 'bg-pink-50 text-pink-500 border border-pink-200'
+                                  : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
+                              }`}
+                            >
+                              <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
+                            </button>
+                            
+                            <button
+                              onClick={() => copyPostLink(post)}
+                              className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
+                            >
+                              <FiLink size={20} />
+                            </button>
+
+                            {(post.category === 'competitions' || post.category === 'scholarships') && (
+                              <button
+                                onClick={() => toggleCalendarPanel(post)}
+                                className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
+                              >
+                                <FiCalendar size={20} />
+                              </button>
+                            )}
+                          </div>
+
                           <a
                             href={post.link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+                            className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                           >
-                            <FiExternalLink className="mr-2" />
-                            Apply Now
+                            {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'}
                           </a>
                         </div>
+                      </div>
+
+                      {/* Description Section - Add this part */}
+                      <div className="mt-6 space-y-6">
+                        {post.category === 'mentors' ? (
+                          <>
+                            <div className="mb-6">
+                              <h2 className="text-xl font-semibold mb-4">Mentoring Topics</h2>
+                              <div className="flex flex-wrap gap-2">
+                                {post.labels['Mentoring Topic']?.map((topic, index) => (
+                                  <span key={index} className="px-3 py-1 bg-blue-100 text-blue-900 rounded-full text-sm">
+                                    {topic}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+
+                            {post.experience && post.experience.length > 0 && (
+                              <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-4">Experience</h2>
+                                <ul className="list-disc pl-5 space-y-2">
+                                  {post.experience.map((exp, index) => (
+                                    <li key={index} className="text-gray-700">{exp}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {post.education && post.education.length > 0 && (
+                              <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-4">Education</h2>
+                                <ul className="list-disc pl-5 space-y-2">
+                                  {post.education.map((edu, index) => (
+                                    <li key={index} className="text-gray-700">{edu}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </>
+                        ) : post.category === 'internship' ? (
+                          <>
+                            {post.responsibilities && post.responsibilities.length > 0 && (
+                              <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-4">Responsibilities</h2>
+                                <ul className="list-disc pl-5 space-y-2">
+                                  {post.responsibilities.map((resp, index) => (
+                                    <li key={index} className="text-gray-700">{resp}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {post.requirements && post.requirements.length > 0 && (
+                              <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-4">Requirements</h2>
+                                <ul className="list-disc pl-5 space-y-2">
+                                  {post.requirements.map((req, index) => (
+                                    <li key={index} className="text-gray-700">{req}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            <div className="mb-6">
+                              <h2 className="text-xl font-semibold mb-4">Additional Information</h2>
+                              <div className="space-y-2">
+                                {post.workLocation && <p><strong>Location:</strong> {post.workLocation}</p>}
+                                {post.duration && <p><strong>Duration:</strong> {post.duration}</p>}
+                                {post.stipend && <p><strong>Stipend:</strong> {post.stipend}</p>}
+                                {post.workType && <p><strong>Work Type:</strong> {post.workType}</p>}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="mb-6">
+                              <h2 className="text-xl font-semibold mb-4">
+                                {post.category.charAt(0).toUpperCase() + post.category.slice(1)} Details
+                              </h2>
+                              {Array.isArray(post.body) ? (
+                                <div className="space-y-4">
+                                  {post.body.map((paragraph, index) => (
+                                    <p key={index} className="text-gray-700">{paragraph}</p>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-gray-700">{post.body}</p>
+                              )}
+                            </div>
+
+                            <div className="mb-6">
+                              <h2 className="text-xl font-semibold mb-4">Additional Information</h2>
+                              <div className="space-y-2">
+                                {post.deadline && <p><strong>Deadline:</strong> {post.deadline}</p>}
+                                {post.location && <p><strong>Location:</strong> {post.location}</p>}
+                                {post.prize && <p><strong>Prize:</strong> {post.prize}</p>}
+                                {post.eligibility && <p><strong>Eligibility:</strong> {post.eligibility}</p>}
+                                {post.email && <p><strong>Contact:</strong> {post.email}</p>}
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -624,11 +918,159 @@ export default function Home() {
               )}
             </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      {/* Your existing modals and styles */}
-      {/* ... */}
-    </div>
+        {/* Mobile-friendly modals */}
+        {(showCalendarPanel || showCalendarManagement) && (
+          <div className="fixed inset-0 bg-gray-600/50 backdrop-blur-sm z-50">
+            <div className="fixed inset-y-0 right-0 w-full md:w-80 bg-white shadow-lg p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Add to Calendar</h2>
+                <button onClick={() => {
+                  setShowCalendarPanel(false);
+                  setShowCalendarManagement(false);
+                  setIsOverlayVisible(false);
+                }} className="text-gray-500 hover:text-gray-700">
+                  <IoMdClose size={24} />
+                </button>
+              </div>
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-2">Add this opportunity's deadline to your calendar:</p>
+                <h3 className="font-semibold mb-2">{selectedEvent?.title}</h3>
+                <p className="text-sm mb-4">Deadline: {selectedEvent?.deadline || new Date().toISOString()}</p>
+              </div>
+              <button
+                onClick={() => selectedEvent && selectedEvent.deadline && addToCalendar({
+                  id: selectedEvent._id,
+                  title: selectedEvent.title,
+                  deadline: selectedEvent.deadline
+                })}
+                className="w-full bg-blue-500 text-white rounded-md py-2 hover:bg-blue-600 transition-colors duration-200"
+              >
+                Add to Calendar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showCalendarManagement && (
+          <div className="fixed inset-y-0 right-0 w-80 bg-white shadow-lg p-6 transform transition-transform duration-300 ease-in-out z-50">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Calendar Management</h2>
+              <button onClick={() => {
+                setShowCalendarManagement(false);
+                setIsOverlayVisible(false);
+              }} className="text-gray-500 hover:text-gray-700">
+                <IoMdClose size={24} />
+              </button>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Filter by days:</label>
+              <select
+                value={filterDays || ''}
+                onChange={(e) => setFilterDays(e.target.value ? Number(e.target.value) : null)}
+                className="w-full border border-gray-300 rounded-md py-2 px-3"
+              >
+                <option value="">All events</option>
+                <option value="7">Next 7 days</option>
+                <option value="30">Next 30 days</option>
+                <option value="90">Next 90 days</option>
+              </select>
+            </div>
+            <div className="space-y-4">
+              {calendarEvents
+                .filter(event => !filterDays || isAfter(parseISO(event.deadline), new Date()) && isBefore(parseISO(event.deadline), addDays(new Date(), filterDays)))
+                .map(event => (
+                  <div key={event.id} className="flex justify-between items-center p-3 bg-gray-100 rounded-md">
+                    <div>
+                      <h3 className="font-semibold">{event.title}</h3>
+                      <p className="text-sm text-gray-600">{format(parseISO(event.deadline), 'MMM dd, yyyy')}</p>
+                    </div>
+                    <button
+                      onClick={() => removeFromCalendar(event.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <FiTrash2 size={18} />
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
+        <style jsx global>{`
+          html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+          }
+          
+          @keyframes blob {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+          }
+          
+          .animate-blob {
+            animation: blob 10s infinite ease-in-out;
+          }
+          
+          .animation-delay-2000 {
+            animation-delay: 2s;
+          }
+          
+          .animation-delay-4000 {
+            animation-delay: 4s;
+          }
+          
+          .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(136, 136, 136, 0.5) transparent;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(136, 136, 136, 0.5);
+            border-radius: 3px;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(136, 136, 136, 0.7);
+          }
+          
+          /* Hide horizontal scrollbar */
+          .custom-scrollbar::-webkit-scrollbar-horizontal {
+            display: none;
+          }
+        `}</style>
+
+        <style jsx>{`
+          .shine-animation {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8));
+            background-size: 200% 100%;
+            animation: shine 1.5s infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: black;
+          }
+
+          @keyframes shine {
+            0% {
+              background-position: 200% 0;
+            }
+            100% {
+              background-position: -200% 0;
+            }
+          }
+        `}</style>
+      </div>
+    </CustomErrorBoundary>
   );
 }
