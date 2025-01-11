@@ -445,74 +445,6 @@ export default function Home() {
     }
   };
 
-  const renderPosts = (postsToRender: Post[]) => {
-    return postsToRender.map((post) => (
-      <div key={post._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-semibold text-gray-900 flex-grow">{post.title}</h3>
-            <div className="flex space-x-2 ml-4">
-              {/* Existing buttons */}
-            </div>
-          </div>
-
-          <div className="space-y-2 text-gray-600">
-            {post.workLocation && (
-              <p className="flex items-center">
-                <FiMapPin className="mr-2" />
-                <strong className="mr-2">Location:</strong> {post.workLocation}
-              </p>
-            )}
-            {post.job_types && post.job_types.length > 0 && (
-              <p className="flex items-center">
-                <FiBriefcase className="mr-2" />
-                <strong className="mr-2">Job Type:</strong> {post.job_types.join(', ')}
-              </p>
-            )}
-            {post.company_name && (
-              <p className="flex items-center">
-                <FiHome className="mr-2" />
-                <strong className="mr-2">Company:</strong> {post.company_name}
-              </p>
-            )}
-            {post.tags && post.tags.length > 0 && (
-              <p className="flex items-center">
-                <FiTag className="mr-2" />
-                <strong className="mr-2">Tags:</strong> 
-                <div className="flex flex-wrap gap-1">
-                  {post.tags.map((tag, index) => (
-                    <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </p>
-            )}
-            {post.created_at && (
-              <p className="flex items-center text-gray-500 text-sm">
-                <FiClock className="mr-2" />
-                <strong className="mr-2">Posted:</strong> 
-                {format(new Date(post.created_at * 1000), 'MMM dd, yyyy')}
-              </p>
-            )}
-          </div>
-
-          <div className="mt-4">
-            <a
-              href={post.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
-            >
-              <FiExternalLink className="mr-2" />
-              Apply Now
-            </a>
-          </div>
-        </div>
-      </div>
-    ));
-  };
-
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'internship':
@@ -733,9 +665,120 @@ export default function Home() {
               <div className="p-4">
                 <div className="space-y-4">
                   {showSaved ? 
-                    renderPosts(posts.filter(post => favorites.includes(post.title))) :
-                    renderPosts(getSortedPosts(getFilteredPosts()))
-                  }
+                    <div className="grid gap-4">
+                      {posts.filter(post => favorites.includes(post.title)).map((post) => (
+                        <div 
+                          key={post._id} 
+                          className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden"
+                        >
+                          <div className="p-6">
+                            {/* Title */}
+                            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                              {post.title}
+                            </h3>
+
+                            {/* Details */}
+                            <div className="space-y-2 text-gray-600">
+                              {/* Location */}
+                              {post.workLocation && (
+                                <p className="flex items-center">
+                                  <FiMapPin className="mr-2" />
+                                  <strong className="mr-2">Location:</strong> {post.workLocation}
+                                </p>
+                              )}
+
+                              {/* Company */}
+                              {post.labels?.Company && (
+                                <p className="flex items-center">
+                                  <FiHome className="mr-2" />
+                                  <strong className="mr-2">Company:</strong> {post.labels.Company}
+                                </p>
+                              )}
+
+                              {/* Posted Date */}
+                              {post.created_at && (
+                                <p className="flex items-center text-gray-500 text-sm">
+                                  <FiClock className="mr-2" />
+                                  <strong className="mr-2">Posted:</strong> 
+                                  {format(new Date(post.created_at * 1000), 'MMM dd, yyyy')}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Apply Button */}
+                            <div className="mt-4">
+                              <a
+                                href={post.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+                              >
+                                <FiExternalLink className="mr-2" />
+                                Apply Now
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid gap-4">
+                      {getSortedPosts(getFilteredPosts()).map((post) => (
+                        <div 
+                          key={post._id} 
+                          className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden"
+                        >
+                          <div className="p-6">
+                            {/* Title */}
+                            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                              {post.title}
+                            </h3>
+
+                            {/* Details */}
+                            <div className="space-y-2 text-gray-600">
+                              {/* Location */}
+                              {post.workLocation && (
+                                <p className="flex items-center">
+                                  <FiMapPin className="mr-2" />
+                                  <strong className="mr-2">Location:</strong> {post.workLocation}
+                                </p>
+                              )}
+
+                              {/* Company */}
+                              {post.labels?.Company && (
+                                <p className="flex items-center">
+                                  <FiHome className="mr-2" />
+                                  <strong className="mr-2">Company:</strong> {post.labels.Company}
+                                </p>
+                              )}
+
+                              {/* Posted Date */}
+                              {post.created_at && (
+                                <p className="flex items-center text-gray-500 text-sm">
+                                  <FiClock className="mr-2" />
+                                  <strong className="mr-2">Posted:</strong> 
+                                  {format(new Date(post.created_at * 1000), 'MMM dd, yyyy')}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Apply Button */}
+                            <div className="mt-4">
+                              <a
+                                href={post.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+                              >
+                                <FiExternalLink className="mr-2" />
+                                Apply Now
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
