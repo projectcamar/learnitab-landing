@@ -956,12 +956,31 @@ export default function Home() {
                             <div className="mb-6">
                               <h2 className="text-xl font-semibold mb-4">Additional Information</h2>
                               <div className="space-y-2">
-                                {post.workLocation && <p><strong>Location:</strong> {post.workLocation}</p>}
-                                {post.duration && <p><strong>Duration:</strong> {post.duration}</p>}
-                                {post.stipend && <p><strong>Stipend:</strong> {post.stipend}</p>}
-                                {post.workType && <p><strong>Work Type:</strong> {post.workType}</p>}
+                                {post.workLocation && <p><strong>Location:</strong> {post.location}</p>}
+                                {post.remote !== undefined && (
+                                  <p><strong>Remote Work:</strong> {post.remote ? 'Yes' : 'No'}</p>
+                                )}
+                                {post.job_types && (
+                                  <p><strong>Job Type:</strong> {post.job_types.join(', ')}</p>
+                                )}
+                                {post.tags && (
+                                  <p><strong>Tags:</strong> {post.tags.join(', ')}</p>
+                                )}
+                                {post.created_at && (
+                                  <p><strong>Posted:</strong> {new Date(post.created_at * 1000).toLocaleDateString()}</p>
+                                )}
                               </div>
                             </div>
+
+                            {post.description && (
+                              <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-4">Job Description</h2>
+                                <div 
+                                  className="text-gray-700"
+                                  dangerouslySetInnerHTML={{ __html: post.description }}
+                                />
+                              </div>
+                            )}
                           </>
                         ) : (
                           <>
