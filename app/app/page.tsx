@@ -34,65 +34,258 @@ type CalendarEvent = {
 
 // 1. Add proper error handling for localStorage
 const getInitialState = () => {
-  if (typeof window === 'undefined') return [];
   try {
-    const saved = localStorage.getItem('favorites');
-    return saved ? JSON.parse(saved) : [];
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('favorites');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
   } catch (e) {
     return [];
   }
 };
 
-export default function Home() {
-  const postsPerPage = 10;
+// Add this type definition at the top with other types
+type RemotiveJob = {
+  id: number;
+  title: string;
+  company_logo: string;
+  description: string;
+  url: string;
+  company_name: string;
+  job_type: string;
+  candidate_required_location: string;
+  salary: string;
+  publication_date: string;
+};
 
-  // 2. Initialize state with null checks for browser APIs
-  const [favorites, setFavorites] = useState<string[]>(() => getInitialState());
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const saved = localStorage.getItem('calendarEvents');
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
+// Add Jobicy job type
+type JobicyJob = {
+  id: string;
+  url: string;
+  jobTitle: string;
+  companyName: string;
+  companyLogo: string;
+  jobType: string;
+  jobGeo: string;
+  jobDescription: string;
+  pubDate: string;
+  annualSalaryMin?: number;
+  annualSalaryMax?: number;
+  salaryCurrency?: string;
+};
+
+// Add Arbeitnow job type
+type ArbeitnowJob = {
+  slug: string;
+  company_name: string;
+  title: string;
+  description: string;
+  remote: boolean;
+  url: string;
+  tags: string[];
+  job_types: string[];
+  location: string;
+  created_at: number;
+};
+
+// Add fetchJobicyJobs function
+const fetchJobicyJobs = async () => {
+  try {
+    console.log('Fetching Jobicy jobs...');
+    const response = await fetch('https://jobicy.com/api/v2/remote-jobs?count=50');
+    const data = await response.json();
+    
+    console.log('Jobicy response:', data);
+
+    if (!data.jobs || !Array.isArray(data.jobs)) {
+      console.error('Invalid Jobicy response format:', data);
       return [];
     }
-  });
 
-  // 3. Initialize other state variables
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [currentCategory, setCurrentCategory] = useState('');
-  const [selectedPostTitle, setSelectedPostTitle] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showSaved, setShowSaved] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
-  const [visiblePosts, setVisiblePosts] = useState<Post[]>([]);
-  const [hasMore, setHasMore] = useState(true);
+    return data.jobs.map((job: JobicyJob) => ({
+      _id: job.id,
+      title: job.jobTitle,
+      category: 'jobs',
+      link: job.url,
+      company: job.companyName,
+      image: job.companyLogo,
+      location: job.jobGeo,
+      workType: job.jobType,
+      body: job.jobDescription,
+      source: 'jobicy',
+      created_at: new Date(job.pubDate).getTime(),
+      expired: false,
+      daysLeft: 30,
+      labels: {
+        Company: job.companyName,
+        Position: job.jobTitle,
+        Status: job.jobType
+      }
+    }));
+  } catch (error: any) {
+    console.error('Error fetching Jobicy jobs:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack
+    });
+    return [];
+  }
+};
 
-  // 4. Move browser-specific code into useEffect
-  useEffect(() => {
-    // Initialize localStorage items here
-    const savedFavorites = localStorage.getItem('favorites');
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
+// Update the fetchRemotiveJobs function
+const fetchRemotiveJobs = async () => {
+  try {
+    const response = await fetch('https://remotive.com/api/remote-jobs');
+    const data = await response.json();
+    
+    return data.jobs.map((job: RemotiveJob) => ({
+      _id: job.id.toString(),
+      title: job.title,
+      category: 'jobs',
+      image: job.company_logo,
+      body: job.description,
+      link: job.url,
+      company: job.company_name,
+      location: job.candidate_required_location || 'Remote',
+      workType: job.job_type || 'Full Time',
+      source: 'remotive',
+      created_at: new Date(job.publication_date).getTime(),
+      expired: false,
+      daysLeft: 30,
+      labels: {
+        Company: job.company_name,
+        Position: job.title,
+        Status: job.job_type || 'Full Time'
+      }
+    }));
+  } catch (error) {
+    console.error('Error fetching Remotive jobs:', error);
+    return [];
+  }
+};
+
+// Update fetchArbeitnowJobs function
+const fetchArbeitnowJobs = async () => {
+  try {
+    const response = await fetch('https://www.arbeitnow.com/api/job-board-api');
+    const data = await response.json();
+    
+    if (!data.data || !Array.isArray(data.data)) {
+      console.error('Invalid response format from Arbeitnow:', data);
+      return [];
     }
 
-    const savedEvents = localStorage.getItem('calendarEvents');
-    if (savedEvents) {
-      setCalendarEvents(JSON.parse(savedEvents));
+    // Use all jobs from the API response
+    return data.data.map((job: ArbeitnowJob) => ({
+      _id: job.slug,
+      title: job.title,
+      category: 'jobs',
+      link: job.url,
+      company: job.company_name,
+      location: job.location,
+      workType: job.job_types.join(', '),
+      body: job.description,
+      source: 'arbeitnow',
+      created_at: job.created_at * 1000,
+      expired: false,
+      daysLeft: 30,
+      remote: job.remote,
+      tags: job.tags,
+      labels: {
+        Company: job.company_name,
+        Position: job.title,
+        Status: job.job_types[0] || 'Full Time'
+      }
+    }));
+  } catch (error) {
+    console.error('Error fetching Arbeitnow jobs:', error);
+    return [];
+  }
+};
+
+const DEFAULT_COMPANY_LOGO = 'https://od.lk/s/OTZfOTY3MjAxNDFf/magang-dummy.png';
+
+export default function Home() {
+  const postsPerPage = 15;
+
+  // Initialize with empty arrays for SSR
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [visiblePosts, setVisiblePosts] = useState<Post[]>([]);
+  const [currentCategory, setCurrentCategory] = useState('jobs');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showSaved, setShowSaved] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPostTitle, setSelectedPostTitle] = useState<string | null>(null);
+
+  // 2. Move all localStorage operations to a single useEffect
+  useEffect(() => {
+    // Initialize from localStorage after component mounts
+    try {
+      const savedFavorites = localStorage.getItem('favorites');
+      if (savedFavorites) {
+        setFavorites(JSON.parse(savedFavorites));
+      }
+
+      const savedEvents = localStorage.getItem('calendarEvents');
+      if (savedEvents) {
+        setCalendarEvents(JSON.parse(savedEvents));
+      }
+
+      setShowWelcome(true); // Set welcome screen after mount
+    } catch (e) {
+      console.error('Error initializing from localStorage:', e);
     }
   }, []);
 
-  // 5. Update the posts count display
-  const getPostsCount = () => {
+  // 3. Modify the favorites counter display to handle SSR
+  const getPostsCount = useCallback(() => {
+    if (typeof window === 'undefined') return 0;
     if (showSaved) {
       return favorites.length;
     }
-    return posts.filter(post => 
-      (!currentCategory || post.category === currentCategory)
-    ).length;
-  };
+    return posts.filter(post => post.category === currentCategory).length;
+  }, [showSaved, favorites.length, posts, currentCategory]);
 
-  const categories = ['', 'internship', 'competitions', 'scholarships', 'mentors'];
+  // 4. Update the favorites button display
+  const renderFavoritesButton = () => (
+    <button
+      onClick={() => setShowSaved(!showSaved)}
+      className={`flex items-center space-x-2 px-4 py-2 rounded-md ${
+        showSaved 
+          ? 'bg-pink-50 text-pink-600 border border-pink-200' 
+          : 'bg-white hover:bg-gray-50 border border-gray-200'
+      }`}
+    >
+      <FiHeart className={`w-5 h-5 ${showSaved ? 'text-pink-500' : 'text-gray-400'}`} />
+      <span className="text-sm font-['Plus_Jakarta_Sans']">
+        {typeof window !== 'undefined' ? favorites.length : 0}
+      </span>
+    </button>
+  );
+
+  // 5. Update the calendar events button display
+  const renderCalendarButton = () => (
+    <button
+      onClick={() => {
+        setShowCalendarManagement(true);
+        setIsOverlayVisible(true);
+      }}
+      className="flex items-center space-x-2 px-4 py-2 rounded-md bg-white hover:bg-gray-50 border border-gray-200"
+    >
+      <FiCalendar className="w-5 h-5 text-gray-400" />
+      <span className="text-sm font-['Plus_Jakarta_Sans']">
+        {typeof window !== 'undefined' ? calendarEvents.length : 0}
+      </span>
+    </button>
+  );
+
+  const categories = ['jobs', 'mentors'];
   const listRef = useRef<HTMLDivElement>(null);
   const [showCalendarPanel, setShowCalendarPanel] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Post | null>(null);
@@ -112,9 +305,6 @@ export default function Home() {
     threshold: 0,
   });
 
-  // Add new loading state
-  const [isLoading, setIsLoading] = useState(true);
-
   const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
 
   // Function to toggle dark mode
@@ -122,61 +312,180 @@ export default function Home() {
     setIsDarkMode(prev => !prev);
   };
 
-  // Single effect to handle initial data loading, URL params, and visible posts
+  // Modify the initial data fetching useEffect
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchInitialPosts = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('/api/posts');
-        const data = await response.json();
+        console.log('Starting initial fetch...');
+        const [response, remotiveJobs, jobicyJobs, arbeitnowJobs] = await Promise.all([
+          fetch('/api/posts'),
+          fetchRemotiveJobs(),
+          fetchJobicyJobs(),
+          fetchArbeitnowJobs()
+        ]);
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to fetch posts');
-        }
+        const data = await response.json();
         
         if (data.data) {
-          const transformedPosts = Object.entries(data.data).flatMap(([category, categoryPosts]: [string, unknown]) =>
-            Array.isArray(categoryPosts) ? categoryPosts.map(post => ({
-              ...post,
-              category,
-              expired: post.deadline ? new Date(post.deadline) < new Date() : false,
-              daysLeft: post.deadline ? Math.ceil((new Date(post.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0
-            })) : []
-          );
+          const { mentors } = data.data;
+          
+          // Transform mentor data properly
+          const transformedMentors = Array.isArray(mentors) ? mentors.map(mentor => ({
+            _id: mentor._id,
+            title: mentor.title,
+            category: 'mentors',
+            image: mentor.image,
+            linkedin: mentor.linkedin,
+            instagram: mentor.instagram,
+            experience: mentor.experience,
+            education: mentor.education,
+            labels: mentor.labels,
+            created_at: new Date().getTime(), // Add current timestamp if not provided
+            source: 'learnitab',
+            expired: false,
+            daysLeft: 30
+          })) : [];
+          
+          const transformedPosts = [
+            ...transformedMentors,
+            ...remotiveJobs,
+            ...jobicyJobs,
+            ...arbeitnowJobs
+          ].sort((a, b) => b.created_at - a.created_at);
+          
           setPosts(transformedPosts);
-
-          // Handle URL parameters after posts are loaded
-          const searchParams = new URLSearchParams(window.location.search);
-          const postId = searchParams.get('post');
-          if (postId) {
-            const targetPost = transformedPosts.find(post => post._id === postId);
-            if (targetPost) {
-              setSelectedPostTitle(targetPost.title);
-              setCurrentCategory(targetPost.category);
-              
-              const filteredPosts = transformedPosts.filter(post => 
-                post.category === targetPost.category
-              );
-              setVisiblePosts(filteredPosts.slice(0, postsPerPage));
-              setHasMore(filteredPosts.length > postsPerPage);
-              
-              setTimeout(() => {
-                const postElement = document.getElementById(`post-${postId}`);
-                postElement?.scrollIntoView({ behavior: 'smooth' });
-              }, 100);
-            }
-          }
+          setPage(1);
+          setHasMore(true);
         }
       } catch (error) {
-        console.error('Error fetching posts:', error);
-        setPosts([]);
+        console.error('Error in fetchInitialPosts:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPosts();
+    fetchInitialPosts();
   }, []);
+
+  // Add a loading spinner component
+  const LoadingSpinner = () => (
+    <div className="flex justify-center py-4">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    </div>
+  );
+
+  // Modify the renderPosts function to include the loading spinner
+  const renderPosts = (posts: Post[]) => {
+    return (
+      <>
+        {isLoading && posts.length === 0 ? (
+          // Initial loading state
+          Array(5).fill(0).map((_, index) => (
+            <div key={index} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 animate-pulse">
+              <div className="flex items-start gap-4">
+                <div className="w-[60px] h-[60px] bg-gray-200 rounded-lg"></div>
+                <div className="flex-1">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 bg-gray-200 rounded-full w-16"></div>
+                  </div>
+                </div>
+                <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <>
+            {posts.map((post) => (
+              <div
+                key={post._id}
+                id={`post-${post._id}`}
+                onClick={() => setSelectedPostTitle(post.title)}
+                className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] cursor-pointer border border-gray-100"
+              >
+                <div className="flex items-start gap-4 max-w-full">
+                  <Image
+                    src={post.image || DEFAULT_COMPANY_LOGO}
+                    alt={post.title}
+                    width={60}
+                    height={60}
+                    className="rounded-lg object-cover flex-shrink-0"
+                    onError={(e: any) => {
+                      e.target.src = DEFAULT_COMPANY_LOGO;
+                    }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 truncate">{post.title}</h3>
+                    {post.category === 'mentors' ? (
+                      <div className="flex items-center gap-2 mt-1">
+                        {post.linkedin && (
+                          <a href={post.linkedin} target="_blank" rel="noopener noreferrer" 
+                             className="text-blue-600 hover:text-blue-800">
+                            <FiLinkedin />
+                          </a>
+                        )}
+                        {post.instagram && (
+                          <a href={post.instagram} target="_blank" rel="noopener noreferrer"
+                             className="text-pink-600 hover:text-pink-800">
+                            <FiInstagram />
+                          </a>
+                        )}
+                      </div>
+                    ) : (
+                    <p className="text-sm text-gray-600 truncate">
+                        {post.labels['Company']}
+                    </p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-full">
+                        {post.category}
+                      </span>
+                      <span className="text-xs px-2 py-1 bg-gray-50 text-gray-600 rounded-full">
+                        {post.source}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(post.title);
+                    }}
+                    className={`flex-shrink-0 p-2 rounded-full transition-colors ${
+                      favorites.includes(post.title)
+                        ? 'text-pink-500 bg-pink-50'
+                        : 'text-gray-400 hover:text-pink-500 hover:bg-pink-50'
+                    }`}
+                  >
+                    <FiHeart className={favorites.includes(post.title) ? 'fill-current' : ''} />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {/* Show loading spinner when loading more posts */}
+            {isLoading && <LoadingSpinner />}
+            {/* Add invisible div for intersection observer */}
+            <div ref={ref} className="h-4 w-full" />
+          </>
+        )}
+      </>
+    );
+  };
+
+  // Update the infinite scroll effect
+  useEffect(() => {
+    if (inView && hasMore && !isLoading) {
+      const currentPosts = getFilteredPosts();
+      const totalPosts = posts.filter(post => post.category === currentCategory).length;
+      
+      if (currentPosts.length < totalPosts) {
+        setPage(prev => prev + 1);
+      } else {
+        setHasMore(false);
+      }
+    }
+  }, [inView, hasMore, isLoading]);
 
   // Add a cleanup effect to reset category when unmounting
   useEffect(() => {
@@ -185,30 +494,6 @@ export default function Home() {
       setSelectedPostTitle(null);
     };
   }, []);
-
-  // Effect for infinite scroll
-  useEffect(() => {
-    if (inView && hasMore) {
-      const filteredPosts = posts.filter(post => {
-        const matchesCategory = !currentCategory || post.category === currentCategory;
-        const matchesSearch = !searchTerm || 
-          post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          post.category.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesCategory && matchesSearch;
-      });
-
-      const nextPosts = filteredPosts.slice(
-        visiblePosts.length,
-        visiblePosts.length + postsPerPage
-      );
-
-      if (nextPosts.length > 0) {
-        setVisiblePosts(prev => [...prev, ...nextPosts]);
-      } else {
-        setHasMore(false);
-      }
-    }
-  }, [inView, hasMore, posts, currentCategory, searchTerm, visiblePosts.length, postsPerPage]);
 
   // Effect for welcome screen
   useEffect(() => {
@@ -279,20 +564,145 @@ export default function Home() {
 
   const opportunityText = "Don&apos;t miss this opportunity";
 
-  const getFilteredPosts = () => {
-    let filteredPosts = posts.filter(post => 
-      (currentCategory === '' && post.category !== 'mentors') || 
-      post.category === currentCategory
-    );
+  // Add filter states
+  const [selectedSource, setSelectedSource] = useState('all');
+  const [selectedJobType, setSelectedJobType] = useState('all');
+  const [selectedLocation, setSelectedLocation] = useState('all');
+  const [salaryRange, setSalaryRange] = useState({ min: 0, max: Infinity });
+  const [isRemoteOnly, setIsRemoteOnly] = useState(false);
 
+  // Add mentor-specific filter options
+  const filterOptions = {
+    jobs: {
+      sources: ['all', 'remotive', 'jobicy', 'arbeitnow'],
+      types: ['all', 'full-time', 'part-time', 'contract', 'internship'],
+      locations: ['all', 'usa', 'europe', 'asia', 'remote']
+    },
+    mentors: {
+      sources: ['all', 'learnitab'],
+      types: ['all', 'Business', 'Technology', 'Design', 'Engineering', 'Product'],
+      locations: ['all', 'Indonesia', 'Remote']
+    }
+  };
+
+  // Update renderSearchBar function
+  const renderSearchBar = () => (
+    <div className="bg-white bg-opacity-90 rounded-lg shadow-lg p-4">
+      <div className="flex flex-col space-y-4">
+        {/* Top row: Search input and action buttons */}
+        <div className="flex items-center space-x-4">
+          <div className="relative flex-grow">
+            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search opportunities..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            {renderFavoritesButton()}
+            {renderCalendarButton()}
+          </div>
+        </div>
+
+        {/* Filter dropdowns */}
+        <div className="flex items-center space-x-2">
+          <select 
+            value={selectedSource}
+            onChange={(e) => setSelectedSource(e.target.value)}
+            className="w-1/4 rounded-md border border-gray-300 py-1 px-2 text-sm bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
+          >
+            {filterOptions[currentCategory as keyof typeof filterOptions].sources.map(source => (
+              <option key={source} value={source}>
+                {source === 'all' ? 'All Sources' : source.charAt(0).toUpperCase() + source.slice(1)}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedJobType}
+            onChange={(e) => setSelectedJobType(e.target.value)}
+            className="w-1/4 rounded-md border border-gray-300 py-1 px-2 text-sm bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
+          >
+            {filterOptions[currentCategory as keyof typeof filterOptions].types.map(type => (
+              <option key={type} value={type}>
+                {type === 'all' ? 'All Types' : type}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            className="w-1/4 rounded-md border border-gray-300 py-1 px-2 text-sm bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
+          >
+            {filterOptions[currentCategory as keyof typeof filterOptions].locations.map(location => (
+              <option key={location} value={location}>
+                {location === 'all' ? 'All Locations' : location}
+              </option>
+            ))}
+          </select>
+
+          {/* Only show Remote toggle for jobs category */}
+          {currentCategory === 'jobs' && (
+          <button
+            onClick={() => setIsRemoteOnly(!isRemoteOnly)}
+            className={`w-1/4 py-1 px-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+              isRemoteOnly 
+                ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            🌍 Remote
+          </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Update the getFilteredPosts function to include pagination
+  const getFilteredPosts = () => {
+    let filteredPosts = posts.filter(post => {
+      // Basic category filter
+      if (post.category !== currentCategory) return false;
+      
+      // Source filter
+      if (selectedSource !== 'all' && post.source !== selectedSource) return false;
+      
+      // Job type filter
+      if (selectedJobType !== 'all') {
+        const workType = post.workType;
+        if (!workType) return false;
+        const workTypeStr = Array.isArray(workType) ? workType.join(' ') : workType;
+        if (!workTypeStr.toLowerCase().includes(selectedJobType.toLowerCase())) return false;
+      }
+      
+      // Location filter
+      if (selectedLocation !== 'all') {
+        const location = post.location;
+        if (!location) return false;
+        if (!location.toLowerCase().includes(selectedLocation.toLowerCase())) return false;
+      }
+      
+      // Remote filter
+      if (isRemoteOnly && !post.remote) return false;
+      
+      return true;
+    });
+
+    // Search term filter
     if (searchTerm) {
       filteredPosts = filteredPosts.filter(post =>
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (post.body && post.body.toString().toLowerCase().includes(searchTerm.toLowerCase()))
+        post.body?.toString().toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    return [...new Map(filteredPosts.map(post => [post._id, post])).values()];
+    // Only return the current page of results
+    return filteredPosts.slice(0, page * 15);
   };
 
   const getSortedPosts = (filteredPosts: Post[]) => {
@@ -309,193 +719,143 @@ export default function Home() {
 
   const displayFullPost = (post: Post) => {
     return (
-      <div className="post-full space-y-8 font-['Plus_Jakarta_Sans']">
-        {/* Header with Title and Company */}
-        <div className="flex flex-col space-y-4">
-          {/* Title and Company */}
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
-              <p className="text-lg text-gray-600 mt-2">
-                {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons Bar */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => toggleFavorite(post.title)}
-                className={`p-2 rounded-lg transition-colors ${
-                  favorites.includes(post.title)
-                    ? 'bg-pink-50 text-pink-500 border border-pink-200'
-                    : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
-                }`}
-              >
-                <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
-              </button>
-
-              <button
-                onClick={() => copyPostLink(post)}
-                className="p-2 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400 transition-colors"
-              >
-                <FiLink size={20} />
-              </button>
-
-              {(post.category === 'competitions' || post.category === 'scholarships') && (
-                <button
-                  onClick={() => toggleCalendarPanel(post)}
-                  className="p-2 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400 transition-colors"
-                >
-                  <FiCalendar size={20} />
-                </button>
+      <div className="post-full space-y-8 font-['Plus_Jakarta_Sans'] max-w-3xl mx-auto">
+        {/* Header Section */}
+        <div className="flex items-start gap-6 border-b pb-6">
+          <Image
+            src={post.image || DEFAULT_COMPANY_LOGO}
+            alt={post.title}
+            width={80}
+            height={80}
+            className="rounded-lg object-cover flex-shrink-0"
+            onError={(e: any) => {
+              e.target.src = DEFAULT_COMPANY_LOGO;
+            }}
+          />
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
+            <p className="text-lg text-gray-600">{post.labels['Company']}</p>
+            
+            {/* Key Information Pills */}
+            <div className="flex flex-wrap gap-2 mt-3">
+              {post.workLocation && (
+                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+                  📍 {post.workLocation}
+                </span>
               )}
-            </div>
-
-            <a
-              href={post.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium ml-auto"
-            >
-              {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'}
-            </a>
-          </div>
-        </div>
-
-        <div className="border-t pt-6">
-          {/* Description Section */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900">Description</h2>
-            <div className="prose max-w-none text-gray-700">
-              {Array.isArray(post.body) ? (
-                post.body.map((paragraph, index) => (
-                  <p key={index} className="mb-4">{paragraph}</p>
-                ))
-              ) : (
-                <p>{post.body}</p>
+              {post.workType && (
+                <span className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
+                  💼 {post.workType}
+                </span>
+              )}
+              {post.stipend && (
+                <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-sm">
+                  💰 {post.stipend}
+                </span>
               )}
             </div>
           </div>
-
-          {/* Rest of the sections */}
-          {/* ... */}
         </div>
 
-        {/* Remove the footer section entirely since we moved the actions up */}
+        {/* Action Buttons */}
+        <div className="flex items-center gap-4 border-b pb-6">
+          <button
+            onClick={() => toggleFavorite(post.title)}
+            className={`p-2.5 rounded-lg ${
+              favorites.includes(post.title)
+                ? 'bg-pink-50 text-pink-500 border border-pink-200'
+                : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
+            }`}
+          >
+            <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
+          </button>
+          
+          <button
+            onClick={() => copyPostLink(post)}
+            className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
+          >
+            <FiLink size={20} />
+          </button>
+
+          <a
+            href={post.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Apply Now
+          </a>
+        </div>
+
+        {/* Job Description */}
+        <div className="prose max-w-none">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Job Description</h2>
+          <div 
+            className="text-gray-700 space-y-4"
+            dangerouslySetInnerHTML={{ __html: post.body?.toString() || '' }}
+          />
+        </div>
+
+        {/* Additional Information */}
+        <div className="bg-gray-50 rounded-lg p-6 mt-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
+          <dl className="grid grid-cols-1 gap-4">
+            {post.created_at && (
+              <>
+                <dt className="text-sm font-medium text-gray-500">Posted Date</dt>
+                <dd className="text-sm text-gray-900">
+                  {new Date(post.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </dd>
+              </>
+            )}
+            {post.workLocation && (
+              <>
+                <dt className="text-sm font-medium text-gray-500">Location</dt>
+                <dd className="text-sm text-gray-900">{post.workLocation}</dd>
+              </>
+            )}
+            {post.workType && (
+              <>
+                <dt className="text-sm font-medium text-gray-500">Job Type</dt>
+                <dd className="text-sm text-gray-900">{post.workType}</dd>
+              </>
+            )}
+            {post.stipend && (
+              <>
+                <dt className="text-sm font-medium text-gray-500">Salary</dt>
+                <dd className="text-sm text-gray-900">{post.stipend}</dd>
+              </>
+            )}
+          </dl>
+        </div>
+
+        {/* Attribution to Remotive */}
+        <div className="text-center text-sm text-gray-500 mt-8">
+          This job listing is sourced from Remotive
+        </div>
       </div>
     );
   };
 
   const getCategoryColor = (category: string): string => {
     switch (category.toLowerCase()) {
-      case 'internship':
-        return 'bg-blue-100 text-blue-800';
-      case 'competitions':
-        return 'bg-purple-100 text-purple-800';
-      case 'scholarships':
-        return 'bg-green-100 text-green-800';
       case 'mentors':
         return 'bg-orange-100 text-orange-800';
+      case 'jobs':
+        return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const renderPosts = (posts: Post[]) => {
-    if (isLoading) {
-      return Array(5).fill(0).map((_, index) => (
-        <div key={index} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 animate-pulse">
-          <div className="flex items-start gap-4">
-            <div className="w-[60px] h-[60px] bg-gray-200 rounded-lg"></div>
-            <div className="flex-1">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
-              <div className="flex items-center gap-2">
-                <div className="h-5 bg-gray-200 rounded-full w-16"></div>
-              </div>
-            </div>
-            <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-          </div>
-        </div>
-      ));
-    }
-
-    return posts.map((post) => (
-      <div
-        key={post._id}
-        id={`post-${post._id}`}
-        onClick={() => setSelectedPostTitle(post.title)}
-        className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] cursor-pointer border border-gray-100"
-      >
-        <div className="flex items-start gap-4 max-w-full">
-          <Image
-            src={post.image || '/default-image.png'}
-            alt={post.title}
-            width={60}
-            height={60}
-            className="rounded-lg object-cover flex-shrink-0"
-          />
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">{post.title}</h3>
-            <p className="text-sm text-gray-600 truncate">
-              {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
-            </p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-full">
-                {post.category}
-              </span>
-              {post.deadline && (
-                <span className="text-xs text-gray-500 flex items-center gap-2">
-                  {post.category !== 'internship' && (
-                    <>Deadline: {format(parseISO(post.deadline), 'MMM dd, yyyy')}</>
-                  )}
-                  {post.category === 'internship' ? (
-                    post.expired && (
-                      <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600">
-                        Expired
-                      </span>
-                    )
-                  ) : (
-                    <span className={`px-2 py-0.5 rounded-full ${
-                      post.expired 
-                        ? 'bg-red-100 text-red-600'
-                        : 'bg-green-100 text-green-600'
-                    }`}>
-                      {post.expired ? 'Expired' : `${post.daysLeft} days left`}
-                    </span>
-                  )}
-                </span>
-              )}
-            </div>
-          </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFavorite(post.title);
-            }}
-            className={`flex-shrink-0 p-2 rounded-full transition-colors ${
-              favorites.includes(post.title)
-                ? 'text-pink-500 bg-pink-50'
-                : 'text-gray-400 hover:text-pink-500 hover:bg-pink-50'
-            }`}
-          >
-            <FiHeart className={favorites.includes(post.title) ? 'fill-current' : ''} />
-          </button>
-        </div>
-      </div>
-    ));
-  };
-
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'internship':
+      case 'jobs':
         return <FiBriefcase className="mr-2" />;
-      case 'competitions':
-        return <FiAward className="mr-2" />;
-      case 'scholarships':
-        return <FiBookOpen className="mr-2" />;
       case 'mentors':
         return <FiUsers className="mr-2" />;
       default:
@@ -505,14 +865,12 @@ export default function Home() {
 
   const selectCategory = (category: string) => {
     setCurrentCategory(category);
-    setVisiblePosts([]);
+    setSelectedSource('all');
+    setSelectedJobType('all');
+    setSelectedLocation('all');
+    setIsRemoteOnly(false);
+    setPage(1);
     setHasMore(true);
-    
-    // Clear the post parameter from URL when changing categories
-    const url = new URL(window.location.href);
-    url.searchParams.delete('post');
-    window.history.pushState({}, '', url);
-    
     setSelectedPostTitle(null);
   };
 
@@ -587,6 +945,22 @@ export default function Home() {
     }
   };
 
+  // Update the main fetch function
+  const fetchPosts = async () => {
+    try {
+      const [remotiveJobs, jobicyJobs, arbeitnowJobs] = await Promise.all([
+        fetchRemotiveJobs(),
+        fetchJobicyJobs(),
+        fetchArbeitnowJobs()
+      ]);
+      
+      return [...remotiveJobs, ...jobicyJobs, ...arbeitnowJobs];
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      return [];
+    }
+  };
+
   return (
     <CustomErrorBoundary>
       <div className="h-screen overflow-hidden w-full flex flex-col">
@@ -631,7 +1005,7 @@ export default function Home() {
                     onClick={() => setCurrentCategory(category)}
                   >
                     <span>
-                      {category === '' ? 'All Opportunities' : category.charAt(0).toUpperCase() + category.slice(1)}
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
                     </span>
                   </button>
                 ))}
@@ -651,58 +1025,21 @@ export default function Home() {
           {/* List View - added padding inside the container instead */}
           <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
             {/* Search bar container */}
-            <div className="bg-white bg-opacity-90 rounded-lg shadow-lg p-4 transition-all duration-300">
-              <div className="flex flex-col sm:flex-row items-stretch justify-between space-y-4 sm:space-y-0 sm:space-x-4">
-                <div className="relative flex-grow">
-                  <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search opportunities..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-700 bg-opacity-50 font-['Plus_Jakarta_Sans']"
-                  />
-                </div>
-                
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setShowSaved(!showSaved)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-md ${
-                      showSaved 
-                        ? 'bg-pink-50 text-pink-600 border border-pink-200' 
-                        : 'bg-white hover:bg-gray-50 border border-gray-200'
-                    }`}
-                  >
-                    <FiHeart className={`w-5 h-5 ${showSaved ? 'text-pink-500' : 'text-gray-400'}`} />
-                    <span className="text-sm font-['Plus_Jakarta_Sans']">{favorites.length}</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowCalendarManagement(true);
-                      setIsOverlayVisible(true);
-                    }}
-                    className="flex items-center space-x-2 px-4 py-2 rounded-md bg-white hover:bg-gray-50 border border-gray-200"
-                  >
-                    <FiCalendar className="w-5 h-5 text-gray-400" />
-                    <span className="text-sm font-['Plus_Jakarta_Sans']">{calendarEvents.length}</span>
-                  </button>
-                </div>
-              </div>
+            <div className="bg-white bg-opacity-90 rounded-lg shadow-lg transition-all duration-300">
+              {renderSearchBar()}
             </div>
 
-            {/* List container with fixed height - adjusted height calculation */}
+            {/* List container with fixed height */}
             <div 
               ref={listRef}
               className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white bg-opacity-90 rounded-lg shadow-lg"
               style={{ height: 'calc(100vh - 224px)' }}
             >
-              <div className="p-4">
-                <div className="space-y-4">
-                  {showSaved ? 
-                    renderPosts(posts.filter(post => favorites.includes(post.title))) :
-                    renderPosts(getSortedPosts(getFilteredPosts()))
-                  }
-                </div>
+              <div className="p-4 space-y-4">
+                {showSaved ? 
+                  renderPosts(posts.filter(post => favorites.includes(post.title))) :
+                  renderPosts(getSortedPosts(getFilteredPosts()))
+                }
               </div>
             </div>
           </div>
@@ -710,209 +1047,10 @@ export default function Home() {
           {/* Detail View - Ensure it's visible in mobile mode */}
           <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar font-['Plus_Jakarta_Sans'] 
             ${showMobileDetail ? 'fixed inset-0 z-50 bg-white' : 'hidden md:block'}`}>
-            <div className="bg-white rounded-xl shadow-lg p-4 transition-all duration-300">
+            <div className="bg-white rounded-xl shadow-lg p-6">
               {selectedPostTitle ? (
-                <div className="bg-white rounded-lg p-4">
-                  {posts.filter(post => post.title === selectedPostTitle).map(post => (
-                    <div key={post._id}>
-                      {/* Header Section */}
-                      <div className="border-b pb-6">
-                        {/* Title, Image, and Close Button */}
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="flex items-center gap-4">
-                            <Image
-                              src={post.image || '/default-image.png'}
-                              alt={post.title}
-                              width={80}
-                              height={80}
-                              className="rounded-lg object-cover"
-                            />
-                            <div>
-                              <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
-                              <p className="text-lg text-gray-600">
-                                {post.category === 'mentors' ? post.labels['Organization'] : post.labels['Company']}
-                              </p>
-                              {/* Social Media Icons for Mentors */}
-                              {post.category === 'mentors' && (
-                                <div className="flex items-center gap-3 mt-2">
-                                  {post.linkedin && (
-                                    <a 
-                                      href={post.linkedin}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-600 hover:text-blue-700"
-                                    >
-                                      <FiLinkedin size={20} />
-                                    </a>
-                                  )}
-                                  {post.instagram && (
-                                    <a 
-                                      href={post.instagram}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-pink-600 hover:text-pink-700"
-                                    >
-                                      <FiInstagram size={20} />
-                                    </a>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <button 
-                            onClick={() => setSelectedPostTitle(null)}
-                            className="text-gray-500 hover:text-gray-700"
-                          >
-                            <IoMdClose size={24} />
-                          </button>
-                        </div>
-
-                        {/* Action Buttons Row */}
-                        <div className="flex items-center justify-between mt-4">
-                          <div className="flex items-center space-x-3">
-                            <button
-                              onClick={() => toggleFavorite(post.title)}
-                              className={`p-2.5 rounded-lg ${
-                                favorites.includes(post.title)
-                                  ? 'bg-pink-50 text-pink-500 border border-pink-200'
-                                  : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
-                              }`}
-                            >
-                              <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
-                            </button>
-                            
-                            <button
-                              onClick={() => copyPostLink(post)}
-                              className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
-                            >
-                              <FiLink size={20} />
-                            </button>
-
-                            {(post.category === 'competitions' || post.category === 'scholarships') && (
-                              <button
-                                onClick={() => toggleCalendarPanel(post)}
-                                className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
-                              >
-                                <FiCalendar size={20} />
-                              </button>
-                            )}
-                          </div>
-
-                          <a
-                            href={post.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                          >
-                            {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'}
-                          </a>
-                        </div>
-                      </div>
-
-                      {/* Description Section - Add this part */}
-                      <div className="mt-6 space-y-6">
-                        {post.category === 'mentors' ? (
-                          <>
-                            <div className="mb-6">
-                              <h2 className="text-xl font-semibold mb-4">Mentoring Topics</h2>
-                              <div className="flex flex-wrap gap-2">
-                                {post.labels['Mentoring Topic']?.map((topic, index) => (
-                                  <span key={index} className="px-3 py-1 bg-blue-100 text-blue-900 rounded-full text-sm">
-                                    {topic}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-
-                            {post.experience && post.experience.length > 0 && (
-                              <div className="mb-6">
-                                <h2 className="text-xl font-semibold mb-4">Experience</h2>
-                                <ul className="list-disc pl-5 space-y-2">
-                                  {post.experience.map((exp, index) => (
-                                    <li key={index} className="text-gray-700">{exp}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            {post.education && post.education.length > 0 && (
-                              <div className="mb-6">
-                                <h2 className="text-xl font-semibold mb-4">Education</h2>
-                                <ul className="list-disc pl-5 space-y-2">
-                                  {post.education.map((edu, index) => (
-                                    <li key={index} className="text-gray-700">{edu}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </>
-                        ) : post.category === 'internship' ? (
-                          <>
-                            {post.responsibilities && post.responsibilities.length > 0 && (
-                              <div className="mb-6">
-                                <h2 className="text-xl font-semibold mb-4">Responsibilities</h2>
-                                <ul className="list-disc pl-5 space-y-2">
-                                  {post.responsibilities.map((resp, index) => (
-                                    <li key={index} className="text-gray-700">{resp}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            {post.requirements && post.requirements.length > 0 && (
-                              <div className="mb-6">
-                                <h2 className="text-xl font-semibold mb-4">Requirements</h2>
-                                <ul className="list-disc pl-5 space-y-2">
-                                  {post.requirements.map((req, index) => (
-                                    <li key={index} className="text-gray-700">{req}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            <div className="mb-6">
-                              <h2 className="text-xl font-semibold mb-4">Additional Information</h2>
-                              <div className="space-y-2">
-                                {post.workLocation && <p><strong>Location:</strong> {post.workLocation}</p>}
-                                {post.duration && <p><strong>Duration:</strong> {post.duration}</p>}
-                                {post.stipend && <p><strong>Stipend:</strong> {post.stipend}</p>}
-                                {post.workType && <p><strong>Work Type:</strong> {post.workType}</p>}
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="mb-6">
-                              <h2 className="text-xl font-semibold mb-4">
-                                {post.category.charAt(0).toUpperCase() + post.category.slice(1)} Details
-                              </h2>
-                              {Array.isArray(post.body) ? (
-                                <div className="space-y-4">
-                                  {post.body.map((paragraph, index) => (
-                                    <p key={index} className="text-gray-700">{paragraph}</p>
-                                  ))}
-                                </div>
-                              ) : (
-                                <p className="text-gray-700">{post.body}</p>
-                              )}
-                            </div>
-
-                            <div className="mb-6">
-                              <h2 className="text-xl font-semibold mb-4">Additional Information</h2>
-                              <div className="space-y-2">
-                                {post.deadline && <p><strong>Deadline:</strong> {post.deadline}</p>}
-                                {post.location && <p><strong>Location:</strong> {post.location}</p>}
-                                {post.prize && <p><strong>Prize:</strong> {post.prize}</p>}
-                                {post.eligibility && <p><strong>Eligibility:</strong> {post.eligibility}</p>}
-                                {post.email && <p><strong>Contact:</strong> {post.email}</p>}
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                posts.filter(post => post.title === selectedPostTitle)
+                  .map(post => displayFullPost(post))[0]
               ) : (
                 renderWelcomeScreen()
               )}
@@ -1025,7 +1163,7 @@ export default function Home() {
           
           .custom-scrollbar {
             scrollbar-width: thin;
-            scrollbar-color: rgba(136, 136, 136, 0.5) transparent;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
           }
           
           .custom-scrollbar::-webkit-scrollbar {
@@ -1037,12 +1175,12 @@ export default function Home() {
           }
           
           .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: rgba(136, 136, 136, 0.5);
+            background-color: rgba(156, 163, 175, 0.5);
             border-radius: 3px;
           }
           
           .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(136, 136, 136, 0.7);
+            background-color: rgba(156, 163, 175, 0.7);
           }
           
           /* Hide horizontal scrollbar */
@@ -1068,6 +1206,35 @@ export default function Home() {
             100% {
               background-position: -200% 0;
             }
+          }
+        `}</style>
+
+        <style jsx>{`
+          .prose {
+            max-width: 100% !important;
+          }
+
+          .prose img {
+            max-width: 100%;
+            height: auto;
+          }
+
+          .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+          }
+
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
           }
         `}</style>
       </div>

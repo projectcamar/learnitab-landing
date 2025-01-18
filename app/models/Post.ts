@@ -37,6 +37,10 @@ export interface Post {
   daysLeft?: number;
   details?: string;
   topics?: string[];
+  created_at?: number;
+  source?: string;
+  remote?: boolean;
+  tags?: string[];
 }
   
  
