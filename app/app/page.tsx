@@ -89,6 +89,19 @@ type ArbeitnowJob = {
   created_at: number;
 };
 
+// Add types at the top of the file
+type Experience = {
+  role: string;
+  company: string;
+  duration: string;
+};
+
+type Education = {
+  degree: string;
+  school: string;
+  year: string;
+};
+
 // Add fetchJobicyJobs function
 const fetchJobicyJobs = async () => {
   try {
@@ -338,11 +351,31 @@ export default function Home() {
             image: mentor.image,
             linkedin: mentor.linkedin,
             instagram: mentor.instagram,
-            experience: mentor.experience,
-            education: mentor.education,
-            labels: mentor.labels,
-            created_at: new Date().getTime(), // Add current timestamp if not provided
+            experience: Array.isArray(mentor.experience) 
+              ? mentor.experience.map((exp: string | Experience) => ({
+                  role: typeof exp === 'string' ? exp : exp.role || 'Experience',
+                  company: '',
+                  duration: ''
+                }))
+              : [{ role: mentor.experience, company: '', duration: '' }],
+            education: Array.isArray(mentor.education)
+              ? mentor.education.map((edu: string | Education) => ({
+                  degree: typeof edu === 'string' ? edu : edu.degree || 'Education',
+                  school: '',
+                  year: ''
+                }))
+              : [{ degree: mentor.education, school: '', year: '' }],
+            body: mentor.company || mentor.labels?.Organization,
+            labels: {
+              Field: mentor.labels?.Field || 'Not specified',
+              Organization: mentor.labels?.Organization || mentor.company || '',
+              'Mentoring Topics': Array.isArray(mentor.labels?.['Mentoring Topic']) 
+                ? mentor.labels['Mentoring Topic'].join(', ')
+                : mentor.labels?.['Mentoring Topic'] || ''
+            },
+            link: mentor.link,
             source: 'learnitab',
+            created_at: new Date().getTime(),
             expired: false,
             daysLeft: 30
           })) : [];
@@ -434,9 +467,14 @@ export default function Home() {
                         )}
                       </div>
                     ) : (
-                    <p className="text-sm text-gray-600 truncate">
-                        {post.labels['Company']}
-                    </p>
+                      <>
+                        <p className="text-sm text-gray-600 truncate">
+                          {post.labels['Company']}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Posted {format(new Date(post.created_at || Date.now()), 'MMM dd, yyyy')}
+                        </p>
+                      </>
                     )}
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-full">
@@ -587,78 +625,94 @@ export default function Home() {
 
   // Update renderSearchBar function
   const renderSearchBar = () => (
-    <div className="bg-white bg-opacity-90 rounded-lg shadow-lg p-4">
-      <div className="flex flex-col space-y-4">
-        {/* Top row: Search input and action buttons */}
-        <div className="flex items-center space-x-4">
-          <div className="relative flex-grow">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search opportunities..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            {renderFavoritesButton()}
-            {renderCalendarButton()}
-          </div>
+    <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg">
+      {/* Top row: Search input and action buttons */}
+      <div className="flex items-center gap-4">
+        {/* Search input */}
+        <div className="flex-grow relative">
+          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search opportunities..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
         </div>
-
-        {/* Filter dropdowns */}
-        <div className="flex items-center space-x-2">
-          <select 
-            value={selectedSource}
-            onChange={(e) => setSelectedSource(e.target.value)}
-            className="w-1/4 rounded-md border border-gray-300 py-1 px-2 text-sm bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
-          >
-            {filterOptions[currentCategory as keyof typeof filterOptions].sources.map(source => (
-              <option key={source} value={source}>
-                {source === 'all' ? 'All Sources' : source.charAt(0).toUpperCase() + source.slice(1)}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={selectedJobType}
-            onChange={(e) => setSelectedJobType(e.target.value)}
-            className="w-1/4 rounded-md border border-gray-300 py-1 px-2 text-sm bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
-          >
-            {filterOptions[currentCategory as keyof typeof filterOptions].types.map(type => (
-              <option key={type} value={type}>
-                {type === 'all' ? 'All Types' : type}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={selectedLocation}
-            onChange={(e) => setSelectedLocation(e.target.value)}
-            className="w-1/4 rounded-md border border-gray-300 py-1 px-2 text-sm bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
-          >
-            {filterOptions[currentCategory as keyof typeof filterOptions].locations.map(location => (
-              <option key={location} value={location}>
-                {location === 'all' ? 'All Locations' : location}
-              </option>
-            ))}
-          </select>
-
-          {/* Only show Remote toggle for jobs category */}
-          {currentCategory === 'jobs' && (
+        
+        {/* Favorites and Calendar counts */}
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => setIsRemoteOnly(!isRemoteOnly)}
-            className={`w-1/4 py-1 px-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-              isRemoteOnly 
-                ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            onClick={() => setShowSaved(!showSaved)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+              showSaved 
+                ? 'bg-pink-50 text-pink-600 border border-pink-200' 
+                : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
             }`}
           >
-            🌍 Remote
+            <FiHeart className={showSaved ? 'text-pink-500' : 'text-gray-400'} />
+            <span className="font-medium">{favorites.length}</span>
           </button>
-          )}
+          <button
+            onClick={() => {
+              setShowCalendarManagement(true);
+              setIsOverlayVisible(true);
+            }}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200"
+          >
+            <FiCalendar className="text-gray-400" />
+            <span className="font-medium">{calendarEvents.length}</span>
+          </button>
         </div>
+      </div>
+
+      {/* Filter row */}
+      <div className="flex items-center gap-1">
+        <select 
+          value={selectedSource}
+          onChange={(e) => setSelectedSource(e.target.value)}
+          className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="all">All Sources</option>
+          {filterOptions[currentCategory as keyof typeof filterOptions].sources.map(source => (
+            source !== 'all' && <option key={source} value={source}>{source.charAt(0).toUpperCase() + source.slice(1)}</option>
+          ))}
+        </select>
+
+        <select
+          value={selectedJobType}
+          onChange={(e) => setSelectedJobType(e.target.value)}
+          className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="all">All Types</option>
+          {filterOptions[currentCategory as keyof typeof filterOptions].types.map(type => (
+            type !== 'all' && <option key={type} value={type}>{type}</option>
+          ))}
+        </select>
+
+        <select
+          value={selectedLocation}
+          onChange={(e) => setSelectedLocation(e.target.value)}
+          className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="all">All Locations</option>
+          {filterOptions[currentCategory as keyof typeof filterOptions].locations.map(location => (
+            location !== 'all' && <option key={location} value={location}>{location}</option>
+          ))}
+        </select>
+
+        {currentCategory === 'jobs' && (
+          <button
+            onClick={() => setIsRemoteOnly(!isRemoteOnly)}
+            className={`flex items-center px-2 py-1.5 rounded-lg transition-colors text-sm ${
+              isRemoteOnly 
+                ? 'bg-blue-50 text-blue-600 border border-blue-200' 
+                : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
+            }`}
+          >
+            <span>🌍</span>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -718,6 +772,115 @@ export default function Home() {
   };
 
   const displayFullPost = (post: Post) => {
+    if (post.category === 'mentors') {
+      return (
+        <div className="space-y-6">
+          {/* Header with image, title, and Apply Now button */}
+          <div className="flex items-start gap-6">
+            <Image
+              src={post.image || DEFAULT_COMPANY_LOGO}
+              alt={post.title}
+              width={120}
+              height={120}
+              className="rounded-lg object-cover"
+              onError={(e: any) => { e.target.src = DEFAULT_COMPANY_LOGO }}
+            />
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900">{post.title}</h1>
+              <p className="text-gray-600 mt-2">{post.body}</p>
+
+              {/* Action Buttons Row */}
+              <div className="flex items-center gap-4 mt-4">
+                <div className="flex items-center gap-4 flex-1">
+                  {post.linkedin && (
+                    <a href={post.linkedin} target="_blank" rel="noopener noreferrer" 
+                       className="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                      <FiLinkedin size={20} /> LinkedIn
+                    </a>
+                  )}
+                  {post.instagram && post.instagram !== '-' && (
+                    <a href={post.instagram} target="_blank" rel="noopener noreferrer"
+                       className="text-pink-600 hover:text-pink-800 flex items-center gap-2">
+                      <FiInstagram size={20} /> Instagram
+                    </a>
+                  )}
+                </div>
+                {post.link && (
+                  <a
+                    href={post.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                  >
+                    Apply Now <FiLink size={16} />
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Labels Section - Now under Apply Now button */}
+          <div className="mt-6 space-y-4 bg-gray-50 rounded-lg p-6">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-500">Field:</span>
+              <span className="text-sm text-gray-900">{post.labels?.Field || 'Not specified'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-500">Organization:</span>
+              <span className="text-sm text-gray-900">{post.labels?.Organization || 'Not specified'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-500">Mentoring Topics:</span>
+              <span className="text-sm text-gray-900">{post.labels?.['Mentoring Topics'] || 'Not specified'}</span>
+            </div>
+          </div>
+
+          {/* Experience Section */}
+          {post.experience && post.experience.length > 0 && (
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FiBriefcase /> Experience
+              </h2>
+              <div className="space-y-4">
+                {post.experience.map((exp: Experience | string, index: number) => (
+                  <div key={index} className="border-l-2 border-blue-500 pl-4">
+                    <h3 className="font-medium text-gray-900">
+                      {typeof exp === 'string' ? exp : exp.role}
+                    </h3>
+                    {typeof exp !== 'string' && (
+                      <>
+                        <p className="text-gray-600">{exp.company}</p>
+                        <p className="text-sm text-gray-500">{exp.duration}</p>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Education Section */}
+          {post.education && post.education.length > 0 && (
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FiBookOpen /> Education
+              </h2>
+              <div className="space-y-4">
+                {(Array.isArray(post.education) ? post.education : []).map((edu: any, index) => (
+                  <div key={index} className="border-l-2 border-indigo-500 pl-4">
+                    <h3 className="font-medium text-gray-900">{typeof edu === 'string' ? edu : edu.degree}</h3>
+                    <p className="text-gray-600">{typeof edu === 'string' ? '' : edu.school}</p>
+                    <p className="text-sm text-gray-500">{typeof edu === 'string' ? '' : edu.year}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Return existing job post display for non-mentor posts
     return (
       <div className="post-full space-y-8 font-['Plus_Jakarta_Sans'] max-w-3xl mx-auto">
         {/* Header Section */}
@@ -735,6 +898,11 @@ export default function Home() {
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
             <p className="text-lg text-gray-600">{post.labels['Company']}</p>
+            
+            {/* Added Posted Date */}
+            <p className="text-sm text-gray-500 mt-2">
+              Posted {format(new Date(post.created_at || Date.now()), 'MMM dd, yyyy')}
+            </p>
             
             {/* Key Information Pills */}
             <div className="flex flex-wrap gap-2 mt-3">
@@ -833,9 +1001,9 @@ export default function Home() {
           </dl>
         </div>
 
-        {/* Attribution to Remotive */}
+        {/* Updated Attribution */}
         <div className="text-center text-sm text-gray-500 mt-8">
-          This job listing is sourced from Remotive
+          This job listing is sourced from {(post.source || 'unknown').charAt(0).toUpperCase() + (post.source || 'unknown').slice(1)}
         </div>
       </div>
     );
@@ -964,17 +1132,12 @@ export default function Home() {
   return (
     <CustomErrorBoundary>
       <div className="h-screen overflow-hidden w-full flex flex-col">
-        <div className="absolute -top-48 -left-48 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply opacity-70 animate-blob"></div>
-        <div className="absolute -top-48 -right-48 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-48 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply opacity-70 animate-blob animation-delay-4000"></div>
-
-        {/* Modified header with mobile menu */}
-        <header className="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
+        {/* Restore solid background for header */}
+        <header className="bg-white sticky top-0 z-50 shadow-sm">
           <div className="w-full px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className="relative cursor-pointer" onClick={() => window.open('https://learnitab.com', '_blank')}>
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full animate-pulse"></div>
                   <Image
                     src={Logo}
                     alt="Learnitab Logo"
@@ -984,12 +1147,11 @@ export default function Home() {
                   />
                 </div>
                 <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Learnitab</h1>
-                {/* Attractive Download Button with Icon moved closer */}
                 <button 
-                  onClick={() => window.open('https://learnitab.com/download', '_blank')} // Updated URL
-                  className="ml-2 flex items-center px-3 py-1 text-sm font-bold bg-white shadow-lg rounded-md hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
+                  onClick={() => window.open('https://learnitab.com/download', '_blank')}
+                  className="ml-2 flex items-center px-3 py-1 text-sm font-bold rounded-md bg-white hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
                 >
-                  <FiDownload className="mr-2" /> {/* Download Icon */}
+                  <FiDownload className="mr-2" />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Download Learnitab Opportunity Desktop App</span>
                 </button>
               </div>
@@ -997,10 +1159,10 @@ export default function Home() {
                 {categories.map((category) => (
                   <button
                     key={category}
-                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative ${
+                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                       currentCategory === category
                         ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md transform scale-105'
-                        : 'text-gray-700 hover:bg-gray-200'
+                        : 'bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                     onClick={() => setCurrentCategory(category)}
                   >
@@ -1022,17 +1184,17 @@ export default function Home() {
 
         {/* Modified main content */}
         <main className="flex flex-col md:flex-row -mx-2 relative z-10 h-[calc(100vh-80px)]">
-          {/* List View - added padding inside the container instead */}
+          {/* List View - keep white background */}
           <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
-            {/* Search bar container */}
-            <div className="bg-white bg-opacity-90 rounded-lg shadow-lg transition-all duration-300">
+            {/* Search bar container - keep white background */}
+            <div className="bg-white rounded-lg shadow-lg transition-all duration-300">
               {renderSearchBar()}
             </div>
 
-            {/* List container with fixed height */}
+            {/* List container - keep white background */}
             <div 
               ref={listRef}
-              className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white bg-opacity-90 rounded-lg shadow-lg"
+              className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white rounded-lg shadow-lg"
               style={{ height: 'calc(100vh - 224px)' }}
             >
               <div className="p-4 space-y-4">
@@ -1044,9 +1206,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Detail View - Ensure it's visible in mobile mode */}
+          {/* Detail View - keep white background for content */}
           <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar font-['Plus_Jakarta_Sans'] 
-            ${showMobileDetail ? 'fixed inset-0 z-50 bg-white' : 'hidden md:block'}`}>
+            ${showMobileDetail ? 'fixed inset-0 z-50 bg-transparent' : 'hidden md:block'}`}>
             <div className="bg-white rounded-xl shadow-lg p-6">
               {selectedPostTitle ? (
                 posts.filter(post => post.title === selectedPostTitle)
@@ -1141,6 +1303,7 @@ export default function Home() {
             margin: 0;
             padding: 0;
             overflow: hidden;
+            background: transparent;
           }
           
           @keyframes blob {
