@@ -720,34 +720,37 @@ export default function Home() {
   // Update the getFilteredPosts function to include pagination
   const getFilteredPosts = () => {
     let filteredPosts = posts.filter(post => {
-      // Basic category filter
+      // First check category
       if (post.category !== currentCategory) return false;
       
-      // Source filter
-      if (selectedSource !== 'all' && post.source !== selectedSource) return false;
-      
-      // Job type filter
-      if (selectedJobType !== 'all') {
-        const workType = post.workType;
-        if (!workType) return false;
-        const workTypeStr = Array.isArray(workType) ? workType.join(' ') : workType;
-        if (!workTypeStr.toLowerCase().includes(selectedJobType.toLowerCase())) return false;
+      // Only apply job-specific filters if we're in the jobs category
+      if (currentCategory === 'jobs') {
+        // Source filter
+        if (selectedSource !== 'all' && post.source !== selectedSource) return false;
+        
+        // Job type filter
+        if (selectedJobType !== 'all') {
+          const workType = post.workType;
+          if (!workType) return false;
+          const workTypeStr = Array.isArray(workType) ? workType.join(' ') : workType;
+          if (!workTypeStr.toLowerCase().includes(selectedJobType.toLowerCase())) return false;
+        }
+        
+        // Location filter
+        if (selectedLocation !== 'all') {
+          const location = post.location;
+          if (!location) return false;
+          if (!location.toLowerCase().includes(selectedLocation.toLowerCase())) return false;
+        }
+        
+        // Remote filter
+        if (isRemoteOnly && !post.remote) return false;
       }
-      
-      // Location filter
-      if (selectedLocation !== 'all') {
-        const location = post.location;
-        if (!location) return false;
-        if (!location.toLowerCase().includes(selectedLocation.toLowerCase())) return false;
-      }
-      
-      // Remote filter
-      if (isRemoteOnly && !post.remote) return false;
       
       return true;
     });
 
-    // Search term filter
+    // Search term filter (applies to all categories)
     if (searchTerm) {
       filteredPosts = filteredPosts.filter(post =>
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -755,7 +758,6 @@ export default function Home() {
       );
     }
 
-    // Only return the current page of results
     return filteredPosts.slice(0, page * 15);
   };
 
@@ -812,7 +814,8 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
                   >
-                    Apply Now <FiLink size={16} />
+                    {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
+                    {post.category !== 'mentors' && <FiLink size={16} />}
                   </a>
                 )}
               </div>
@@ -945,14 +948,17 @@ export default function Home() {
             <FiLink size={20} />
           </button>
 
-          <a
-            href={post.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-auto px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            Apply Now
-          </a>
+          {post.link && (
+            <a
+              href={post.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+            >
+              {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
+              {post.category !== 'mentors' && <FiLink size={16} />}
+            </a>
+          )}
         </div>
 
         {/* Job Description */}
@@ -1033,6 +1039,7 @@ export default function Home() {
 
   const selectCategory = (category: string) => {
     setCurrentCategory(category);
+    // Reset all filters when changing categories
     setSelectedSource('all');
     setSelectedJobType('all');
     setSelectedLocation('all');
