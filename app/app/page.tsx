@@ -1183,9 +1183,9 @@ export default function Home() {
         </header>
 
         {/* Modified main content */}
-        <main className="flex flex-col md:flex-row -mx-2 relative z-10 h-[calc(100vh-80px)]">
-          {/* List View - keep white background */}
-          <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
+        <main className="flex flex-col md:flex-row -mx-2 relative z-10 h-[calc(100vh-80px)] bg-transparent">
+          {/* List View - update background */}
+          <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden bg-transparent ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
             {/* Search bar container - keep white background */}
             <div className="bg-white rounded-lg shadow-lg transition-all duration-300">
               {renderSearchBar()}
@@ -1206,8 +1206,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Detail View - keep white background for content */}
-          <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar font-['Plus_Jakarta_Sans'] 
+          {/* Detail View - update background */}
+          <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar font-['Plus_Jakarta_Sans'] bg-transparent 
             ${showMobileDetail ? 'fixed inset-0 z-50 bg-transparent' : 'hidden md:block'}`}>
             <div className="bg-white rounded-xl shadow-lg p-6">
               {selectedPostTitle ? (
@@ -1303,7 +1303,7 @@ export default function Home() {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background: transparent;
+            background-color: transparent !important;
           }
           
           @keyframes blob {
