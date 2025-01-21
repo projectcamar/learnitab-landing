@@ -1241,8 +1241,6 @@ export default function Home() {
                   className="text-2xl font-bold text-transparent bg-clip-text animate-gradient"
                   style={{
                     backgroundImage: 'linear-gradient(90deg, #ffffff, #4F46E5, #2563EB, #ffffff)',
-                    backgroundSize: '300% 100%',
-                    animation: 'gradient 3s ease infinite',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                   }}
