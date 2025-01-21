@@ -16,7 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={plusJakartaSans.className}>{children}</body>
+      <body style={{ background: 'transparent' }}>
+        {children}
+      </body>
     </html>
   )
 }
