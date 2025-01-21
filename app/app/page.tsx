@@ -999,24 +999,26 @@ export default function Home() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-4 border-b pb-6">
-          <button
-            onClick={() => toggleFavorite(post.title)}
-            className={`p-2.5 rounded-lg ${
-              favorites.includes(post.title)
-                ? 'bg-pink-50 text-pink-500 border border-pink-200'
-                : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
-            }`}
-          >
-            <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
-          </button>
-          
-          <button
-            onClick={() => copyPostLink(post)}
-            className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
-          >
-            <FiLink size={20} />
-          </button>
+        <div className="flex items-center justify-between gap-4 border-b pb-6">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => toggleFavorite(post.title)}
+              className={`p-2.5 rounded-lg ${
+                favorites.includes(post.title)
+                  ? 'bg-pink-50 text-pink-500 border border-pink-200'
+                  : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
+              }`}
+            >
+              <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
+            </button>
+            
+            <button
+              onClick={() => copyPostLink(post)}
+              className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
+            >
+              <FiLink size={20} />
+            </button>
+          </div>
 
           {post.link && (
             <a
