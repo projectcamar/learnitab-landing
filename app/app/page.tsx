@@ -1209,13 +1209,7 @@ export default function Home() {
 
   return (
     <CustomErrorBoundary>
-      <div 
-        className="h-screen overflow-hidden w-full flex flex-col" 
-        style={{ 
-          background: 'transparent !important',
-          backgroundColor: 'transparent !important'
-        }}
-      >
+      <div className="h-screen overflow-hidden w-full flex flex-col" style={{ background: 'transparent' }}>
         {/* Header - remove bg-white */}
         <header className="relative sticky top-0 z-50" style={{ background: 'transparent' }}>
           <div className="relative z-20 w-full px-4 py-4" style={{ background: 'transparent' }}>
