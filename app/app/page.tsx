@@ -1237,7 +1237,18 @@ export default function Home() {
                     className="relative z-10 mr-4"
                   />
                 </div>
-                <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Learnitab</h1>
+                <h1 
+                  className="text-2xl font-bold text-transparent bg-clip-text animate-gradient"
+                  style={{
+                    backgroundImage: 'linear-gradient(90deg, #ffffff, #4F46E5, #2563EB, #ffffff)',
+                    backgroundSize: '300% 100%',
+                    animation: 'gradient 3s ease infinite',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  Learnitab
+                </h1>
                 <button 
                   onClick={() => window.open('https://learnitab.com/download', '_blank')}
                   className="ml-2 flex items-center px-3 py-1 text-sm font-bold rounded-md bg-white hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
