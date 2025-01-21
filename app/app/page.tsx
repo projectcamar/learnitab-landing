@@ -102,6 +102,21 @@ type Education = {
   year: string;
 };
 
+// Add RemoteOK job type after the other job types
+type RemoteOKJob = {
+  id: string;
+  company: string;
+  position: string;
+  description: string;
+  tags: string[];
+  location: string;
+  salary_min: number;
+  salary_max: number;
+  company_logo: string;
+  url: string;
+  date: string;
+};
+
 // Add fetchJobicyJobs function
 const fetchJobicyJobs = async () => {
   try {
@@ -213,6 +228,59 @@ const fetchArbeitnowJobs = async () => {
     }));
   } catch (error) {
     console.error('Error fetching Arbeitnow jobs:', error);
+    return [];
+  }
+};
+
+// Add fetchRemoteOKJobs function after the other fetch functions
+const fetchRemoteOKJobs = async () => {
+  try {
+    console.log('Fetching RemoteOK jobs...');
+    // Add limit parameter to get more jobs
+    const response = await fetch('https://remoteok.com/api?limit=100', {
+      headers: {
+        'User-Agent': 'Learnitab (https://learnitab.com)'
+      }
+    });
+    const data = await response.json();
+    
+    // Skip the first item as it's usually metadata
+    const jobs = data.slice(1);
+    console.log('RemoteOK jobs count:', jobs.length);
+    
+    return jobs.map((job: RemoteOKJob) => ({
+      _id: job.id,
+      title: job.position,
+      category: 'jobs',
+      link: job.url,
+      company: job.company,
+      image: job.company_logo || DEFAULT_COMPANY_LOGO,
+      location: job.location || 'Remote',
+      workType: job.tags?.[0] || 'Full Time',
+      body: job.description,
+      source: 'remoteok',
+      created_at: new Date(job.date).getTime(),
+      expired: false,
+      daysLeft: 30,
+      salary: job.salary_min && job.salary_max ? 
+        `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}` : 
+        'Not specified',
+      labels: {
+        Company: job.company,
+        Position: job.position,
+        Location: job.location || 'Remote',
+        Status: job.tags?.[0] || 'Full Time',
+        Salary: job.salary_min && job.salary_max ? 
+          `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}` : 
+          'Not specified'
+      }
+    }));
+  } catch (error: any) {
+    console.error('Error fetching RemoteOK jobs:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack
+    });
     return [];
   }
 };
@@ -331,11 +399,12 @@ export default function Home() {
       setIsLoading(true);
       try {
         console.log('Starting initial fetch...');
-        const [response, remotiveJobs, jobicyJobs, arbeitnowJobs] = await Promise.all([
+        const [response, remotiveJobs, jobicyJobs, arbeitnowJobs, remoteOKJobs] = await Promise.all([
           fetch('/api/posts'),
           fetchRemotiveJobs(),
           fetchJobicyJobs(),
-          fetchArbeitnowJobs()
+          fetchArbeitnowJobs(),
+          fetchRemoteOKJobs()
         ]);
 
         const data = await response.json();
@@ -384,7 +453,8 @@ export default function Home() {
             ...transformedMentors,
             ...remotiveJobs,
             ...jobicyJobs,
-            ...arbeitnowJobs
+            ...arbeitnowJobs,
+            ...remoteOKJobs
           ].sort((a, b) => b.created_at - a.created_at);
           
           setPosts(transformedPosts);
@@ -1123,13 +1193,14 @@ export default function Home() {
   // Update the main fetch function
   const fetchPosts = async () => {
     try {
-      const [remotiveJobs, jobicyJobs, arbeitnowJobs] = await Promise.all([
+      const [remotiveJobs, jobicyJobs, arbeitnowJobs, remoteOKJobs] = await Promise.all([
         fetchRemotiveJobs(),
         fetchJobicyJobs(),
-        fetchArbeitnowJobs()
+        fetchArbeitnowJobs(),
+        fetchRemoteOKJobs()
       ]);
       
-      return [...remotiveJobs, ...jobicyJobs, ...arbeitnowJobs];
+      return [...remotiveJobs, ...jobicyJobs, ...arbeitnowJobs, ...remoteOKJobs];
     } catch (error) {
       console.error('Error fetching jobs:', error);
       return [];
@@ -1138,10 +1209,26 @@ export default function Home() {
 
   return (
     <CustomErrorBoundary>
-      <div className="h-screen overflow-hidden w-full flex flex-col">
-        {/* Restore solid background for header */}
-        <header className="bg-white sticky top-0 z-50 shadow-sm">
-          <div className="w-full px-4 py-4">
+      <div className="h-screen overflow-hidden w-full flex flex-col relative">
+        {/* Add background image container */}
+        <div 
+          className="absolute inset-0 z-0 overflow-hidden"
+          style={{
+            backgroundImage: 'url(https://cod.lk/s/OTZfOTY3MjAxdNDFf/magang-dumsmy.pang)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            transform: 'scale(1.1)',
+            filter: 'blur(0px) brightness(0.7)'
+          }}
+        />
+        
+        {/* Darken overlay */}
+        <div className="absolute inset-0 bg-black/30 z-10" />
+
+        {/* Header */}
+        <header className="relative bg-transparent sticky top-0 z-50">
+          <div className="relative z-20 w-full px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className="relative cursor-pointer" onClick={() => window.open('https://learnitab.com', '_blank')}>
@@ -1189,8 +1276,8 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Modified main content */}
-        <main className="flex flex-col md:flex-row -mx-2 relative z-10 h-[calc(100vh-80px)] bg-transparent">
+        {/* Main content */}
+        <main className="flex flex-col md:flex-row -mx-2 relative z-20 h-[calc(100vh-80px)]">
           {/* List View - update background */}
           <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden bg-transparent ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
             {/* Search bar container - keep white background */}
