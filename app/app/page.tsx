@@ -1209,10 +1209,10 @@ export default function Home() {
 
   return (
     <CustomErrorBoundary>
-      <div className="h-screen overflow-hidden w-full flex flex-col">
-        {/* Header */}
-        <header className="relative sticky top-0 z-50">
-          <div className="relative z-20 w-full px-4 py-4">
+      <div className="h-screen overflow-hidden w-full flex flex-col" style={{ background: 'transparent' }}>
+        {/* Header - remove bg-white */}
+        <header className="relative sticky top-0 z-50" style={{ background: 'transparent' }}>
+          <div className="relative z-20 w-full px-4 py-4" style={{ background: 'transparent' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className="relative cursor-pointer" onClick={() => window.open('https://learnitab.com', '_blank')}>
@@ -1260,22 +1260,22 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Main content */}
-        <main className="flex flex-col md:flex-row -mx-2 relative z-20 h-[calc(100vh-80px)]">
+        {/* Main content - make transparent */}
+        <main className="flex flex-col md:flex-row -mx-2 relative z-20 h-[calc(100vh-80px)]" style={{ background: 'transparent' }}>
           {/* List View - remove bg-transparent */}
-          <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden ${showMobileDetail ? 'hidden md:flex' : 'flex'}`} style={{ background: 'transparent' }}>
             {/* Search bar container - keep white background for content only */}
-            <div className="bg-white rounded-lg shadow-lg transition-all duration-300">
+            <div className="rounded-lg shadow-lg transition-all duration-300" style={{ background: 'transparent' }}>
               {renderSearchBar()}
             </div>
 
             {/* List container - keep white background for content only */}
             <div 
               ref={listRef}
-              className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white rounded-lg shadow-lg"
-              style={{ height: 'calc(100vh - 224px)' }}
+              className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar rounded-lg shadow-lg"
+              style={{ height: 'calc(100vh - 224px)', background: 'transparent' }}
             >
-              <div className="p-4 space-y-4">
+              <div className="p-4 space-y-4" style={{ background: 'transparent' }}>
                 {showSaved ? 
                   renderPosts(posts.filter(post => favorites.includes(post.title))) :
                   renderPosts(getSortedPosts(getFilteredPosts()))
@@ -1286,8 +1286,8 @@ export default function Home() {
 
           {/* Detail View - remove bg-transparent */}
           <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar font-['Plus_Jakarta_Sans'] 
-            ${showMobileDetail ? 'fixed inset-0 z-50' : 'hidden md:block'}`}>
-            <div className="bg-white rounded-xl shadow-lg p-6">
+            ${showMobileDetail ? 'fixed inset-0 z-50' : 'hidden md:block'}`} style={{ background: 'transparent' }}>
+            <div className="rounded-xl shadow-lg p-6" style={{ background: 'transparent' }}>
               {selectedPostTitle ? (
                 posts.filter(post => post.title === selectedPostTitle)
                   .map(post => displayFullPost(post))[0]
