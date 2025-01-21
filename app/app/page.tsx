@@ -1219,13 +1219,10 @@ export default function Home() {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             transform: 'scale(1.1)',
-            filter: 'blur(0px) brightness(0.7)'
+            filter: 'blur(0px) brightness(1)'
           }}
         />
         
-        {/* Darken overlay */}
-        <div className="absolute inset-0 bg-black/30 z-10" />
-
         {/* Header */}
         <header className="relative bg-transparent sticky top-0 z-50">
           <div className="relative z-20 w-full px-4 py-4">
