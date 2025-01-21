@@ -1209,10 +1209,23 @@ export default function Home() {
 
   return (
     <CustomErrorBoundary>
-      <div className="h-screen overflow-hidden w-full flex flex-col" style={{ background: 'transparent' }}>
-        {/* Header - remove bg-white */}
-        <header className="relative sticky top-0 z-50" style={{ background: 'transparent' }}>
-          <div className="relative z-20 w-full px-4 py-4" style={{ background: 'transparent' }}>
+      <div className="h-screen overflow-hidden w-full flex flex-col relative">
+        {/* Add background image container */}
+        <div 
+          className="absolute inset-0 z-0 overflow-hidden"
+          style={{
+            backgroundImage: 'url(https://cod.lk/s/OTZfOTY3MjAxdNDFf/magang-dumsmy.pang)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            transform: 'scale(1.1)',
+            filter: 'blur(0px) brightness(1)'
+          }}
+        />
+        
+        {/* Header */}
+        <header className="relative bg-transparent sticky top-0 z-50">
+          <div className="relative z-20 w-full px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className="relative cursor-pointer" onClick={() => window.open('https://learnitab.com', '_blank')}>
@@ -1260,22 +1273,22 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Main content - make transparent */}
-        <main className="flex flex-col md:flex-row -mx-2 relative z-20 h-[calc(100vh-80px)]" style={{ background: 'transparent' }}>
-          {/* List View - remove bg-transparent */}
-          <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden ${showMobileDetail ? 'hidden md:flex' : 'flex'}`} style={{ background: 'transparent' }}>
-            {/* Search bar container - keep white background for content only */}
-            <div className="rounded-lg shadow-lg transition-all duration-300" style={{ background: 'transparent' }}>
+        {/* Main content */}
+        <main className="flex flex-col md:flex-row -mx-2 relative z-20 h-[calc(100vh-80px)]">
+          {/* List View - update background */}
+          <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden bg-transparent ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
+            {/* Search bar container - keep white background */}
+            <div className="bg-white rounded-lg shadow-lg transition-all duration-300">
               {renderSearchBar()}
             </div>
 
-            {/* List container - keep white background for content only */}
+            {/* List container - keep white background */}
             <div 
               ref={listRef}
-              className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar rounded-lg shadow-lg"
-              style={{ height: 'calc(100vh - 224px)', background: 'transparent' }}
+              className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white rounded-lg shadow-lg"
+              style={{ height: 'calc(100vh - 224px)' }}
             >
-              <div className="p-4 space-y-4" style={{ background: 'transparent' }}>
+              <div className="p-4 space-y-4">
                 {showSaved ? 
                   renderPosts(posts.filter(post => favorites.includes(post.title))) :
                   renderPosts(getSortedPosts(getFilteredPosts()))
@@ -1284,10 +1297,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Detail View - remove bg-transparent */}
-          <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar font-['Plus_Jakarta_Sans'] 
-            ${showMobileDetail ? 'fixed inset-0 z-50' : 'hidden md:block'}`} style={{ background: 'transparent' }}>
-            <div className="rounded-xl shadow-lg p-6" style={{ background: 'transparent' }}>
+          {/* Detail View - update background */}
+          <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar font-['Plus_Jakarta_Sans'] bg-transparent 
+            ${showMobileDetail ? 'fixed inset-0 z-50 bg-transparent' : 'hidden md:block'}`}>
+            <div className="bg-white rounded-xl shadow-lg p-6">
               {selectedPostTitle ? (
                 posts.filter(post => post.title === selectedPostTitle)
                   .map(post => displayFullPost(post))[0]

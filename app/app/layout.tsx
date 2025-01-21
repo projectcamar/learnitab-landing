@@ -4,7 +4,7 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-gray-100">
+    <div style={{ background: 'transparent' }}>
       {children}
     </div>
   );
