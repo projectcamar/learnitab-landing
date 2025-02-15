@@ -1506,6 +1506,7 @@ export default function Home() {
     </script>
 </body>
 </html>
+      `
     }} />
   )
 }
