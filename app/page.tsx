@@ -963,9 +963,49 @@ export default function Home() {
                 padding: 1.5rem;
             }
         }
+
+        .music-control {
+            width: 12px;  /* Match dot size */
+            height: 12px; /* Match dot size */
+            border-radius: 50%;
+            background: rgba(147, 51, 234, 0.2);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .music-control:hover {
+            background: rgba(147, 51, 234, 0.3);
+            transform: scale(1.1);
+        }
+
+        .music-control i {
+            font-size: 8px; /* Smaller icon size */
+        }
+
+        @media (max-width: 768px) {
+            .music-control {
+                width: 10px;  /* Match mobile dot size */
+                height: 10px; /* Match mobile dot size */
+            }
+            
+            .music-control i {
+                font-size: 6px; /* Even smaller icon for mobile */
+            }
+        }
     </style>
 </head>
 <body>
+    <audio id="backgroundMusic" loop autoplay>
+        <source src="https://od.lk/s/OTZfMTAwMzI2Mzk3Xw/Is%20It%20The%20Answer%20-%20Reality%20Club.mp3" type="audio/mp3">
+    </audio>
+
     <div class="cinema-bar-top cinema-bars"></div>
     <div class="cinema-bar-bottom cinema-bars"></div>
 
@@ -1148,6 +1188,9 @@ export default function Home() {
     </div>
 
     <div class="nav-dots">
+        <button id="musicToggle" class="music-control">
+            <i class="fas fa-pause"></i>
+        </button>
         <div class="nav-dot active" data-section="hero"></div>
         <div class="nav-dot" data-section="features"></div>
         <div class="nav-dot" data-section="about"></div>
@@ -1390,44 +1433,43 @@ export default function Home() {
             if (isInFooter && !isTransitioning) {
                 isTransitioning = true;
                 
-                // Transition fog color to black
+                // Reduced opacity for fog transition
                 TweenMax.to(scene.fog.color, 1, {
-                    r: new THREE.Color(footerFogColor).r,
-                    g: new THREE.Color(footerFogColor).g,
-                    b: new THREE.Color(footerFogColor).b
+                    r: new THREE.Color(footerFogColor).r * 0.7, // Reduced intensity
+                    g: new THREE.Color(footerFogColor).g * 0.7,
+                    b: new THREE.Color(footerFogColor).b * 0.7
                 });
                 TweenMax.to(scene.background, 1, {
-                    r: new THREE.Color(footerFogColor).r,
-                    g: new THREE.Color(footerFogColor).g,
-                    b: new THREE.Color(footerFogColor).b
+                    r: new THREE.Color(footerFogColor).r * 0.7,
+                    g: new THREE.Color(footerFogColor).g * 0.7,
+                    b: new THREE.Color(footerFogColor).b * 0.7
                 });
                 
-                // Transition building colors to dark navy
+                // Softer building color transition
                 town.children.forEach(building => {
                     if (building.material) {
                         TweenMax.to(building.material.color, 1, {
-                            r: new THREE.Color(footerBuildingColor).r,
-                            g: new THREE.Color(footerBuildingColor).g,
-                            b: new THREE.Color(footerBuildingColor).b
+                            r: new THREE.Color(footerBuildingColor).r * 0.8,
+                            g: new THREE.Color(footerBuildingColor).g * 0.8,
+                            b: new THREE.Color(footerBuildingColor).b * 0.8
                         });
                     }
                 });
                 
-                // Transition camera position only, without flipping
+                // Gentler camera movement
                 TweenMax.to(camera.position, 1, {
-                    y: 4,
-                    z: 18
+                    y: 3, // Reduced from 4
+                    z: 16 // Reduced from 18
                 });
                 
-                // Remove the flipping, just adjust position slightly
                 TweenMax.to(city.position, 1, {
-                    y: 2  // Reduced from 6 to 2 since we're not flipping
+                    y: 1  // Reduced from 2
                 });
                 
             } else if (!isInFooter && isTransitioning) {
                 isTransitioning = false;
                 
-                // Transition back to normal colors
+                // Normal transitions back remain the same
                 TweenMax.to(scene.fog.color, 1, {
                     r: new THREE.Color(normalFogColor).r,
                     g: new THREE.Color(normalFogColor).g,
@@ -1439,7 +1481,6 @@ export default function Home() {
                     b: new THREE.Color(normalFogColor).b
                 });
                 
-                // Transition building colors back
                 town.children.forEach(building => {
                     if (building.material) {
                         TweenMax.to(building.material.color, 1, {
@@ -1450,13 +1491,11 @@ export default function Home() {
                     }
                 });
                 
-                // Transition camera and city back
                 TweenMax.to(camera.position, 1, {
                     y: 2,
                     z: 14
                 });
                 
-                // Remove the scale flip, just reset position
                 TweenMax.to(city.position, 1, {
                     y: 0
                 });
@@ -1655,6 +1694,55 @@ export default function Home() {
         
         // Call handleResize initially to set correct state
         handleResize();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const audio = document.getElementById('backgroundMusic');
+            const musicToggle = document.getElementById('musicToggle');
+            const icon = musicToggle.querySelector('i');
+            
+            // Function to handle play/pause
+            function toggleMusic() {
+                if (audio.paused) {
+                    audio.play();
+                    icon.className = 'fas fa-pause';
+                } else {
+                    audio.pause();
+                    icon.className = 'fas fa-play';
+                }
+            }
+
+            // Add click event listener
+            musicToggle.addEventListener('click', toggleMusic);
+
+            // Force autoplay when page loads
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Autoplay started successfully
+                    icon.className = 'fas fa-pause';
+                })
+                .catch(error => {
+                    // Auto-play was prevented
+                    icon.className = 'fas fa-play';
+                    // Try playing on first user interaction with the page
+                    document.addEventListener('click', function initPlay() {
+                        audio.play();
+                        icon.className = 'fas fa-pause';
+                        document.removeEventListener('click', initPlay);
+                    }, { once: true });
+                });
+            }
+
+            // Update button state when audio plays/pauses
+            audio.addEventListener('play', () => {
+                icon.className = 'fas fa-pause';
+            });
+
+            audio.addEventListener('pause', () => {
+                icon.className = 'fas fa-play';
+            });
+        });
     </script>
 </body>
 </html>
