@@ -16,7 +16,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body style={{ background: 'transparent' }}>
+      <body className={plusJakartaSans.className} style={{ 
+        background: '#000',
+        color: 'white',
+        margin: 0,
+        minHeight: '100vh'
+      }}>
         {children}
       </body>
     </html>
