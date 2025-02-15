@@ -926,6 +926,43 @@ export default function Home() {
                 min-height: 100vh;
             }
         }
+
+        #contact .about-wrapper {
+            margin-top: 2rem;
+            gap: 1.5rem;
+        }
+
+        #contact .about-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        #contact .benefits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        #contact .benefits-list li {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        #contact .benefits-list i {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            #contact .about-wrapper {
+                grid-template-columns: 1fr;
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1071,29 +1108,28 @@ export default function Home() {
             <div class="content-section">
                 <h2>Get in Touch</h2>
                 <p>Have questions or want to collaborate? We'd love to hear from you!</p>
-                <div class="contact-grid">
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <h3>Email Us</h3>
+                
+                <div class="about-wrapper">
+                    <div class="about-text">
+                        <h3 class="purple-text">Email</h3>
                         <p>learnitab@gmail.com</p>
                     </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fab fa-instagram"></i>
+                    
+                    <div class="about-text">
+                        <h3 class="purple-text">Social Media</h3>
+                        <div class="benefits-list">
+                            <li>
+                                <i class="fab fa-instagram" style="color: #9333EA"></i>
+                                @learnitab
+                            </li>
+                            <li>
+                                <i class="fab fa-linkedin-in" style="color: #9333EA"></i>
+                                Learnitab
+                            </li>
                         </div>
-                        <h3>Follow on Instagram</h3>
-                        <p>@learnitab</p>
-                    </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fab fa-linkedin-in"></i>
-                        </div>
-                        <h3>Connect on LinkedIn</h3>
-                        <p>Learnitab</p>
                     </div>
                 </div>
+
                 <div class="cta-section">
                     <h3>Ready to innovate with us?</h3>
                     <button class="btn btn-primary">Start a Conversation</button>
