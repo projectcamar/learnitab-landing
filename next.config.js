@@ -5,13 +5,12 @@ const nextConfig = {
     unoptimized: true,
     domains: ['od.lk', 'e7.pngegg.com'],
   },
-  // Add this section for handling the landing page
-  async redirects() {
+  // Add this section to handle the landing page
+  async rewrites() {
     return [
       {
         source: '/',
         destination: '/index.html',
-        permanent: true,
       },
     ];
   },
