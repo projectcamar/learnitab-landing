@@ -836,6 +836,72 @@ export default function Home() {
         .show-cinema-bars .cinema-bar-bottom {
             transform: translateY(0);
         }
+
+        /* Add/update these mobile responsive styles */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem; /* Smaller heading for mobile */
+                margin-bottom: 1rem;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            .small {
+                font-size: 1rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 0;
+            }
+            
+            .feature-card {
+                padding: 1rem;
+            }
+            
+            .feature-image {
+                height: 150px; /* Smaller images on mobile */
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr; /* Single column on mobile */
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+            
+            .nav-dots {
+                right: 10px; /* Move dots closer to edge on mobile */
+            }
+            
+            .sections-container {
+                height: 100%;
+                overflow-y: auto;
+            }
+            
+            .section {
+                min-height: 100vh;
+                padding: 2rem 1rem;
+            }
+            
+            .content-section {
+                width: 100%;
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1258,6 +1324,9 @@ export default function Home() {
             const currentScrollSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
             const isInFooter = currentScrollSection.closest('#footer');
             
+            // Check if device is mobile
+            const isMobile = window.innerWidth <= 768;
+            
             if (isInFooter && !isTransitioning) {
                 isTransitioning = true;
                 
@@ -1333,8 +1402,8 @@ export default function Home() {
                 });
             }
             
-            // Regular rotation only when not in footer
-            if (!isInFooter) {
+            // Only apply rotation on non-mobile devices
+            if (!isMobile && !isInFooter) {
                 city.rotation.y -= ((mouse.x * 8) - camera.rotation.y) * uSpeed;
                 city.rotation.x -= (-(mouse.y * 2) - camera.rotation.x) * uSpeed;
                 if (city.rotation.x < -0.05) city.rotation.x = -0.05;
@@ -1503,6 +1572,29 @@ export default function Home() {
                 // ... rest of your existing wheel event code ...
             });
         });
+
+        // Add this function to handle window resize
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            
+            // Reset rotation when switching to mobile
+            if (isMobile) {
+                city.rotation.y = 0;
+                city.rotation.x = 0;
+            }
+            
+            // Update camera and renderer
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Update the window resize event listener
+        window.removeEventListener('resize', onWindowResize);
+        window.addEventListener('resize', handleResize);
+        
+        // Call handleResize initially to set correct state
+        handleResize();
     </script>
 </body>
 </html>
