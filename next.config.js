@@ -3,11 +3,18 @@ const nextConfig = {
   output: 'export',
   images: {
     unoptimized: true,
-    domains: ['od.lk', 'e7.pngegg.com'], // Added the new domain
+    domains: ['od.lk', 'e7.pngegg.com'],
   },
-  // If you're using rewrites/redirects:
-  // assetPrefix: '/',
-  // trailingSlash: true,
+  // Add this section for handling the landing page
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/index.html',
+        permanent: true,
+      },
+    ];
+  },
 }
 
-module.exports = nextConfig 
+module.exports = nextConfig
