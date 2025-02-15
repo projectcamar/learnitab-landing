@@ -15,13 +15,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={plusJakartaSans.className} style={{ 
-        background: '#000',
-        color: 'white',
-        margin: 0,
-        minHeight: '100vh'
-      }}>
+    <html lang="en" className="dark">
+      <body className={`${plusJakartaSans.className} bg-transparent`}>
         {children}
       </body>
     </html>
