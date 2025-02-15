@@ -5,14 +5,10 @@ const nextConfig = {
     unoptimized: true,
     domains: ['od.lk', 'e7.pngegg.com'],
   },
-  // Add this section to handle the landing page
-  async rewrites() {
-    return [
-      {
-        source: '/',
-        destination: '/index.html',
-      },
-    ];
+  // Add this to handle script tags
+  webpack: (config) => {
+    config.externals = [...config.externals, 'three'];
+    return config;
   },
 }
 
