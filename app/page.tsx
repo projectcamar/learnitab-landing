@@ -121,8 +121,10 @@ export default function Home() {
             height: 100vh;
             overflow-y: auto;
             scroll-snap-type: y mandatory;
-            -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
-            scrollbar-width: none;     /* Hide scrollbar for Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+            background: transparent;
         }
 
         /* Hide scrollbar for Chrome, Safari and Opera */
@@ -141,11 +143,12 @@ export default function Home() {
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);  /* Force 2 columns */
+            grid-template-columns: repeat(2, 1fr);
             gap: 2.5rem;
-            max-width: 1000px;        /* Reduced max-width for better centering */
+            max-width: 1000px;
             margin: 0 auto;
             justify-content: center;
+            padding: 1rem;
         }
 
         .feature-card {
@@ -511,6 +514,7 @@ export default function Home() {
             -ms-overflow-style: none;
             scrollbar-width: none;
             scroll-behavior: smooth;
+            background: transparent;
         }
 
         .section {
@@ -875,6 +879,7 @@ export default function Home() {
                 grid-template-columns: 1fr; /* Single column on mobile */
                 gap: 1.5rem;
                 padding: 1rem;
+                margin-top: 4rem; /* Add space for the title */
             }
             
             .contact-grid {
@@ -900,6 +905,25 @@ export default function Home() {
             .content-section {
                 width: 100%;
                 padding: 1rem;
+            }
+
+            #features h2 {
+                font-size: 1.8rem;
+                padding: 0 1rem;
+            }
+
+            .feature-content h3 {
+                font-size: 1.3rem;
+            }
+
+            .feature-content p {
+                font-size: 1rem;
+            }
+
+            .features-page {
+                padding: 1rem;
+                height: auto;
+                min-height: 100vh;
             }
         }
     </style>
