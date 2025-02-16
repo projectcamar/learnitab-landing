@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div dangerouslySetInnerHTML={{
       __html: `
-      <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Learnitab</title>
@@ -1026,7 +1026,7 @@ export default function Home() {
     <div class="sections-container">
         <section class="section" id="hero">
             <div class="content-section">
-                <img src="/Logo%20Learnitab.png" alt="Learnitab Logo" class="logo">
+                <img src="/images/Logo%20Learnitab.png" alt="Learnitab Logo" class="logo">
                 <h1><strong>Learnitab</strong></h1>
                 <p class="small"><strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips</p>
                 <div class="button-group">
@@ -1820,7 +1820,6 @@ export default function Home() {
     </script>
 </body>
 </html>
-
       `
     }} />
   )
