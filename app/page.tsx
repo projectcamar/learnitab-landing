@@ -23,7 +23,6 @@ export default function Home() {
             margin: 0;
             text-align: center;
             background-color: black;
-            cursor: crosshair;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
         canvas {
@@ -999,6 +998,16 @@ export default function Home() {
                 font-size: 6px; /* Even smaller icon for mobile */
             }
         }
+
+        .logo {
+            width: 80px;  /* Adjust size as needed */
+            height: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        #rotating-text {
+            font-weight: 700;  /* Makes the text bold */
+        }
     </style>
 </head>
 <body>
@@ -1012,8 +1021,9 @@ export default function Home() {
     <div class="sections-container">
         <section class="section" id="hero">
             <div class="content-section">
+                <img src="https://learnitab.com/_next/static/media/Logo%20Learnitab.652ff2ba.png" alt="Learnitab Logo" class="logo">
                 <h1><strong>Learnitab</strong></h1>
-                <p class="small">– Your Learning Journey Starts Here –</p>
+                <p class="small"><strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips</p>
                 <div class="button-group">
                     <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
                        class="btn btn-primary btn-with-icon btn-wave">
@@ -1022,7 +1032,7 @@ export default function Home() {
                     </a>
                     <a href="https://learnitab.com/app" 
                        class="btn btn-secondary">
-                        Learnitab Opportunity Portal
+                        Learnitab Opportunity Portal #KaburAjaDulu
                     </a>
                 </div>
             </div>
@@ -1152,27 +1162,33 @@ export default function Home() {
                 <div class="about-wrapper">
                     <div class="about-text">
                         <h3 class="purple-text">Email</h3>
-                        <p>learnitab@gmail.com</p>
+                        <a href="mailto:learnitab@gmail.com" style="text-decoration: none;">
+                            <p>learnitab@gmail.com</p>
+                        </a>
                     </div>
                     
                     <div class="about-text">
                         <h3 class="purple-text">Social Media</h3>
                         <div class="benefits-list">
-                            <li>
-                                <i class="fab fa-instagram" style="color: #9333EA"></i>
-                                @learnitab
-                            </li>
-                            <li>
-                                <i class="fab fa-linkedin-in" style="color: #9333EA"></i>
-                                Learnitab
-                            </li>
+                            <a href="https://instagram.com/learnitab" target="_blank" style="text-decoration: none;">
+                                <li>
+                                    <i class="fab fa-instagram" style="color: #9333EA"></i>
+                                    @learnitab
+                                </li>
+                            </a>
+                            <a href="https://www.linkedin.com/company/learnitab" target="_blank" style="text-decoration: none;">
+                                <li>
+                                    <i class="fab fa-linkedin-in" style="color: #9333EA"></i>
+                                    Learnitab
+                                </li>
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 <div class="cta-section">
                     <h3>Ready to innovate with us?</h3>
-                    <button class="btn btn-primary">Start a Conversation</button>
+                    <a href="mailto:learnitab@gmail.com" class="btn btn-primary">Start a Conversation</a>
                 </div>
             </div>
         </section>
@@ -1233,7 +1249,7 @@ export default function Home() {
         var normalFogColor = 0x0A0A2A;
         var footerFogColor = 0x000000;
         var normalBuildingColor = 0x000000;
-        var footerBuildingColor = 0x0A1A3F;  // Changed to dark navy blue
+        var footerBuildingColor = 0x0A1A3F;  // Dark navy blue
         var isTransitioning = false;
 
         scene.background = new THREE.Color(normalFogColor);
@@ -1356,8 +1372,8 @@ export default function Home() {
 
         //----------------------------------------------------------------- Lights
         var ambientLight = new THREE.AmbientLight(0xFFFFFF, 4);
-        var lightFront = new THREE.SpotLight(0xFFFFFF, 20, 10);
-        var lightBack = new THREE.PointLight(0xFFFFFF, 0.5);
+        var lightFront = new THREE.SpotLight(0xFFFFFF, 20, 50);  // Increased distance from 10 to 50
+        var lightBack = new THREE.PointLight(0xFFFFFF, 0.5, 50);  // Added distance parameter
 
         lightFront.rotation.x = 45 * Math.PI / 180;
         lightFront.rotation.z = -45 * Math.PI / 180;
@@ -1426,6 +1442,7 @@ export default function Home() {
             // Get current section
             const currentScrollSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
             const isInFooter = currentScrollSection.closest('#footer');
+            const isInAbout = currentScrollSection.closest('#about');
             
             // Check if device is mobile
             const isMobile = window.innerWidth <= 768;
@@ -1433,43 +1450,71 @@ export default function Home() {
             if (isInFooter && !isTransitioning) {
                 isTransitioning = true;
                 
-                // Reduced opacity for fog transition
+                // Remove fog completely in footer
+                scene.fog.density = 0;
                 TweenMax.to(scene.fog.color, 1, {
-                    r: new THREE.Color(footerFogColor).r * 0.7, // Reduced intensity
-                    g: new THREE.Color(footerFogColor).g * 0.7,
-                    b: new THREE.Color(footerFogColor).b * 0.7
+                    r: 0,
+                    g: 0,
+                    b: 0
                 });
                 TweenMax.to(scene.background, 1, {
-                    r: new THREE.Color(footerFogColor).r * 0.7,
-                    g: new THREE.Color(footerFogColor).g * 0.7,
-                    b: new THREE.Color(footerFogColor).b * 0.7
+                    r: 0,
+                    g: 0,
+                    b: 0
                 });
                 
-                // Softer building color transition
+                // Increase light intensity for footer section
+                TweenMax.to(lightFront, 1, {
+                    intensity: 30  // Increased from 20 to 30
+                });
+                TweenMax.to(lightBack, 1, {
+                    intensity: 1.0  // Increased from 0.5 to 1.0
+                });
+                TweenMax.to(ambientLight, 1, {
+                    intensity: 6  // Increased from 4 to 6
+                });
+                
+                // Building color transition with brighter values
                 town.children.forEach(building => {
                     if (building.material) {
                         TweenMax.to(building.material.color, 1, {
-                            r: new THREE.Color(footerBuildingColor).r * 0.8,
-                            g: new THREE.Color(footerBuildingColor).g * 0.8,
-                            b: new THREE.Color(footerBuildingColor).b * 0.8
+                            r: new THREE.Color(footerBuildingColor).r,
+                            g: new THREE.Color(footerBuildingColor).g,
+                            b: new THREE.Color(footerBuildingColor).b
+                        });
+                        // Make materials more responsive to light
+                        building.material.metalness = 0.3;
+                        building.material.roughness = 0.7;
+                    }
+                });
+                
+                // Initial camera position
+                TweenMax.to(camera.position, 1, {
+                    y: 3,
+                    z: 16,
+                    onComplete: function() {
+                        // Start continuous zoom out animation
+                        TweenMax.to(camera.position, 90, {
+                            z: 30,
+                            repeat: -1,
+                            yoyo: true,
+                            ease: Power1.easeInOut
                         });
                     }
                 });
                 
-                // Gentler camera movement
-                TweenMax.to(camera.position, 1, {
-                    y: 3, // Reduced from 4
-                    z: 16 // Reduced from 18
-                });
-                
                 TweenMax.to(city.position, 1, {
-                    y: 1  // Reduced from 2
+                    y: 1
                 });
                 
             } else if (!isInFooter && isTransitioning) {
                 isTransitioning = false;
                 
-                // Normal transitions back remain the same
+                // Kill any ongoing zoom animations
+                TweenMax.killTweensOf(camera.position);
+                
+                // Restore normal fog when leaving footer
+                scene.fog = new THREE.Fog(normalFogColor, 10, 16);
                 TweenMax.to(scene.fog.color, 1, {
                     r: new THREE.Color(normalFogColor).r,
                     g: new THREE.Color(normalFogColor).g,
@@ -1479,6 +1524,17 @@ export default function Home() {
                     r: new THREE.Color(normalFogColor).r,
                     g: new THREE.Color(normalFogColor).g,
                     b: new THREE.Color(normalFogColor).b
+                });
+                
+                // Restore normal light intensities
+                TweenMax.to(lightFront, 1, {
+                    intensity: 20
+                });
+                TweenMax.to(lightBack, 1, {
+                    intensity: 0.5
+                });
+                TweenMax.to(ambientLight, 1, {
+                    intensity: 4
                 });
                 
                 town.children.forEach(building => {
@@ -1488,6 +1544,9 @@ export default function Home() {
                             g: new THREE.Color(normalBuildingColor).g,
                             b: new THREE.Color(normalBuildingColor).b
                         });
+                        // Restore original material properties
+                        building.material.metalness = 0.6;
+                        building.material.roughness = 0.4;
                     }
                 });
                 
@@ -1503,8 +1562,15 @@ export default function Home() {
             
             // Only apply rotation on non-mobile devices
             if (!isMobile && !isInFooter) {
-                city.rotation.y -= ((mouse.x * 8) - camera.rotation.y) * uSpeed;
-                city.rotation.x -= (-(mouse.y * 2) - camera.rotation.x) * uSpeed;
+                // Reverse rotation direction when in About section
+                if (isInAbout) {
+                    city.rotation.y += ((mouse.x * 8) - camera.rotation.y) * uSpeed;
+                    city.rotation.x += (-(mouse.y * 2) - camera.rotation.x) * uSpeed;
+                } else {
+                    city.rotation.y -= ((mouse.x * 8) - camera.rotation.y) * uSpeed;
+                    city.rotation.x -= (-(mouse.y * 2) - camera.rotation.x) * uSpeed;
+                }
+                
                 if (city.rotation.x < -0.05) city.rotation.x = -0.05;
                 else if (city.rotation.x > 1) city.rotation.x = 1;
             }
@@ -1523,22 +1589,56 @@ export default function Home() {
             const navDots = document.querySelectorAll('.nav-dot');
             const featuresSection = document.getElementById('features');
             const featuresContainer = document.querySelector('.features-container');
-            let currentSection = 0;
             let isScrolling = false;
-            let isInFeatures = false;
+
+            // Function to determine which section is most visible in the viewport
+            function getCurrentSection() {
+                let maxVisibility = 0;
+                let currentSection = 0;
+                
+                sections.forEach((section, index) => {
+                    const rect = section.getBoundingClientRect();
+                    const viewHeight = Math.min(window.innerHeight, rect.height);
+                    const visibility = Math.min(rect.bottom, viewHeight) - Math.max(rect.top, 0);
+                    
+                    if (visibility > maxVisibility) {
+                        maxVisibility = visibility;
+                        currentSection = index;
+                    }
+                });
+                
+                return currentSection;
+            }
 
             function updateNavDots(index) {
                 navDots.forEach(dot => dot.classList.remove('active'));
                 navDots[index].classList.add('active');
             }
 
-            const aboutSection = document.getElementById('about');
-            const aboutContainer = document.querySelector('.about-container');
-            
+            // Function to force scroll to nearest section
+            function snapToNearestSection() {
+                const currentSection = getCurrentSection();
+                sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+                updateNavDots(currentSection);
+            }
+
+            // Add periodic check for section alignment
+            setInterval(() => {
+                if (!isScrolling) {
+                    const currentSection = getCurrentSection();
+                    const activeNavIndex = Array.from(navDots).findIndex(dot => dot.classList.contains('active'));
+                    
+                    if (activeNavIndex !== currentSection) {
+                        updateNavDots(currentSection);
+                        snapToNearestSection();
+                    }
+                }
+            }, 1000); // Check every second
+
             window.addEventListener('wheel', function(e) {
-                const currentScrollSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
-                isInFeatures = currentScrollSection.closest('#features');
-                const isInAbout = currentScrollSection.closest('#about');
+                const currentSection = getCurrentSection();
+                const isInFeatures = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2).closest('#features');
+                const isInAbout = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2).closest('#about');
                 
                 if (isInFeatures) {
                     e.preventDefault();
@@ -1548,127 +1648,42 @@ export default function Home() {
                     const pageHeight = featuresContainer.clientHeight;
                     const totalHeight = pageHeight * (featuresPages.length - 1);
                     
-                    if (e.deltaY > 0) { // Scrolling down
-                        if (scrollAmount < totalHeight) {
-                            featuresContainer.scrollBy({
-                                top: pageHeight,
-                                behavior: 'smooth'
-                            });
-                        } else {
-                            // Move to next main section
-                            currentSection++;
-                            sections[currentSection].scrollIntoView({ behavior: 'smooth' });
-                            updateNavDots(currentSection);
-                        }
-                    } else { // Scrolling up
-                        if (scrollAmount > 0) {
-                            featuresContainer.scrollBy({
-                                top: -pageHeight,
-                                behavior: 'smooth'
-                            });
-                        } else {
-                            // Move to previous main section
-                            currentSection--;
-                            sections[currentSection].scrollIntoView({ behavior: 'smooth' });
-                            updateNavDots(currentSection);
-                        }
-                    }
-                } else if (isInAbout) {
-                    e.preventDefault();
-                    
-                    const aboutPages = aboutContainer.querySelectorAll('.about-page');
-                    const scrollAmount = aboutContainer.scrollTop;
-                    const pageHeight = aboutContainer.clientHeight;
-                    const totalHeight = pageHeight * (aboutPages.length - 1);
-                    
-                    if (e.deltaY > 0) { // Scrolling down
-                        if (scrollAmount < totalHeight) {
-                            aboutContainer.scrollBy({
-                                top: pageHeight,
-                                behavior: 'smooth'
-                            });
-                        } else {
-                            // Move to next main section
-                            currentSection++;
-                            sections[currentSection].scrollIntoView({ behavior: 'smooth' });
-                            updateNavDots(currentSection);
-                        }
-                    } else { // Scrolling up
-                        if (scrollAmount > 0) {
-                            aboutContainer.scrollBy({
-                                top: -pageHeight,
-                                behavior: 'smooth'
-                            });
-                        } else {
-                            // Move to previous main section
-                            currentSection--;
-                            sections[currentSection].scrollIntoView({ behavior: 'smooth' });
-                            updateNavDots(currentSection);
-                        }
+                    if (e.deltaY > 0 && scrollAmount >= totalHeight) {
+                        // Move to next main section
+                        sections[currentSection + 1].scrollIntoView({ behavior: 'smooth' });
+                        updateNavDots(currentSection + 1);
+                    } else if (e.deltaY < 0 && scrollAmount <= 0) {
+                        // Move to previous main section
+                        sections[currentSection - 1].scrollIntoView({ behavior: 'smooth' });
+                        updateNavDots(currentSection - 1);
+                    } else {
+                        featuresContainer.scrollBy({
+                            top: e.deltaY > 0 ? pageHeight : -pageHeight,
+                            behavior: 'smooth'
+                        });
                     }
                 } else {
-                    // Normal section jumping for other sections
+                    // Normal section scrolling
                     if (isScrolling) return;
                     
                     isScrolling = true;
                     setTimeout(() => isScrolling = false, 1000);
 
-                    if (e.deltaY > 0 && currentSection < sections.length - 1) {
-                        currentSection++;
-                    } else if (e.deltaY < 0 && currentSection > 0) {
-                        currentSection--;
+                    const nextSection = e.deltaY > 0 ? currentSection + 1 : currentSection - 1;
+                    
+                    if (nextSection >= 0 && nextSection < sections.length) {
+                        sections[nextSection].scrollIntoView({ behavior: 'smooth' });
+                        updateNavDots(nextSection);
                     }
-
-                    sections[currentSection].scrollIntoView({ behavior: 'smooth' });
-                    updateNavDots(currentSection);
                 }
             }, { passive: false });
 
+            // Update click handlers for nav dots
             navDots.forEach((dot, index) => {
                 dot.addEventListener('click', () => {
-                    currentSection = index;
-                    sections[currentSection].scrollIntoView({ behavior: 'smooth' });
-                    updateNavDots(currentSection);
-                    
-                    // Add or remove cinema bars based on section
-                    if (index === 0) { // Hero section
-                        body.classList.add('show-cinema-bars');
-                    } else {
-                        body.classList.remove('show-cinema-bars');
-                    }
+                    sections[index].scrollIntoView({ behavior: 'smooth' });
+                    updateNavDots(index);
                 });
-            });
-
-            // Add cinema bars functionality
-            const body = document.body;
-            const sectionsContainer = document.querySelector('.sections-container');
-
-            // Show cinema bars initially
-            body.classList.add('show-cinema-bars');
-
-            sectionsContainer.addEventListener('scroll', function() {
-                const currentSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
-                const isInHero = currentSection.closest('#hero');
-
-                if (isInHero) {
-                    body.classList.add('show-cinema-bars');
-                } else {
-                    body.classList.remove('show-cinema-bars');
-                }
-            });
-
-            // Update the wheel event handler to also handle cinema bars
-            window.addEventListener('wheel', function(e) {
-                const currentScrollSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
-                const isInHero = currentScrollSection.closest('#hero');
-
-                if (isInHero) {
-                    body.classList.add('show-cinema-bars');
-                } else {
-                    body.classList.remove('show-cinema-bars');
-                }
-
-                // ... rest of your existing wheel event code ...
             });
         });
 
@@ -1742,6 +1757,60 @@ export default function Home() {
             audio.addEventListener('pause', () => {
                 icon.className = 'fas fa-play';
             });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sectionsContainer = document.querySelector('.sections-container');
+            
+            // Function to check if we're in the first or last section
+            function checkCinemaBars() {
+                const currentSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+                const isInHero = currentSection.closest('#hero');
+                const isInFooter = currentSection.closest('#footer');
+                
+                if (isInHero || isInFooter) {
+                    document.body.classList.add('show-cinema-bars');
+                } else {
+                    document.body.classList.remove('show-cinema-bars');
+                }
+            }
+
+            // Check on scroll
+            sectionsContainer.addEventListener('scroll', checkCinemaBars);
+            
+            // Initial check
+            checkCinemaBars();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const phrases = [
+                "Productivity",
+                "Study",
+                "Career"
+            ];
+            
+            const rotatingText = document.getElementById('rotating-text');
+            let currentIndex = 0;
+            
+            function updateText() {
+                // Fade out
+                rotatingText.style.opacity = 0;
+                
+                setTimeout(() => {
+                    // Update text
+                    currentIndex = (currentIndex + 1) % phrases.length;
+                    rotatingText.textContent = phrases[currentIndex];
+                    
+                    // Fade in
+                    rotatingText.style.opacity = 1;
+                }, 200); // Half of the transition time
+            }
+            
+            // Add CSS transition
+            rotatingText.style.transition = 'opacity 0.4s ease';
+            
+            // Start rotation with 2 second interval
+            setInterval(updateText, 2000);
         });
     </script>
 </body>
