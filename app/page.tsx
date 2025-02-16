@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div dangerouslySetInnerHTML={{
       __html: `
-<!DOCTYPE html>
+      <!DOCTYPE html>
 <html>
 <head>
     <title>Learnitab</title>
@@ -333,6 +333,8 @@ export default function Home() {
         #hero .content-section {
             text-align: center;
             max-width: 900px;
+            position: relative;
+            z-index: 2;
         }
 
         #about .content-section {
@@ -1000,9 +1002,12 @@ export default function Home() {
         }
 
         .logo {
-            width: 80px;  /* Adjust size as needed */
+            width: 80px;
             height: auto;
-            margin-bottom: 1.5rem;
+            margin: 0 auto;
+            display: block;
+            position: relative;
+            z-index: 2;
         }
 
         #rotating-text {
@@ -1021,7 +1026,7 @@ export default function Home() {
     <div class="sections-container">
         <section class="section" id="hero">
             <div class="content-section">
-                <img src="https://learnitab.com/_next/static/media/Logo%20Learnitab.652ff2ba.png" alt="Learnitab Logo" class="logo">
+                <img src="/Logo%20Learnitab.png" alt="Learnitab Logo" class="logo">
                 <h1><strong>Learnitab</strong></h1>
                 <p class="small"><strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips</p>
                 <div class="button-group">
@@ -1815,6 +1820,7 @@ export default function Home() {
     </script>
 </body>
 </html>
+
       `
     }} />
   )
