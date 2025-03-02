@@ -1,0 +1,2845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ramadan Ibadah Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #3498db;
+    --success-color: #27ae60;
+    --background-color: #f5f6fa;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    margin: 0;
+    padding: 10px;
+    background-color: var(--background-color);
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    overflow-y: scroll; /* Allow vertical scrolling */
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: #2B5D8C;
+    margin: 0 0 15px 0;
+    font-size: 22px;
+}
+
+/* Progress Cards Section */
+.progress-section {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+}
+
+.ibadah-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.ibadah-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px;
+    width: 100%;
+}
+
+.ibadah-card img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.ibadah-card i {
+    font-size: 1.6em;
+    color: #2B5D8C;
+    margin-bottom: 3px;
+}
+
+.ibadah-card .progress-bar {
+    width: 100%;
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    height: 22px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ibadah-card .progress {
+    height: 100%;
+    border-radius: 20px;
+    background-size: 20px 20px;
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%
+    );
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    line-height: 22px;
+    transition: width 0.6s ease;
+    min-width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+    animation: progress-animation 2s linear infinite;
+}
+
+/* Progress Colors */
+#tarawihProgress {
+    background-color: #3498db;
+}
+
+#puasaProgress {
+    background-color: #e74c3c;
+}
+
+#tadarusProgress {
+    background-color: #27ae60;
+}
+
+#tahajudProgress {
+    background-color: #9b59b6;
+}
+
+#sedekahProgress {
+    background-color: #f39c12;
+}
+
+/* Progress Animation */
+@keyframes progress-animation {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 40px 0;
+    }
+}
+
+/* Empty progress state */
+.progress[style*="width: 0%"],
+.progress[style*="width:0%"] {
+    color: #555;
+    background-image: none;
+    justify-content: flex-start;
+    padding-left: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+    
+    h1 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    
+    .progress-section {
+        padding: 10px;
+    }
+    
+    /* Stack the update button and cards */
+    .update-section {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .update-button {
+        height: auto;
+        padding: 10px;
+        flex-direction: row;
+    }
+    
+    /* More compact cards for small screens */
+    .ibadah-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    /* Stack the chart and stats on mobile */
+    .chart-stats-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .chart-container {
+        height: 150px;
+    }
+    
+    /* Make stats more compact */
+    .stats-content {
+        gap: 5px;
+    }
+    
+    .stat-item {
+        padding: 5px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+    }
+    
+    .stat-value {
+        font-size: 14px;
+    }
+    
+    /* Optimize progress percentages */
+    .progress-grid,
+    .day-labels,
+    .progress-values {
+        grid-template-columns: repeat(7, 1fr);
+    }
+    
+    .progress-grid {
+        grid-template-rows: repeat(5, auto);
+    }
+    
+    .day-label, .progress-value {
+        font-size: 0.7em;
+    }
+    
+    /* Modal optimizations */
+    .modal-content {
+        width: 95%;
+        top: 2%;
+        max-height: 96vh;
+    }
+    
+    .modal-header {
+        padding: 10px;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.2em;
+    }
+    
+    .close-modal {
+        font-size: 22px;
+    }
+    
+    .modal-date {
+        font-size: 12px;
+        margin-right: 10px;
+    }
+    
+    .modal-body {
+        padding: 10px 5px;
+        max-height: 70vh;
+    }
+    
+    .modal-footer {
+        padding: 10px;
+    }
+    
+    .save-button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .ibadah-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .ibadah-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 5px;
+    }
+    
+    .ibadah-card i {
+        margin-bottom: 0;
+        min-width: 30px;
+    }
+    
+    .ibadah-card .activity-label {
+        text-align: left;
+        margin-bottom: 0;
+        width: 80px;
+    }
+    
+    .ibadah-card .progress-bar {
+        flex: 1;
+        margin-left: 8px;
+    }
+    
+    /* Smaller chart for very small screens */
+    .chart-container {
+        height: 120px;
+    }
+    
+    /* Even more compact stats */
+    .stats-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-item, .stat-item.full-width {
+        grid-column: auto;
+    }
+    
+    /* Optimize progress percentages further */
+    .progress-grid,
+    .day-labels,
+    .progress-values {
+        grid-template-columns: repeat(5, 1fr);
+    }
+    
+    .progress-grid {
+        grid-template-rows: repeat(6, auto);
+    }
+    
+    /* Table optimizations */
+    #ibadahTable th:not(:first-child),
+    #ibadahTable td:not(:first-child) {
+        width: 22px;
+        min-width: 22px;
+        max-width: 22px;
+        padding: 2px 0;
+    }
+    
+    .checkbox {
+        width: 12px;
+        height: 12px;
+    }
+    
+    #ibadahTable td:first-child {
+        font-size: 0.8em;
+        padding: 5px 5px 5px 10px;
+        min-width: 110px;
+    }
+    
+    .category-header td {
+        padding: 8px 10px !important;
+        font-size: 0.9em !important;
+    }
+    
+    /* Improve touch targets */
+    .minimize-button {
+        padding: 8px;
+    }
+    
+    .download-button {
+        padding: 5px 8px;
+    }
+    
+    /* Make progress values more readable */
+    .progress-value {
+        font-size: 0.7em;
+        padding: 2px 0;
+    }
+    
+    /* Fixed position for download PDF button on mobile */
+    #downloadReportBtn {
+        position: fixed;
+        bottom: 15px;
+        right: 15px;
+        z-index: 900;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        padding: 8px 12px;
+        border-radius: 20px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) {
+    /* Larger touch targets */
+    .checkbox {
+        transform: scale(1.2);
+    }
+    
+    .checkbox:checked::after {
+        font-size: 10px;
+    }
+    
+    /* Add spacing for touch targets */
+    .minimized-button, 
+    .close-modal, 
+    .download-button {
+        padding: 10px;
+    }
+    
+    /* Ensure modals are easily dismissible */
+    .modal-header .close-modal {
+        font-size: 26px;
+        padding: 5px 10px;
+    }
+    
+    /* Improve scrolling experience */
+    .tracking-table, .modal-body {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Make inputs easier to interact with */
+    input[type="checkbox"] {
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: #fff;
+        margin: 0;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #ddd;
+        border-radius: 3px;
+        display: grid;
+        place-content: center;
+    }
+    
+    input[type="checkbox"]::before {
+        content: '';
+        width: 10px;
+        height: 10px;
+        transform: scale(0);
+        transition: transform 0.1s;
+        box-shadow: inset 1em 1em #2B5D8C;
+        transform-origin: center;
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+    
+    input[type="checkbox"]:checked::before {
+        transform: scale(1);
+    }
+}
+
+/* Fix the first column while still allowing horizontal scrolling */
+.tracking-table {
+    overflow-x: auto;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Fix modal header on all screen sizes */
+.modal-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+}
+
+/* Ensure content is visible on notched devices */
+@supports (padding-top: env(safe-area-inset-top)) {
+    body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+    
+    .modal-content {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Chart and Statistics Container */
+.chart-stats-container {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 8px;
+    margin-top: 15px;
+    background: #f9f3e6;
+    padding: 8px;
+    border-radius: 10px;
+}
+
+.chart-container {
+    background: #f9f3e6;
+    border-radius: 5px;
+    padding: 8px;
+    height: 180px;
+    position: relative;
+}
+
+canvas#progressChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.stats-content {
+    background: #f9f3e6;
+    border-radius: 5px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.stat-item {
+    background: white;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 12px;
+    margin-bottom: 3px;
+    white-space: nowrap;
+}
+
+.stat-value {
+    color: #2B5D8C;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Long stats that should span the full width */
+.stat-item.full-width {
+    grid-column: 1 / span 2;
+}
+
+/* Enhanced Table Styles */
+.tracking-table {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: auto;
+    max-height: 500px;
+    margin-top: 20px;
+    overflow-x: auto;
+    max-width: 100%;
+    position: relative;
+    padding-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Header row styles */
+th {
+    background: #2B5D8C;
+    color: white;
+    padding: 12px 8px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #1a4a7c;
+    font-size: 0.95em;
+}
+
+/* First column (activity names) */
+td:first-child {
+    text-align: left;
+    padding-left: 15px;
+    font-weight: 500;
+    min-width: 130px;
+    color: #333;
+    position: sticky;
+    left: 0;
+    z-index: 20;
+    background-color: white;
+    border-right: 1px solid #e0e0e0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+/* Date number cells */
+th:not(:first-child) {
+    width: 35px;
+    font-size: 0.9em;
+}
+
+/* Enhanced Category Headers */
+.category-header {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.category-header:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.category-header td {
+    cursor: pointer;
+}
+
+/* Different colors and visual styles for different categories */
+.category-header.fardhu {
+    background: linear-gradient(to right, #2B5D8C, #4a7dae); /* Dark blue gradient */
+    border-left-color: #193754;
+}
+
+.category-header.sunnah {
+    background: linear-gradient(to right, #407baf, #6a9ccf); /* Medium blue gradient */
+    border-left-color: #295173;
+}
+
+.category-header.dzikir {
+    background: linear-gradient(to right, #5899d0, #81b5dd); /* Light blue gradient */
+    border-left-color: #3d6a91;
+}
+
+.category-header.ramadhan {
+    background: linear-gradient(to right, #6aa2d1, #92c0e4); /* Very light blue gradient */
+    border-left-color: #4b76a0;
+}
+
+/* Checkbox cell styles */
+td:not(:first-child) {
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Checkbox styling */
+.checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    border: 2px solid #ddd;
+    border-radius: 3px;
+    position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: white;
+    transition: all 0.2s;
+}
+
+.checkbox:checked {
+    background-color: #2B5D8C;
+    border-color: #2B5D8C;
+}
+
+.checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+}
+
+.checkbox:hover {
+    border-color: #2B5D8C;
+}
+
+/* Row hover effect */
+tr:not(.category-header):hover {
+    background-color: rgba(203, 232, 255, 0.3);
+}
+
+/* Improved scrollbar styling */
+.tracking-table::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.tracking-table::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+.tracking-table::-webkit-scrollbar-thumb {
+    background: #c0d6e9;
+    border-radius: 5px;
+    border: 2px solid #f1f1f1;
+}
+
+.tracking-table::-webkit-scrollbar-thumb:hover {
+    background: #2B5D8C;
+}
+
+/* Statistics Panel */
+.side-panel {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.side-panel h3 {
+    color: #2B5D8C;
+    margin: 0 0 20px 0;
+}
+
+/* Layout Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Chart Styles */
+#progressChart {
+    background-color: #f9f3e6; /* Beige background for chart */
+}
+
+/* Enhanced Progress Percentage Row */
+.progress-percentage-row {
+    margin: 15px 0;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.progress-header .progress-label {
+    font-weight: bold;
+    font-size: 1em;
+    color: #2B5D8C;
+}
+
+.progress-header .download-button {
+    background-color: #2B5D8C;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.3s;
+}
+
+.progress-header .download-button:hover {
+    background-color: #1a4a7c;
+}
+
+.progress-header .download-button i {
+    font-size: 14px;
+}
+
+/* Container for day labels and values */
+.progress-grid {
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    gap: 2px;
+}
+
+/* Day labels (Day 1, Day 2, etc.) */
+.day-labels {
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    gap: 2px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.day-label {
+    font-size: 0.75em;
+    font-weight: 600;
+    color: #555;
+    padding: 2px 0;
+}
+
+/* Progress percentage values */
+.progress-values {
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    gap: 2px;
+    text-align: center;
+}
+
+.progress-value {
+    font-weight: 500;
+    text-align: center;
+    border-radius: 4px;
+    width: 100%;
+    color: white;
+    background-color: #3498db; /* Default blue */
+    padding: 3px 0;
+    position: relative;
+    cursor: help;
+}
+
+.progress-value.level-0 { background-color: #3498db; } /* Blue (0-15%) */
+.progress-value.level-1 { background-color: #1abc9c; } /* Teal (15-30%) */
+.progress-value.level-2 { background-color: #2ecc71; } /* Green (30-45%) */
+.progress-value.level-3 { background-color: #f1c40f; } /* Yellow (45-60%) */
+.progress-value.level-4 { background-color: #f39c12; } /* Orange (60-75%) */
+.progress-value.level-5 { background-color: #e67e22; } /* Dark Orange (75-90%) */
+.progress-value.level-6 { background-color: #e74c3c; } /* Red (90-100%) */
+
+/* Make sure the text is readable on all backgrounds */
+.progress-value {
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Styling for different progress levels */
+.progress-value[data-value="0%"],
+.progress-value[data-value^="1"],
+.progress-value[data-value^="2"],
+.progress-value[data-value^="3"],
+.progress-value[data-value^="4"],
+.progress-value[data-value^="5"],
+.progress-value[data-value^="6"] {
+    background-color: #4a90e2;
+}
+
+.progress-value[data-value^="7"],
+.progress-value[data-value^="8"],
+.progress-value[data-value^="9"],
+.progress-value[data-value="100%"] {
+    background-color: #1a4a7c;
+}
+
+/* Hover effect */
+.progress-value:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .progress-grid,
+    .day-labels,
+    .progress-values {
+        grid-template-columns: repeat(15, 1fr);
+    }
+    
+    .progress-grid {
+        grid-template-rows: repeat(2, auto);
+    }
+    
+    /* Split into two rows for smaller screens */
+    .day-labels:after {
+        content: "";
+        display: block;
+        grid-column: 1 / span 15;
+    }
+    
+    .progress-values:after {
+        content: "";
+        display: block;
+        grid-column: 1 / span 15;
+    }
+}
+
+@media (max-width: 600px) {
+    .progress-grid,
+    .day-labels,
+    .progress-values {
+        grid-template-columns: repeat(10, 1fr);
+    }
+    
+    .progress-grid {
+        grid-template-rows: repeat(3, auto);
+    }
+    
+    .day-label, .progress-value {
+        font-size: 0.7em;
+    }
+}
+
+/* Add this to your existing styles */
+.activity-label {
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2B5D8C;
+    font-size: 0.9em;
+}
+
+/* Add these styles for the update button and modal */
+.update-section {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.update-button {
+    height: 100%;
+    padding: 12px;
+    background-color: #2B5D8C;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.update-button i {
+    font-size: 1.4em;
+}
+
+.update-button:hover {
+    background-color: #1a4a7c;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal.active {
+    display: block;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    width: 95%;
+    max-width: 1400px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    animation: modalFadeIn 0.3s;
+    margin: 0 auto;
+    position: relative;
+    top: 4%;
+    transform: translateY(0);
+}
+
+@keyframes modalFadeIn {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #2B5D8C;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+    flex: 1;
+}
+
+.close-modal {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-modal:hover {
+    color: #ddd;
+}
+
+.modal-body {
+    padding: 15px 10px;
+    max-height: 75vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    background-color: #f5f5f5;
+    text-align: right;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.save-button {
+    padding: 10px 20px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.save-button:hover {
+    background-color: #219653;
+}
+
+/* Modal tracking table styles */
+.modal .tracking-table {
+    max-height: 60vh;
+    margin-top: 0;
+}
+
+/* Chart legend styles */
+.chart-container .chartjs-legend {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+}
+
+.chart-container .chartjs-legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.8em;
+}
+
+.chart-container .chartjs-legend-color-box {
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+    border-radius: 2px;
+}
+
+/* Table cell size optimization */
+#ibadahTable th:not(:first-child),
+#ibadahTable td:not(:first-child) {
+    padding: 5px 2px;
+    width: 30px;
+    min-width: 30px;
+    max-width: 30px;
+}
+
+/* First column (Daily Ibadah) styling */
+#ibadahTable th:first-child {
+    background: #2B5D8C !important;
+    color: white;
+    text-align: left;
+    padding-left: 15px;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    border: 1px solid #1a4a7c;
+}
+
+/* Activity column (first column) styling for freezing */
+#ibadahTable td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background-color: #f5f5f5; /* Light background to ensure readability */
+    border-right: 1px solid #e0e0e0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    font-weight: 500;
+    color: #333;
+    padding-left: 15px;
+}
+
+/* Compact header styling */
+#ibadahTable th {
+    background: #2B5D8C !important;
+    color: white;
+    padding: 12px 8px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #1a4a7c;
+    font-size: 0.95em;
+}
+
+/* Ensure category headers work with frozen columns */
+#ibadahTable tr.category-header td {
+    position: sticky;
+    left: 0;
+    z-index: 15;
+    background: linear-gradient(to right, #2B5D8C, #4a7dae) !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+/* Fix for overlapping headers - ensure proper stacking */
+#ibadahTable thead tr {
+    height: 45px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Make sure the tracking table allows for scrolling */
+.tracking-table {
+    overflow-x: auto;
+    max-width: 100%;
+    position: relative;
+    padding-top: 20px; /* Make room for the Today tooltip */
+    margin-bottom: 15px;
+}
+
+/* Ensure proper category row styling with frozen column */
+.category-header td {
+    padding: 12px 15px !important;
+    font-weight: 600 !important;
+    font-size: 1em !important;
+    color: white !important;
+    background: #2B5D8C !important;
+    border-bottom: none !important;
+    position: sticky;
+    left: 0;
+    right: 0;
+    z-index: 15;
+}
+
+/* Different background colors for zebra striping while maintaining frozen column */
+#ibadahTable tr:not(.category-header):nth-of-type(odd) td:first-child {
+    background-color: rgba(245, 250, 255, 0.9);
+}
+
+#ibadahTable tr:not(.category-header):nth-of-type(even) td:first-child {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Day number columns */
+.day-column {
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 98%;
+        margin: 2% auto;
+    }
+    
+    #ibadahTable th:not(:first-child),
+    #ibadahTable td:not(:first-child) {
+        width: 25px;
+        min-width: 25px;
+        max-width: 25px;
+        padding: 3px 1px;
+    }
+    
+    .checkbox {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* Improved row styling */
+#ibadahTable tr:not(.category-header) td {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Add subtle dividers between activity groups */
+#ibadahTable tr:last-child td {
+    border-bottom: 2px solid #cbd6e2;
+}
+
+/* Activity row styling */
+#ibadahTable tr:not(.category-header) {
+    transition: background-color 0.2s;
+}
+
+/* Different background tints for different sections */
+#ibadahTable tr:not(.category-header):nth-of-type(odd) {
+    background-color: rgba(245, 250, 255, 0.7);
+}
+
+#ibadahTable tr:not(.category-header):nth-of-type(even) {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Fardhu section subtle highlighting */
+#ibadahTable tr:not(.category-header):nth-child(n+2):nth-child(-n+6) td:first-child {
+    border-left: 3px solid rgba(43, 93, 140, 0.3);
+}
+
+/* Sunnah section subtle highlighting */
+#ibadahTable tr:not(.category-header):nth-child(n+8):nth-child(-n+14) td:first-child {
+    border-left: 3px solid rgba(64, 123, 175, 0.3);
+}
+
+/* Dzikir section subtle highlighting */
+#ibadahTable tr:not(.category-header):nth-child(n+16):nth-child(-n+17) td:first-child {
+    border-left: 3px solid rgba(88, 153, 208, 0.3);
+}
+
+/* Ramadhan section subtle highlighting */
+#ibadahTable tr:not(.category-header):nth-child(n+19) td:first-child {
+    border-left: 3px solid rgba(106, 162, 209, 0.3);
+}
+
+/* Improved activity name styling */
+#ibadahTable td:first-child {
+    font-weight: 500;
+    color: #333;
+    padding-left: 15px;
+}
+
+/* Fix for overlapping headers */
+#ibadahTable thead tr {
+    height: 45px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Fix for day number columns */
+#ibadahTable th:not(:first-child) {
+    background: #2B5D8C;
+    color: white;
+    width: 35px;
+    text-align: center;
+}
+
+/* Improved table structure */
+#ibadahTable {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Fix for proper category separation */
+#ibadahTable tr.category-header td {
+    background: linear-gradient(to right, #2B5D8C, #4a7dae);
+    position: relative;
+    top: auto;
+    z-index: 5;
+}
+
+/* Update the category header styles */
+.category-header td {
+    padding: 12px 15px !important;
+    font-weight: 600 !important;
+    font-size: 1em !important;
+    color: white !important;
+    background: #2B5D8C !important;
+    border-bottom: none !important;
+    position: sticky;
+    left: 0;
+    right: 0;
+    z-index: 5;
+}
+
+/* Update specific category styles */
+tr.category-header td {
+    color: white !important;
+    background: #2B5D8C !important;
+    font-weight: 600;
+    padding: 12px 15px;
+    border-bottom: none;
+}
+
+/* Add hover effect for category headers */
+tr.category-header:hover td {
+    background: #234b73 !important;
+}
+
+/* Update the activity rows styling */
+#ibadahTable tr:not(.category-header) td:first-child {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 500;
+    color: #2B5D8C;
+    padding: 10px 15px;
+}
+
+/* Update table header font */
+#ibadahTable th {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+}
+
+/* Update checkbox label font */
+.checkbox-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Update modal fonts */
+.modal-header h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+}
+
+/* Update statistics fonts */
+.stat-label, .stat-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Download button styles */
+.stat-with-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.download-button {
+    background-color: #2B5D8C;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.3s;
+}
+
+.download-button:hover {
+    background-color: #1a4a7c;
+}
+
+.download-button i {
+    font-size: 14px;
+}
+
+/* Add these styles for the Jum'at Day section */
+
+/* Jum'at category styling */
+.category-header.jumat {
+    background: linear-gradient(to right, #b07c3d, #e19a4e); /* Brown to orange gradient */
+    border-left-color: #8b5e24;
+}
+
+/* Jum'at rows styling */
+.jumat-row td:first-child {
+    border-left: 3px solid rgba(176, 124, 61, 0.6);
+    font-style: italic;
+}
+
+/* Jum'at checkbox styling */
+.jumat-checkbox {
+    border: 2px solid #c68c3c;
+}
+
+.jumat-checkbox:checked {
+    background-color: #b07c3d;
+    border-color: #8b5e24;
+}
+
+/* Non-Friday cells */
+.non-friday-cell {
+    background-color: #f8f1e6;
+    position: relative;
+}
+
+/* Add subtle indication for Friday days */
+th:nth-child(8),
+th:nth-child(15),
+th:nth-child(22),
+th:nth-child(29) {
+    background-color: #b07c3d !important;
+}
+
+/* Style headers for weeks */
+#ibadahTable th:not(:first-child):nth-child(2):before,
+#ibadahTable th:not(:first-child):nth-child(9):before,
+#ibadahTable th:not(:first-child):nth-child(16):before,
+#ibadahTable th:not(:first-child):nth-child(23):before {
+    content: "WEEK";
+    display: block;
+    font-size: 8px;
+    position: absolute;
+    top: -15px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
+
+#ibadahTable th:not(:first-child):nth-child(2):before { content: "WEEK 1"; }
+#ibadahTable th:not(:first-child):nth-child(9):before { content: "WEEK 2"; }
+#ibadahTable th:not(:first-child):nth-child(16):before { content: "WEEK 3"; }
+#ibadahTable th:not(:first-child):nth-child(23):before { content: "WEEK 4"; }
+
+/* Tooltip styling for progress values */
+.progress-value:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: normal;
+    z-index: 100;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    text-shadow: none;
+    width: auto;
+    max-width: 300px;
+    text-align: center;
+}
+
+/* Small arrow for the tooltip */
+.progress-value:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent rgba(0, 0, 0, 0.8) transparent;
+    pointer-events: none;
+}
+
+/* Modal date display - change hijri date to white */
+.modal-date {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 20px;
+    line-height: 1.4;
+}
+
+#gregorian-date {
+    font-weight: 500;
+}
+
+#hijri-date {
+    font-size: 12px;
+    opacity: 0.85;
+    color: white; /* Set hijri date color to white */
+}
+
+/* Highlight today's column in the table */
+.today-column {
+    background-color: #e74c3c !important; /* Red background instead of blue */
+    position: relative !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+/* Add tooltip for today's column */
+.today-column::after {
+    content: "Today";
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(231, 76, 60, 0.9);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    white-space: nowrap;
+    z-index: 100;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Update ramadan highlight to white with better visibility */
+.ramadan-highlight {
+    color: white !important;
+    font-weight: bold !important;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.3); /* Add text shadow for better readability */
+}
+
+/* Ensure the today tooltip is visible */
+#ibadahTable th {
+    position: relative;
+}
+
+/* Category Header Minimize Button */
+.minimize-button {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+    z-index: 5; /* Ensure it's above other elements */
+}
+
+.minimize-button:hover {
+    opacity: 1;
+}
+
+.minimize-button i {
+    transition: transform 0.3s ease;
+}
+
+/* Category Content Animation */
+.category-content {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.category-content.collapsed {
+    display: none;
+}
+
+/* Update the collapsed state styling */
+tr.collapsed {
+    display: none !important;
+}
+
+.download-button {
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.download-button:hover {
+    opacity: 0.8;
+}
+
+.download-button:active {
+    transform: translateY(1px);
+}
+
+.footer {
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    padding: 2px;
+    color: #666;
+    font-size: 0.9rem;
+    position: relative;
+    top: -20px;
+}
+
+.footer p {
+    margin: 0;
+}
+
+/* Hide webkit scrollbars (Chrome, Safari, newer Edge) */
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar,
+.tracking-table::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Override any existing scrollbar styling */
+.tracking-table::-webkit-scrollbar,
+.tracking-table::-webkit-scrollbar-track,
+.tracking-table::-webkit-scrollbar-thumb {
+    width: 0;
+    height: 0;
+    display: none;
+    background: transparent;
+}
+
+/* Make sure the modal body still scrolls but without scrollbars */
+.modal-body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Ramadhan tracker</h1>
+        
+        <div class="main-content">
+            <!-- Top Progress Cards -->
+            <div class="progress-section">
+                <div class="update-section">
+                    <button id="updateProgressBtn" class="update-button">
+                        <i class="fas fa-edit"></i> Update your progress now
+                    </button>
+                    <div class="ibadah-cards">
+                        <div class="ibadah-card">
+                            <i class="fas fa-mosque"></i>
+                            <div class="activity-label">Tarawih</div>
+                            <div class="progress-bar">
+                                <div class="progress" id="tarawihProgress" style="width: 0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="ibadah-card">
+                            <i class="fas fa-book-quran"></i>
+                            <div class="activity-label">Puasa</div>
+                            <div class="progress-bar">
+                                <div class="progress" id="puasaProgress" style="width: 0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="ibadah-card">
+                            <i class="fas fa-pray"></i>
+                            <div class="activity-label">Tadarus</div>
+                            <div class="progress-bar">
+                                <div class="progress" id="tadarusProgress" style="width: 0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="ibadah-card">
+                            <i class="fas fa-star-and-crescent"></i>
+                            <div class="activity-label">Sholat Tahajud</div>
+                            <div class="progress-bar">
+                                <div class="progress" id="tahajudProgress" style="width: 0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="ibadah-card">
+                            <i class="fas fa-hand-holding-heart"></i>
+                            <div class="activity-label">Sedekah</div>
+                            <div class="progress-bar">
+                                <div class="progress" id="sedekahProgress" style="width: 0%">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Percentages -->
+                <div class="progress-percentage-row">
+                    <div class="progress-header">
+                        <div class="progress-label">PROGRESS</div>
+                        <button id="downloadReportBtn" class="download-button">
+                            <i class="fas fa-download"></i> Download PDF Report
+                        </button>
+                    </div>
+                    <div class="progress-values">
+                        <!-- JavaScript will populate these values -->
+                    </div>
+                </div>
+
+                <!-- Combined Chart and Statistics -->
+                <div class="chart-stats-container">
+                    <div class="chart-container">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stat-item full-width">
+                            <div class="stat-with-button">
+                                <div class="stat-content">
+                                    <span class="stat-label">Total Worship Completed</span>
+                                    <span class="stat-value" id="totalCompleted">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Daily Average</span>
+                            <span class="stat-value" id="dailyAverage">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Best Day</span>
+                            <span class="stat-value" id="bestDay">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Current Streak</span>
+                            <span class="stat-value" id="currentStreak">0 days</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Most Consistent</span>
+                            <span class="stat-value" id="mostConsistent">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer">
+                <p>Made with Love by Rio Anggara</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Daily Worship</h2>
+                <div id="current-date" class="modal-date">
+                    <span id="gregorian-date"></span>
+                    <span id="hijri-date"></span>
+                </div>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- Tracking Table will be moved here -->
+                <div class="tracking-table">
+                    <table id="ibadahTable">
+                        <thead>
+                            <tr>
+                                <th>Daily Ibadah</th>
+                                <!-- JavaScript will populate dates -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- JavaScript will populate rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveChanges" class="save-button">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize data structure with classified activities
+    const ibadahTypes = {
+        fardhu: [
+            'Dawn Prayer (Fajr)',    // Subuh
+            'Noon Prayer (Dhuhr)',    // Dhuhur
+            'Afternoon Prayer (Asr)', // Ashar
+            'Sunset Prayer (Maghrib)',  // Maghrib
+            'Night Prayer (Isha)'    // Isya
+        ],
+        sunnah: [
+            'Night Prayer (Tarawih)',
+            'Late Night Prayer (Tahajud)',
+            'Morning Prayer (Dhuha)',
+            'Pre-Dawn Prayer (Qabliyah Subuh)',
+            'Pre-Noon Prayer (Qabliyah Dhuhur)',
+            'Post-Noon Prayer (Ba\'diyah Dhuhur)',
+            'Post-Sunset Prayer (Ba\'diyah Maghrib)'
+        ],
+        dzikir: [
+            'Morning Remembrance (Dzikir Pagi)',
+            'Evening Remembrance (Dzikir Petang)'
+        ],
+        ramadhan: [
+            'Fasting (Sawm)',
+            'Quran Recitation (Tadarus)',
+            'Charity (Sadaqah)'
+        ],
+        jumat: [
+            'Read Surah Al-Kahf',
+            'Reflect on Quran Verses (Tadabbur)',
+            'Self-Reflection (Muhasabah)',
+            'Pray at Special Times (Salat at Special Hours)',
+            'Increase Remembrance (Dzikr)',
+            'Send Blessings on Prophet (Salawat)',
+            'Friday Charity (Sadaqah Jum\'ah)'
+        ]
+    };
+
+    // Flatten the categories for table creation
+    const allIbadahTypes = [
+        ...ibadahTypes.fardhu,
+        ...ibadahTypes.sunnah,
+        ...ibadahTypes.dzikir,
+        ...ibadahTypes.ramadhan,
+        ...ibadahTypes.jumat
+    ];
+
+    // Define Friday days (7th, 14th, 21st, 28th)
+    const fridayDays = [6, 13, 20, 27]; // 0-indexed (days 7, 14, 21, 28)
+
+    const days = 30; // Ramadan days
+    let trackingData = {};
+
+    // Initialize tracking data
+    allIbadahTypes.forEach(type => {
+        trackingData[type] = new Array(days).fill(false);
+    });
+
+    // Load tracking data from localStorage if available
+    loadFromLocalStorage();
+
+    // Create table headers (dates)
+    const tableHead = document.querySelector('#ibadahTable thead tr');
+    tableHead.innerHTML = '<th>Daily Worship</th>';
+
+    // Get today's Ramadan day (if applicable)
+    const todayRamadanDay = getTodayRamadanDay();
+
+    for (let i = 1; i <= days; i++) {
+        // Check if this column is today's date in Ramadan
+        if (i === todayRamadanDay) {
+            tableHead.innerHTML += `<th class="today-column" data-tooltip="Today">${i}</th>`;
+        } else {
+            tableHead.innerHTML += `<th>${i}</th>`;
+        }
+    }
+
+    // Create table rows with category headers
+    const tableBody = document.querySelector('#ibadahTable tbody');
+    
+    // Function to create category header
+    function createCategoryHeader(categoryName) {
+        const row = document.createElement('tr');
+        
+        // Add the appropriate class based on category name
+        let categoryClass = '';
+        if (categoryName.includes('FARDHU')) categoryClass = 'obligatory';
+        else if (categoryName.includes('SUNNAH')) categoryClass = 'recommended';
+        else if (categoryName.includes('DZIKIR')) categoryClass = 'remembrance';
+        else if (categoryName.includes('RAMADHAN')) categoryClass = 'ramadhan';
+        else if (categoryName.includes('JUM\'AT')) categoryClass = 'friday';
+        
+        // Translate the category names
+        const translatedNames = {
+            'Shalat Fardhu': 'Obligatory Prayers (Fardhu)',
+            'Shalat Sunnah': 'Recommended Prayers (Sunnah)',
+            'Dzikir': 'Daily Remembrance (Dhikr)',
+            'Ibadah Ramadhan': 'Ramadan Worship (Ibadah Ramadhan)',
+            'JUM\'AT DAY': 'FRIDAY SPECIAL ACTS (Yawm Al-Jumu\'ah)'
+        };
+
+        const translatedName = translatedNames[categoryName] || categoryName;
+        
+        row.className = `category-header ${categoryClass}`;
+        row.innerHTML = `
+            <td colspan="${days + 1}">
+                ${translatedName}
+                <button class="minimize-button">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </td>
+        `;
+
+        // Add click handler for the entire row
+        row.addEventListener('click', function(e) {
+            // Don't toggle if the click was directly on the minimize button
+            // (it has its own handler and we don't want to trigger twice)
+            if (!e.target.closest('.minimize-button')) {
+                toggleCategoryVisibility(this);
+            }
+        });
+
+        // Add click handler for minimize button separately
+        const minimizeBtn = row.querySelector('.minimize-button');
+        minimizeBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent row click handler from firing
+            toggleCategoryVisibility(row);
+        });
+            
+        return row;
+    }
+
+    // Function to toggle category visibility
+    function toggleCategoryVisibility(headerRow) {
+            // Toggle the icon rotation
+        const icon = headerRow.querySelector('.minimize-button i');
+            icon.style.transform = icon.style.transform === 'rotate(-90deg)' ? '' : 'rotate(-90deg)';
+            
+            // Find all rows until next category header and toggle their visibility
+        let currentRow = headerRow.nextElementSibling;
+            while (currentRow && !currentRow.classList.contains('category-header')) {
+                currentRow.style.display = currentRow.style.display === 'none' ? '' : 'none';
+                currentRow = currentRow.nextElementSibling;
+            }
+    }
+
+    // Add Fardhu section
+    tableBody.appendChild(createCategoryHeader('Shalat Fardhu'));
+    ibadahTypes.fardhu.forEach(createRow);
+
+    // Add Sunnah section
+    tableBody.appendChild(createCategoryHeader('Shalat Sunnah'));
+    ibadahTypes.sunnah.forEach(createRow);
+
+    // Add Dzikir section
+    tableBody.appendChild(createCategoryHeader('Dzikir'));
+    ibadahTypes.dzikir.forEach(createRow);
+
+    // Add Ramadhan section
+    tableBody.appendChild(createCategoryHeader('Ibadah Ramadhan'));
+    ibadahTypes.ramadhan.forEach(createRow);
+
+    // Add Jum'at Day section
+    tableBody.appendChild(createCategoryHeader('JUM\'AT DAY'));
+    ibadahTypes.jumat.forEach(createJumatRow);
+
+    function createRow(type) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${type}</td>`;
+        
+        for (let i = 0; i < days; i++) {
+            row.innerHTML += `
+                <td>
+                    <input type="checkbox" 
+                           class="checkbox" 
+                           data-type="${type}" 
+                           data-day="${i}"
+                           ${trackingData[type][i] ? 'checked' : ''}>
+                </td>`;
+        }
+        tableBody.appendChild(row);
+    }
+
+    // Special row creation for Jum'at Day activities (only show checkboxes on Fridays)
+    function createJumatRow(type) {
+        const row = document.createElement('tr');
+        row.className = 'jumat-row';
+        row.innerHTML = `<td>${type}</td>`;
+        
+        for (let i = 0; i < days; i++) {
+            // Only show checkboxes on Friday days
+            if (fridayDays.includes(i)) {
+                row.innerHTML += `
+                    <td>
+                        <input type="checkbox" 
+                               class="checkbox jumat-checkbox" 
+                               data-type="${type}" 
+                               data-day="${i}"
+                               ${trackingData[type][i] ? 'checked' : ''}>
+                    </td>`;
+            } else {
+                // Show empty cells for non-Friday days
+                row.innerHTML += `<td class="non-friday-cell"></td>`;
+            }
+        }
+        tableBody.appendChild(row);
+    }
+
+    // Initialize Chart.js
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    const progressChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: days}, (_, i) => `Day ${i + 1}`),
+            datasets: [{
+                label: 'Daily Progress',
+                data: new Array(days).fill(0),
+                borderColor: '#2B5D8C',
+                backgroundColor: 'rgba(43, 93, 140, 0.1)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2,
+                pointBackgroundColor: '#2B5D8C',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#2B5D8C',
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(43, 93, 140, 0.9)',
+                    titleFont: {
+                        family: "'Plus Jakarta Sans', sans-serif",
+                        size: 12,
+                        weight: '600'
+                    },
+                    bodyFont: {
+                        family: "'Plus Jakarta Sans', sans-serif",
+                        size: 12
+                    },
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return `Progress: ${Math.round(context.parsed.y)}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            family: "'Plus Jakarta Sans', sans-serif",
+                            size: 11
+                        },
+                        color: '#666',
+                        padding: 8,
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            family: "'Plus Jakarta Sans', sans-serif",
+                            size: 11
+                        },
+                        color: '#666',
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+
+    // Modal functionality
+    const modal = document.getElementById('updateModal');
+    const updateBtn = document.querySelector('.update-button');
+    const closeBtn = document.querySelector('.close-modal');
+    const saveBtn = document.getElementById('saveChanges');
+
+    // Initialize update modal with current date
+    function updateModalDate() {
+        // Get current Gregorian date
+        const now = new Date();
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        const gregorianDateStr = now.toLocaleDateString('en-US', options);
+        
+        // Calculate Hijri date
+        const hijriDate = calculateHijriDate(now);
+        
+        // Update the DOM
+        document.getElementById('gregorian-date').textContent = gregorianDateStr;
+        document.getElementById('hijri-date').textContent = hijriDate;
+        
+        // Highlight if it's Ramadan
+        const parts = hijriDate.split(' ');
+        if (parts.length >= 3 && parts[1] === "Ramadan") {
+            document.getElementById('hijri-date').classList.add('ramadan-highlight');
+        } else {
+            document.getElementById('hijri-date').classList.remove('ramadan-highlight');
+        }
+    }
+
+    // Improved function to calculate Hijri date
+    function calculateHijriDate(date) {
+        // Get current Gregorian date components
+        const gregorianYear = date.getFullYear();
+        const gregorianMonth = date.getMonth() + 1; // JavaScript months are 0-indexed
+        const gregorianDay = date.getDate();
+        
+        // Define Hijri months
+        const hijriMonths = [
+            "Muharram", "Safar", "Rabi ul Awal", "Rabi Al-Akhar", 
+            "Jumada Al-Awwal", "Jumada Al-Akhirah", "Rajab", "Shaban",
+            "Ramadan", "Shawwal", "Dhul-Qadah", "Dhul-Hijjah"
+        ];
+        
+        // This implementation uses a more accurate calculation approach
+        // based on the known Gregorian-Hijri date correspondences
+        
+        // Base Hijri date for reference: March 1, 2025 = 2 Ramadan 1446
+        const baseGregorianDate = new Date(2025, 2, 1); // March 1, 2025
+        const baseHijriYear = 1446;
+        const baseHijriMonth = 9; // Ramadan is the 9th month (1-indexed)
+        const baseHijriDay = 2;
+        
+        // Calculate difference in days between current date and base date
+        const millisecondsPerDay = 24 * 60 * 60 * 1000;
+        const daysDifference = Math.round((date - baseGregorianDate) / millisecondsPerDay);
+        
+        // Initialize with base Hijri date
+        let hijriYear = baseHijriYear;
+        let hijriMonth = baseHijriMonth;
+        let hijriDay = baseHijriDay + daysDifference;
+        
+        // Adjust for month boundaries (approximating 29.5 days per lunar month)
+        // Note: This is still an approximation, but more accurate than the previous method
+        
+        // Handle positive day difference (dates after March 1, 2025)
+        while (hijriDay > 29) { // Simplifying to an average of 29 days per Hijri month
+            hijriDay -= 29;
+            hijriMonth++;
+            
+            if (hijriMonth > 12) {
+                hijriMonth = 1;
+                hijriYear++;
+            }
+        }
+        
+        // Handle negative day difference (dates before March 1, 2025)
+        while (hijriDay <= 0) {
+            hijriMonth--;
+            
+            if (hijriMonth < 1) {
+                hijriMonth = 12;
+                hijriYear--;
+            }
+            
+            hijriDay += 29; // Simplifying to an average of 29 days per Hijri month
+        }
+        
+        // Return formatted Hijri date string
+        return `${hijriDay} ${hijriMonths[hijriMonth-1]} ${hijriYear} H`;
+    }
+
+    // Open modal
+    updateBtn.addEventListener('click', function() {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+        updateModalDate(); // Update the date when opening
+    });
+
+    // Close modal
+    closeBtn.addEventListener('click', function() {
+        closeModal();
+    });
+
+    // Close when clicking outside modal
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Save changes
+    saveBtn.addEventListener('click', function() {
+        // Save to localStorage
+        saveToLocalStorage();
+        
+        // Close modal and update progress
+        closeModal();
+        updateProgress();
+    });
+
+    // Helper function to close modal consistently
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Create checkbox event handlers
+    document.querySelectorAll('.checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const type = this.dataset.type;
+            const day = parseInt(this.dataset.day);
+            trackingData[type][day] = this.checked;
+            
+            // Save to localStorage when data changes
+            saveToLocalStorage();
+            
+            updateProgress();
+        });
+    });
+
+    function updateStatistics() {
+        // Calculate total completed
+        let totalCompleted = 0;
+        Object.values(trackingData).forEach(typeData => {
+            totalCompleted += typeData.filter(x => x).length;
+        });
+        document.getElementById('totalCompleted').textContent = totalCompleted;
+
+        // Calculate daily average - exclude non-Friday days for Jum'at activities
+        let totalPossible = 0;
+        Object.entries(trackingData).forEach(([activity, data]) => {
+            if (ibadahTypes.jumat.includes(activity)) {
+                // Only count Friday days for Jum'at activities
+                totalPossible += fridayDays.length;
+            } else {
+                // Count all days for regular activities
+                totalPossible += days;
+            }
+        });
+        const averagePercentage = (totalCompleted / totalPossible) * 100;
+        document.getElementById('dailyAverage').textContent = `${Math.round(averagePercentage)}%`;
+
+        // Calculate best day
+        const dailyCompletions = Array.from({length: days}, (_, day) => {
+            return Object.values(trackingData).filter(typeData => typeData[day]).length;
+        });
+        const bestDayCount = Math.max(...dailyCompletions);
+        const bestDayIndex = dailyCompletions.indexOf(bestDayCount);
+        document.getElementById('bestDay').textContent = bestDayCount > 0 ? `Day ${bestDayIndex + 1}` : '-';
+
+        // Calculate current streak
+        let streak = 0;
+        let currentStreak = 0;
+        for (let day = days - 1; day >= 0; day--) {
+            const completed = Object.values(trackingData).some(typeData => typeData[day]);
+            if (completed) {
+                currentStreak++;
+            } else {
+                break;
+            }
+        }
+        document.getElementById('currentStreak').textContent = `${currentStreak} days`;
+
+        // Calculate most consistent activity - adjust for Jum'at activities
+        let maxCompletionRate = 0;
+        let mostConsistentActivity = '-';
+        Object.entries(trackingData).forEach(([activity, data]) => {
+            let completions = data.filter(x => x).length;
+            let possible;
+            
+            if (ibadahTypes.jumat.includes(activity)) {
+                // For Jum'at activities, only count Friday days
+                possible = fridayDays.length;
+                // Only count completions on Friday days
+                completions = fridayDays.filter(day => data[day]).length;
+            } else {
+                possible = days;
+            }
+            
+            const completionRate = completions / possible;
+            if (completionRate > maxCompletionRate) {
+                maxCompletionRate = completionRate;
+                mostConsistentActivity = activity;
+            }
+        });
+        document.getElementById('mostConsistent').textContent = maxCompletionRate > 0 ? mostConsistentActivity : '-';
+    }
+
+    // Modify the updateProgressPercentages function to add tooltip messages
+    function updateProgressPercentages() {
+        const progressValues = document.querySelector('.progress-values');
+        progressValues.innerHTML = ''; // Clear existing values
+        
+        // Calculate progress for each day
+        for (let day = 0; day < days; day++) {
+            let totalPossible = 0;
+            let completedTasks = 0;
+            
+            // Count completed tasks, accounting for Jum'at activities
+            Object.entries(trackingData).forEach(([activity, data]) => {
+                if (ibadahTypes.jumat.includes(activity)) {
+                    // Only count Friday days for Jum'at activities
+                    if (fridayDays.includes(day)) {
+                        totalPossible++;
+                        if (data[day]) completedTasks++;
+                    }
+                } else {
+                    totalPossible++;
+                    if (data[day]) completedTasks++;
+                }
+            });
+            
+            const percentage = Math.round((completedTasks / totalPossible) * 100);
+            
+            // Determine color level based on percentage
+            let levelClass = 'level-0'; // Default blue
+            if (percentage > 90) levelClass = 'level-6'; // Red
+            else if (percentage > 75) levelClass = 'level-5'; // Dark Orange
+            else if (percentage > 60) levelClass = 'level-4'; // Orange
+            else if (percentage > 45) levelClass = 'level-3'; // Yellow
+            else if (percentage > 30) levelClass = 'level-2'; // Green
+            else if (percentage > 15) levelClass = 'level-1'; // Teal
+            
+            // Get motivational message based on percentage
+            let tooltipMessage = getMotivationalMessage(percentage);
+            
+            const valueDiv = document.createElement('div');
+            valueDiv.className = `progress-value ${levelClass}`;
+            valueDiv.textContent = `${percentage}%`;
+            valueDiv.setAttribute('data-tooltip', tooltipMessage);
+            progressValues.appendChild(valueDiv);
+        }
+    }
+
+    // Function to get motivational messages based on percentage
+    function getMotivationalMessage(percentage) {
+        if (percentage === 0) {
+            return "Time to start your journey! You've got this!";
+        } else if (percentage <= 15) {
+            return "Every small step counts! Keep going, you're doing great!";
+        } else if (percentage <= 30) {
+            return "You're building momentum! Don't stop now, the journey has just begun!";
+        } else if (percentage <= 45) {
+            return "Making progress! Your dedication and effort are truly paying off!";
+        } else if (percentage <= 60) {
+            return "Halfway there! Your commitment is inspiring, keep that beautiful energy!";
+        } else if (percentage <= 75) {
+            return "Impressive dedication! Allah sees your efforts, keep that spirit high!";
+        } else if (percentage <= 90) {
+            return "Almost there! You're absolutely crushing it! So proud of your journey!";
+        } else if (percentage < 100) {
+            return "So close to perfection! You're an inspiration to everyone around you!";
+        } else {
+            return "PERFECT SCORE! MashaAllah, your dedication is truly remarkable!";
+        }
+    }
+
+    // Modify the existing updateProgress function to include this update
+    function updateProgress() {
+        // Calculate progress for each type
+        const progressByType = {};
+        Object.entries(trackingData).forEach(([type, data]) => {
+            let completed, total;
+            
+            if (ibadahTypes.jumat.includes(type)) {
+                completed = fridayDays.filter(day => data[day]).length;
+                total = fridayDays.length;
+            } else {
+                completed = data.filter(x => x).length;
+                total = days;
+            }
+            
+            progressByType[type] = (completed / total) * 100;
+        });
+
+        // Update progress bars with correct activity names
+        document.getElementById('tarawihProgress').style.width = `${progressByType['Night Prayer (Tarawih)']}%`;
+        document.getElementById('tarawihProgress').textContent = `${Math.round(progressByType['Night Prayer (Tarawih)'])}%`;
+        
+        document.getElementById('puasaProgress').style.width = `${progressByType['Fasting (Sawm)']}%`;
+        document.getElementById('puasaProgress').textContent = `${Math.round(progressByType['Fasting (Sawm)'])}%`;
+        
+        document.getElementById('tadarusProgress').style.width = `${progressByType['Quran Recitation (Tadarus)']}%`;
+        document.getElementById('tadarusProgress').textContent = `${Math.round(progressByType['Quran Recitation (Tadarus)'])}%`;
+        
+        document.getElementById('tahajudProgress').style.width = `${progressByType['Late Night Prayer (Tahajud)']}%`;
+        document.getElementById('tahajudProgress').textContent = `${Math.round(progressByType['Late Night Prayer (Tahajud)'])}%`;
+        
+        document.getElementById('sedekahProgress').style.width = `${progressByType['Charity (Sadaqah)']}%`;
+        document.getElementById('sedekahProgress').textContent = `${Math.round(progressByType['Charity (Sadaqah)'])}%`;
+
+        // Update chart
+        const dailyProgress = Array.from({length: days}, (_, day) => {
+            let totalPossible = 0;
+            let completedTasks = 0;
+            
+            // Count completed tasks, accounting for Jum'at activities
+            Object.entries(trackingData).forEach(([activity, data]) => {
+                if (ibadahTypes.jumat.includes(activity)) {
+                    // Only count Friday days for Jum'at activities
+                    if (fridayDays.includes(day)) {
+                        totalPossible++;
+                        if (data[day]) completedTasks++;
+                    }
+                } else {
+                    totalPossible++;
+                    if (data[day]) completedTasks++;
+                }
+            });
+            
+            return (completedTasks / totalPossible) * 100;
+        });
+
+        progressChart.data.datasets[0].data = dailyProgress;
+        progressChart.update();
+
+        updateProgressPercentages();
+        updateStatistics();
+    }
+
+    updateProgress(); // Initial update
+
+    // Add event listener for download button
+    document.getElementById('downloadReportBtn').addEventListener('click', function() {
+        generatePDFReport();
+    });
+
+    function generatePDFReport() {
+        try {
+            // Check if jsPDF is properly loaded
+            if (typeof window.jspdf === 'undefined') {
+                console.error('jsPDF library not loaded');
+                alert('PDF generation library (jsPDF) not loaded properly. Please check console for more details.');
+                return;
+            }
+
+        // Create new jsPDF instance
+        const { jsPDF } = window.jspdf;
+            if (!jsPDF) {
+                throw new Error('jsPDF constructor not found in window.jspdf');
+            }
+            
+        const doc = new jsPDF();
+        
+        // Add title
+        doc.setFontSize(20);
+        doc.setTextColor(43, 93, 140); // #2B5D8C
+            doc.text('Ramadan Worship Tracker Report', 105, 20, { align: 'center' });
+        
+        // Add date
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        const today = new Date();
+        doc.text(`Generated on: ${today.toLocaleDateString()}`, 105, 27, { align: 'center' });
+        
+        // Add horizontal line
+        doc.setDrawColor(200, 200, 200);
+        doc.line(20, 30, 190, 30);
+        
+        // Add statistics section
+        doc.setFontSize(16);
+        doc.setTextColor(43, 93, 140);
+        doc.text('Progress Summary', 20, 40);
+        
+        // Add statistics
+        doc.setFontSize(11);
+        doc.setTextColor(60, 60, 60);
+            doc.text(`Total Worship Completed: ${document.getElementById('totalCompleted').textContent}`, 25, 50);
+        doc.text(`Daily Average: ${document.getElementById('dailyAverage').textContent}`, 25, 58);
+        doc.text(`Best Day: ${document.getElementById('bestDay').textContent}`, 25, 66);
+        doc.text(`Current Streak: ${document.getElementById('currentStreak').textContent}`, 25, 74);
+        doc.text(`Most Consistent Activity: ${document.getElementById('mostConsistent').textContent}`, 25, 82);
+            
+            // Check if progressChart is defined and has data
+            let lineChartData = [];
+            if (typeof progressChart !== 'undefined' && progressChart && progressChart.data && 
+                progressChart.data.datasets && progressChart.data.datasets.length > 0) {
+                lineChartData = progressChart.data.datasets[0].data;
+            } else {
+                console.warn('Progress chart data not available, using empty array');
+            }
+            
+            // Get progress data for charts - with error handling
+            let progressData;
+            try {
+                progressData = calculateChartData();
+            } catch (err) {
+                console.error('Error calculating chart data:', err);
+                progressData = {
+                    categoryCompletion: {
+                        'Obligatory Prayers': 0,
+                        'Recommended Prayers': 0,
+                        'Daily Remembrance': 0,
+                        'Ramadan Worship': 0,
+                        'Friday Special Acts': 0
+                    }
+                };
+            }
+            
+            // Add chart title
+            doc.setFontSize(16);
+            doc.setTextColor(43, 93, 140);
+            doc.text('Worship Categories Overview', 105, 100, { align: 'center' });
+            
+            try {
+                drawPieChart(doc, 105, 140, 30, progressData.categoryCompletion);
+            } catch (err) {
+                console.error('Error drawing pie chart:', err);
+                doc.setTextColor(255, 0, 0);
+                doc.text('Error generating chart', 105, 140, { align: 'center' });
+            }
+            
+            // Add a new page for line chart
+            doc.addPage();
+            
+            // Add line chart title
+            doc.setFontSize(16);
+            doc.setTextColor(43, 93, 140);
+            doc.text('Daily Progress Trend', 105, 20, { align: 'center' });
+            
+            // Draw line chart
+            try {
+                drawLineChart(doc, 20, 40, 170, 80, lineChartData);
+            } catch (err) {
+                console.error('Error drawing line chart:', err);
+                doc.setTextColor(255, 0, 0);
+                doc.text('Error generating line chart', 105, 80, { align: 'center' });
+            }
+        
+        // Add activity tracking details
+        doc.setFontSize(16);
+        doc.setTextColor(43, 93, 140);
+            doc.text('Activity Details', 20, 140);
+        
+            // Create data for the table - with error handling
+        const tableData = [];
+            try {
+        Object.entries(trackingData).forEach(([activity, daysData]) => {
+            let completedDays;
+            let totalPossible;
+            
+            if (ibadahTypes.jumat.includes(activity)) {
+                // For Jum'at activities, only count Friday days
+                completedDays = fridayDays.filter(day => daysData[day]).length;
+                totalPossible = fridayDays.length;
+            } else {
+                completedDays = daysData.filter(day => day).length;
+                totalPossible = days;
+            }
+            
+            const row = [
+                activity,
+                `${completedDays} days`,
+                `${Math.round((completedDays / totalPossible) * 100)}%`
+            ];
+            tableData.push(row);
+        });
+            } catch (err) {
+                console.error('Error creating table data:', err);
+                tableData.push(['Error generating data', '', '']);
+            }
+        
+            // Add the table with error handling
+            try {
+                if (typeof doc.autoTable === 'function') {
+        doc.autoTable({
+                        startY: 145,
+            head: [['Activity', 'Days Completed', 'Completion Rate']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: { 
+                fillColor: [43, 93, 140],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245]
+            },
+                        margin: { top: 145 }
+                    });
+                } else {
+                    console.error('autoTable function not available');
+                    doc.setTextColor(255, 0, 0);
+                    doc.text('Table generation failed - autoTable plugin not loaded', 105, 150, { align: 'center' });
+                    
+                    // Manually create a simple table
+                    doc.setFontSize(10);
+                    doc.setTextColor(0, 0, 0);
+                    let tableY = 150;
+                    tableData.forEach((row, index) => {
+                        doc.text(row[0], 25, tableY);
+                        doc.text(row[1], 100, tableY);
+                        doc.text(row[2], 150, tableY);
+                        tableY += 10;
+                        
+                        if (index > 10) return; // Prevent too many rows
+                    });
+                }
+            } catch (err) {
+                console.error('Error generating table:', err);
+            }
+            
+            // Add footer
+            try {
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text('Ramadan Worship Tracker - Keep up the good work!', 105, 285, { align: 'center' });
+                    doc.text(`Page ${i} of ${pageCount}`, 190, 285, { align: 'right' });
+                }
+            } catch (err) {
+                console.error('Error adding footer:', err);
+            }
+            
+            // Add last saved time to the PDF
+            const lastUpdated = localStorage.getItem('ramadanTrackingLastUpdated');
+            if (lastUpdated) {
+                try {
+                    const lastUpdateDate = new Date(lastUpdated);
+        doc.setFontSize(9);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(`Last updated: ${lastUpdateDate.toLocaleString()}`, 105, 32, { align: 'center' });
+                } catch (err) {
+                    console.error('Error adding last updated time:', err);
+                }
+            }
+            
+            // Save the PDF
+            try {
+                doc.save('ramadan-worship-report.pdf');
+            } catch (err) {
+                console.error('Error saving PDF:', err);
+                alert('Error saving the PDF. Please try again or check console for details.');
+            }
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('There was an error generating your PDF report: ' + error.message);
+        }
+    }
+
+    // Helper functions for charts
+
+    // Calculate data for charts
+    function calculateChartData() {
+        // Calculate completion rates by category
+        const categoryCompletion = {
+            'Obligatory Prayers': calculateCategoryCompletionRate('fardhu'),
+            'Recommended Prayers': calculateCategoryCompletionRate('sunnah'),
+            'Daily Remembrance': calculateCategoryCompletionRate('dzikir'),
+            'Ramadan Worship': calculateCategoryCompletionRate('ramadhan'),
+            'Friday Special Acts': calculateCategoryCompletionRate('jumat', true)
+        };
+        
+        return {
+            categoryCompletion
+        };
+    }
+
+    // Calculate completion rate for a category
+    function calculateCategoryCompletionRate(category, isFriday = false) {
+        const activities = ibadahTypes[category];
+        let totalCompleted = 0;
+        let totalPossible = 0;
+        
+        activities.forEach(activity => {
+            if (isFriday) {
+                // For Friday activities, only count Friday days
+                totalCompleted += fridayDays.filter(day => trackingData[activity][day]).length;
+                totalPossible += fridayDays.length;
+            } else {
+                totalCompleted += trackingData[activity].filter(day => day).length;
+                totalPossible += days;
+            }
+        });
+        
+        return (totalCompleted / totalPossible) * 100;
+    }
+
+    // Draw pie chart (simplified version that's more compatible with jsPDF)
+    function drawPieChart(doc, centerX, centerY, radius, data) {
+        const colors = ['#2B5D8C', '#407baf', '#5899d0', '#6aa2d1', '#b07c3d'];
+        
+        // If no data, draw empty circle with message
+        if (Object.values(data).every(value => value === 0)) {
+            doc.setDrawColor(200, 200, 200);
+            doc.setFillColor(240, 240, 240);
+            doc.circle(centerX, centerY, radius, 'FD');
+            
+            doc.setTextColor(100, 100, 100);
+            doc.setFontSize(10);
+            doc.text('No data', centerX, centerY, { align: 'center' });
+            return;
+        }
+        
+        // Draw horizontal bars showing actual percentages (not relative)
+        const barHeight = 15;
+        const barWidth = 100;
+        const startY = centerY - (Object.keys(data).length * barHeight) / 2;
+        
+        // Draw the bars with actual percentages (0-100%)
+        Object.entries(data).forEach(([category, value], index) => {
+            // Use the actual percentage value directly (already 0-100)
+            const percentage = Math.round(value);
+            const y = startY + (index * barHeight);
+            
+            // Bar background (full width = 100%)
+            doc.setFillColor(240, 240, 240);
+            doc.rect(centerX - barWidth/2, y, barWidth, barHeight - 2, 'F');
+            
+            // Bar fill based on actual percentage
+            if (percentage > 0) {
+                doc.setFillColor(colors[index]);
+                doc.rect(centerX - barWidth/2, y, barWidth * (percentage / 100), barHeight - 2, 'F');
+            }
+            
+            // Add category text to the left
+            doc.setFontSize(8);
+            doc.setTextColor(60, 60, 60);
+            doc.text(category, centerX - barWidth/2 - 2, y + barHeight/2, { align: 'right' });
+            
+            // Add percentage text to the right
+            doc.text(`${percentage}%`, centerX + barWidth/2 + 5, y + barHeight/2);
+        });
+    }
+
+    // Draw line chart
+    function drawLineChart(doc, x, y, width, height, data) {
+        const dataLength = data.length;
+        const maxValue = 100; // Percentage is always 0-100
+        
+        // Draw axes
+        doc.setDrawColor(150, 150, 150);
+        doc.setLineWidth(0.5);
+        doc.line(x, y, x, y + height); // Y-axis
+        doc.line(x, y + height, x + width, y + height); // X-axis
+        
+        // Draw axis labels
+            doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        
+        // Y-axis labels (0%, 25%, 50%, 75%, 100%)
+        for (let i = 0; i <= 4; i++) {
+            const labelY = y + height - (i * height / 4);
+            const value = i * 25;
+            doc.text(`${value}%`, x - 10, labelY + 2, { align: 'right' });
+            
+            // Draw horizontal grid line
+            doc.setDrawColor(220, 220, 220);
+            doc.setLineWidth(0.2);
+            doc.line(x, labelY, x + width, labelY);
+        }
+        
+        // X-axis labels (Day numbers, spaced appropriately)
+        const dayInterval = Math.ceil(dataLength / 10); // Show approximately 10 labels
+        for (let i = 0; i < dataLength; i += dayInterval) {
+            const labelX = x + (i * width / (dataLength - 1));
+            doc.text(`Day ${i + 1}`, labelX, y + height + 10, { align: 'center' });
+        }
+        
+        // Plot the data points and connect with line
+        if (data.length > 0) {
+            doc.setDrawColor(43, 93, 140); // #2B5D8C
+            doc.setLineWidth(1);
+            
+            let lastX = x;
+            let lastY = y + height - (data[0] * height / maxValue);
+            
+            for (let i = 1; i < dataLength; i++) {
+                const pointX = x + (i * width / (dataLength - 1));
+                const pointY = y + height - (data[i] * height / maxValue);
+                
+                // Draw line from last point to this point
+                doc.line(lastX, lastY, pointX, pointY);
+                
+                lastX = pointX;
+                lastY = pointY;
+            }
+            
+            // Add data points as circles
+            doc.setFillColor(43, 93, 140);
+            for (let i = 0; i < dataLength; i++) {
+                const pointX = x + (i * width / (dataLength - 1));
+                const pointY = y + height - (data[i] * height / maxValue);
+                
+                // Only draw every few points to avoid overcrowding
+                if (i % 3 === 0 || i === dataLength - 1) {
+                    doc.circle(pointX, pointY, 1.5, 'F');
+                }
+            }
+        }
+        
+        // Add chart title
+        doc.setFontSize(10);
+        doc.setTextColor(60, 60, 60);
+        doc.text('Daily completion percentage over Ramadan', x + width/2, y - 10, { align: 'center' });
+    }
+
+    // Function to check if current date is in Ramadan and get the day number
+    function getTodayRamadanDay() {
+        const today = new Date();
+        const hijriDate = calculateHijriDate(today);
+        
+        // Parse the hijri date to extract month and day
+        const parts = hijriDate.split(' ');
+        if (parts.length >= 3) {
+            const day = parseInt(parts[0]);
+            const month = parts[1];
+            
+            // Check if it's Ramadan
+            if (month === "Ramadan") {
+                return day;
+            }
+        }
+        
+        return 0; // Not Ramadan
+    }
+
+    // Update the progress card labels to match the activity names
+    document.querySelector('.ibadah-card:nth-child(1) .activity-label').textContent = 'Night Prayer (Tarawih)';
+    document.querySelector('.ibadah-card:nth-child(2) .activity-label').textContent = 'Fasting (Sawm)';
+    document.querySelector('.ibadah-card:nth-child(3) .activity-label').textContent = 'Quran Recitation (Tadarus)';
+    document.querySelector('.ibadah-card:nth-child(4) .activity-label').textContent = 'Late Night Prayer (Tahajud)';
+    document.querySelector('.ibadah-card:nth-child(5) .activity-label').textContent = 'Charity (Sadaqah)';
+
+    // Update the page title
+    document.querySelector('h1').textContent = 'Ramadan Tracker';
+
+    // Function to save tracking data to localStorage
+    function saveToLocalStorage() {
+        try {
+            localStorage.setItem('ramadanTrackingData', JSON.stringify(trackingData));
+            localStorage.setItem('ramadanTrackingLastUpdated', new Date().toISOString());
+        } catch (e) {
+            console.error('Failed to save to localStorage:', e);
+        }
+    }
+
+    // Function to load tracking data from localStorage
+    function loadFromLocalStorage() {
+        try {
+            const savedData = localStorage.getItem('ramadanTrackingData');
+            if (savedData) {
+                const parsedData = JSON.parse(savedData);
+                
+                // Update tracking data with saved values
+                Object.keys(parsedData).forEach(activity => {
+                    if (trackingData[activity]) {
+                        trackingData[activity] = parsedData[activity];
+                    }
+                });
+                
+                // Update checkboxes with loaded data
+                document.querySelectorAll('.checkbox').forEach(checkbox => {
+                    const type = checkbox.dataset.type;
+                    const day = parseInt(checkbox.dataset.day);
+                    if (trackingData[type] && trackingData[type][day]) {
+                        checkbox.checked = true;
+                    }
+                });
+                
+                // Update progress indicators
+                updateProgress();
+            }
+        } catch (e) {
+            console.error('Failed to load from localStorage:', e);
+        }
+    }
+
+    // Check for jsPDF
+    setTimeout(function() {
+        if (typeof window.jspdf === 'undefined') {
+            console.warn('jsPDF library not loaded - PDF export may not work');
+        } else {
+            console.log('jsPDF loaded successfully');
+        }
+    }, 1000); // Check after 1 second to give scripts time to load
+});
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</body>
+</html>
