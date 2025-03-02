@@ -22,7 +22,10 @@ body {
     background-color: var(--background-color);
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
-    overflow-y: scroll; /* Allow vertical scrolling */
+    overflow-y: auto; /* Changed from scroll to auto */
+    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+    height: auto; /* Ensure body can expand */
+    min-height: 100%;
 }
 
 .container {
@@ -350,16 +353,25 @@ h1 {
     body {
         margin: 0;
         padding: 0;
-        touch-action: manipulation;
+        touch-action: pan-y; /* Allow vertical scrolling explicitly */
         -webkit-tap-highlight-color: transparent;
         -webkit-touch-callout: none;
         user-select: none;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    html, body {
+        position: relative;
+        height: 100%;
+        overflow-y: auto;
     }
     
     .container {
         margin: 0;
         padding: 10px 8px;
         max-width: 100%;
+        overflow-y: visible;
     }
     
     h1 {
@@ -1184,6 +1196,7 @@ tr:not(.category-header):hover {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    overscroll-behavior-y: contain; /* Prevent scroll chaining */
 }
 
 .modal-body::-webkit-scrollbar {
@@ -2294,6 +2307,25 @@ body::-webkit-scrollbar,
     min-width: 22px;
     max-width: 22px;
     padding: 2px 0;
+}
+
+/* Modal specific improvements for mobile */
+@media (max-width: 480px) {
+    .modal-content {
+        width: 100%;
+        max-width: 100%;
+        top: 0;
+        border-radius: 0;
+        max-height: 100vh;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    .modal-body {
+        max-height: calc(100vh - 110px);
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+    }
 }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -3598,9 +3630,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Add enhanced mobile handling
 document.addEventListener('DOMContentLoaded', function() {
-    // Prevent pinch zoom
+    // Fix for preventing pinch zoom while still allowing scrolling
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    // Only prevent default for multi-touch gestures (pinch zoom), allow scrolling
     document.addEventListener('touchmove', function(event) {
-        if (event.scale !== 1) {
+        if (event.touches.length > 1) {
             event.preventDefault();
         }
     }, { passive: false });
