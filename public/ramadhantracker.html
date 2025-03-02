@@ -38,41 +38,62 @@ h1 {
     font-size: 22px;
 }
 
-/* Progress Cards Section */
+/* Enhanced Progress Cards Section */
 .progress-section {
     background: white;
-    padding: 20px 15px; /* Increased padding */
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    margin-bottom: 20px; /* Increased margin */
+    padding: 22px 18px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
 }
 
 .ibadah-cards {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 0;
 }
 
 .ibadah-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    padding: 8px;
-    width: 100%;
+    gap: 6px;
+    padding: 15px 10px;
+    background: linear-gradient(to bottom, #f8f9fa, #f1f3f5);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
-.ibadah-card img {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
+.ibadah-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .ibadah-card i {
-    font-size: 1.6em;
+    font-size: 2.2em;
     color: #2B5D8C;
-    margin-bottom: 3px;
+    margin-bottom: 8px;
+    transition: transform 0.3s ease;
+}
+
+.ibadah-card:hover i {
+    transform: scale(1.1);
+}
+
+.activity-label {
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #2B5D8C;
+    font-size: 0.95em;
+    transition: color 0.3s ease;
+}
+
+.ibadah-card:hover .activity-label {
+    color: #1a4a7c;
 }
 
 .ibadah-card .progress-bar {
@@ -80,7 +101,7 @@ h1 {
     background-color: #f0f0f0;
     border-radius: 20px;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    height: 22px;
+    height: 24px;
     position: relative;
     overflow: hidden;
 }
@@ -91,45 +112,113 @@ h1 {
     background-size: 20px 20px;
     background-image: linear-gradient(
         45deg,
-        rgba(255, 255, 255, 0.15) 25%,
+        rgba(255, 255, 255, 0.2) 25%,
         transparent 25%,
         transparent 50%,
-        rgba(255, 255, 255, 0.15) 50%,
-        rgba(255, 255, 255, 0.15) 75%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
         transparent 75%
     );
     font-weight: bold;
     color: white;
     text-align: center;
-    line-height: 22px;
-    transition: width 0.6s ease;
-    min-width: 20px;
+    line-height: 24px;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    min-width: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
     animation: progress-animation 2s linear infinite;
+    position: relative;
+    overflow: hidden;
 }
 
-/* Progress Colors */
+.ibadah-card .progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.ibadah-card:hover .progress::after {
+    opacity: 1;
+}
+
+/* Unique styling for each ibadah type */
 #tarawihProgress {
-    background-color: #3498db;
+    background: linear-gradient(to right, #3498db, #2980b9);
 }
 
 #puasaProgress {
-    background-color: #e74c3c;
+    background: linear-gradient(to right, #e74c3c, #c0392b);
 }
 
 #tadarusProgress {
-    background-color: #27ae60;
+    background: linear-gradient(to right, #27ae60, #1e8449);
 }
 
 #tahajudProgress {
-    background-color: #9b59b6;
+    background: linear-gradient(to right, #9b59b6, #8e44ad);
 }
 
 #sedekahProgress {
-    background-color: #f39c12;
+    background: linear-gradient(to right, #f39c12, #d35400);
+}
+
+/* Update button styling */
+.update-button {
+    height: 100%;
+    padding: 15px;
+    background: linear-gradient(to right, #2B5D8C, #1a4a7c);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(43, 93, 140, 0.2);
+}
+
+.update-button:hover {
+    background: linear-gradient(to right, #1a4a7c, #14365d);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(43, 93, 140, 0.3);
+}
+
+.update-button:active {
+    transform: translateY(1px);
+}
+
+.update-button i {
+    font-size: 1.6em;
+    transition: transform 0.3s;
+}
+
+.update-button:hover i {
+    transform: scale(1.1);
+}
+
+/* Empty progress state with improved styling */
+.progress[style*="width: 0%"],
+.progress[style*="width:0%"] {
+    background: #f0f0f0;
+    color: #888;
+    font-size: 0.9em;
+    justify-content: center;
+    min-width: 24px;
+    background-image: none;
 }
 
 /* Progress Animation */
@@ -140,15 +229,6 @@ h1 {
     100% {
         background-position: 40px 0;
     }
-}
-
-/* Empty progress state */
-.progress[style*="width: 0%"],
-.progress[style*="width:0%"] {
-    color: #555;
-    background-image: none;
-    justify-content: flex-start;
-    padding-left: 10px;
 }
 
 /* Responsive adjustments */
@@ -463,7 +543,7 @@ h1 {
     display: grid;
     grid-template-columns: 3fr 1fr;
     gap: 8px;
-    margin-top: 15px;
+    margin-top: 10px; /* Reduced from 15px */
     background: #f9f3e6;
     padding: 8px;
     border-radius: 10px;
@@ -531,7 +611,8 @@ canvas#progressChart {
     overflow-x: auto;
     max-width: 100%;
     position: relative;
-    padding-top: 20px;
+    padding-top: 20px; /* Make room for the Today tooltip */
+    margin-bottom: 15px;
 }
 
 table {
@@ -712,10 +793,14 @@ tr:not(.category-header):hover {
 /* Enhanced Progress Percentage Row */
 .progress-percentage-row {
     margin: 15px 0;
+    margin-top: 0; /* Remove top margin */
     padding: 12px;
+    padding-top: 30px; /* Keep padding for tooltip */
+    padding-bottom: 25px;
     background: white;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: relative;
 }
 
 .progress-header {
@@ -760,7 +845,8 @@ tr:not(.category-header):hover {
 .progress-grid {
     display: grid;
     grid-template-columns: repeat(30, 1fr);
-    gap: 2px;
+    gap: 4px; /* Increased from 2px */
+    text-align: center;
 }
 
 /* Day labels (Day 1, Day 2, etc.) */
@@ -783,7 +869,7 @@ tr:not(.category-header):hover {
 .progress-values {
     display: grid;
     grid-template-columns: repeat(30, 1fr);
-    gap: 2px;
+    gap: 4px; /* Increased from 2px */
     text-align: center;
 }
 
@@ -890,28 +976,29 @@ tr:not(.category-header):hover {
 /* Add these styles for the update button and modal */
 .update-section {
     display: grid;
-    grid-template-columns: 180px 1fr;
+    grid-template-columns: 1fr 5fr;
     gap: 15px;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 0; /* Reduced from 15px */
 }
 
 .update-button {
     height: 100%;
-    padding: 12px;
-    background-color: #2B5D8C;
+    padding: 15px;
+    background: linear-gradient(to right, #2B5D8C, #1a4a7c);
     color: white;
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    font-size: 0.95em;
+    font-size: 1em;
     font-weight: bold;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 4px 15px rgba(43, 93, 140, 0.2);
 }
 
 .update-button i {
@@ -992,27 +1079,77 @@ tr:not(.category-header):hover {
     -ms-overflow-style: none;
 }
 
+/* Modal footer with reset and save buttons */
 .modal-footer {
     padding: 15px 20px;
     background-color: #f5f5f5;
-    text-align: right;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
+    border-top: 1px solid #e0e0e0;
 }
 
-.save-button {
+/* Reset button styling */
+.reset-button {
     padding: 10px 20px;
-    background-color: #27ae60;
+    background-color: #e74c3c;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1em;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.reset-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.reset-button:active {
+    transform: translateY(1px);
+}
+
+.reset-button i {
+    font-size: 1.2em;
+}
+
+/* Save button styling to match app theme */
+.save-button {
+    padding: 10px 20px;
+    background: linear-gradient(to right, #2B5D8C, #1a4a7c);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(43, 93, 140, 0.2);
 }
 
 .save-button:hover {
-    background-color: #219653;
+    background: linear-gradient(to right, #1a4a7c, #14365d);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(43, 93, 140, 0.3);
+}
+
+.save-button:active {
+    transform: translateY(1px);
+}
+
+.save-button i {
+    font-size: 1.2em;
 }
 
 /* Modal tracking table styles */
@@ -1464,7 +1601,7 @@ th:nth-child(29) {
     background-color: #e74c3c !important; /* Red background instead of blue */
     position: relative !important;
     color: white !important;
-    font-weight: bold;
+    font-weight: bold !important; /* Make text bold */
 }
 
 /* Add tooltip for today's column */
@@ -1483,6 +1620,12 @@ th:nth-child(29) {
     z-index: 100;
     font-weight: bold;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Make today's data cells bold too */
+td.today-column, 
+td:nth-child(n+2):nth-child(var(--today-column-index)) {
+    font-weight: bold !important;
 }
 
 /* Update ramadan highlight to white with better visibility */
@@ -1593,6 +1736,170 @@ body::-webkit-scrollbar,
 .modal-body {
     scrollbar-width: none;
     -ms-overflow-style: none;
+}
+
+/* Today's progress value styling in the dashboard - make it larger */
+.progress-value.today-progress {
+    position: relative;
+    border: 2px solid #e74c3c !important;
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.6);
+    transform: scale(1.3); /* Increased from 1.05 to 1.3 */
+    z-index: 5;
+    font-size: 110%; /* Make font slightly larger */
+    font-weight: bold; /* Make text bold */
+}
+
+/* Add a "Today" label to the progress value */
+.progress-value.today-progress::before {
+    content: 'Today';
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(231, 76, 60, 0.9);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    pointer-events: none;
+}
+
+/* Ensure there's enough space for the tooltip and larger today element */
+.progress-percentage-row {
+    margin: 15px 0;
+    margin-top: 0; /* Remove top margin */
+    padding: 12px;
+    padding-top: 30px; /* Keep padding for tooltip */
+    padding-bottom: 25px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+/* Add more space between progress values to accommodate the larger today element */
+.progress-values {
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    gap: 4px; /* Increased from 2px */
+    text-align: center;
+}
+
+/* Fix mobile layout issues */
+@media (max-width: 768px) {
+    /* Make progress section stack vertically */
+    .update-section {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    /* Fix update button size */
+    .update-button {
+        width: 100%;
+        padding: 12px;
+        height: auto;
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    /* Make cards stack vertically and fill width */
+    .ibadah-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .ibadah-card {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+    }
+    
+    .ibadah-card i {
+        margin-bottom: 0;
+        margin-right: 10px;
+    }
+    
+    .ibadah-card .activity-label {
+        width: 120px;
+        text-align: left;
+        margin-bottom: 0;
+    }
+    
+    .ibadah-card .progress-bar {
+        flex: 1;
+    }
+    
+    /* Fix chart-stats container layout */
+    .chart-stats-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .chart-container {
+        height: 200px;
+        width: 100%;
+    }
+    
+    /* Make stats grid more compact */
+    .stats-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    
+    .stat-item {
+        padding: 10px;
+    }
+    
+    /* Ensure proper spacing between sections */
+    .progress-section {
+        padding: 15px 12px;
+    }
+}
+
+/* Additional fixes for very small screens */
+@media (max-width: 480px) {
+    .stat-item {
+        padding: 8px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+    }
+    
+    .stat-value {
+        font-size: 14px;
+    }
+    
+    /* Increase chart height slightly on small screens */
+    .chart-container {
+        height: 180px;
+    }
+    
+    /* Make progress percentage more compact */
+    .progress-percentage-row {
+        padding: 10px;
+        padding-top: 25px;
+    }
+    
+    /* Make sure the body has proper padding */
+    body {
+        padding: 5px;
+    }
+    
+    .container {
+        margin: 10px auto;
+        padding-top: 5px;
+    }
 }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -2253,6 +2560,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const progressValues = document.querySelector('.progress-values');
         progressValues.innerHTML = ''; // Clear existing values
         
+        // Get today's Ramadan day
+        const todayRamadanDay = getTodayRamadanDay();
+        
         // Calculate progress for each day
         for (let day = 0; day < days; day++) {
             let totalPossible = 0;
@@ -2288,6 +2598,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const valueDiv = document.createElement('div');
             valueDiv.className = `progress-value ${levelClass}`;
+            
+            // Add today-progress class if this is today's day
+            if (day === todayRamadanDay - 1) { // Adjusting for 0-indexed day
+                valueDiv.classList.add('today-progress');
+            }
+            
             valueDiv.textContent = `${percentage}%`;
             valueDiv.setAttribute('data-tooltip', tooltipMessage);
             progressValues.appendChild(valueDiv);
@@ -2838,6 +3154,52 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('jsPDF loaded successfully');
         }
     }, 1000); // Check after 1 second to give scripts time to load
+
+    // Add this to your existing JavaScript code
+    function setupModalButtons() {
+        // Add reset button to modal footer
+        const modalFooter = document.querySelector('.modal-footer');
+        if (modalFooter && !document.querySelector('.reset-button')) {
+            const resetButton = document.createElement('button');
+            resetButton.className = 'reset-button';
+            resetButton.innerHTML = '<i class="fas fa-trash"></i> Reset All';
+            resetButton.addEventListener('click', resetAllCheckboxes);
+            
+            // Insert reset button before save button
+            const saveButton = document.querySelector('.save-button');
+            if (saveButton) {
+                // Update save button to match style
+                saveButton.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                modalFooter.insertBefore(resetButton, saveButton);
+            } else {
+                modalFooter.appendChild(resetButton);
+            }
+        }
+    }
+
+    // Function to reset all checkboxes in the modal
+    function resetAllCheckboxes() {
+        if (confirm('Are you sure you want to clear all selections?')) {
+            const modalCheckboxes = document.querySelectorAll('#ibadahTable input[type="checkbox"]');
+            modalCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+    }
+
+    // Call this function when opening the modal
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add to your existing modal opening code
+        const updateButton = document.querySelector('.update-button');
+        if (updateButton) {
+            updateButton.addEventListener('click', function() {
+                // Existing code to open modal
+                
+                // Add setup for buttons
+                setTimeout(setupModalButtons, 100);
+            });
+        }
+    });
 });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
