@@ -394,23 +394,33 @@ h1 {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 5px;
+        padding: 12px 10px;
     }
     
     .ibadah-card i {
         margin-bottom: 0;
         min-width: 30px;
+        font-size: 1.8em;
     }
     
     .ibadah-card .activity-label {
         text-align: left;
         margin-bottom: 0;
-        width: 80px;
+        width: 85px;
+        font-size: 0.85em;
     }
     
     .ibadah-card .progress-bar {
         flex: 1;
-        margin-left: 8px;
+        margin-left: 12px;
+        height: 22px;
+        min-width: 60%;
+    }
+    
+    .ibadah-card .progress {
+        line-height: 22px;
+        font-size: 0.85em;
+        font-weight: 600;
     }
     
     /* Smaller chart for very small screens */
@@ -514,6 +524,57 @@ h1 {
         padding: 8px 12px;
         font-size: 0.9em;
     }
+    
+    /* Floating download button */
+    #downloadReportBtn {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        z-index: 100;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #2B5D8C;
+        color: white;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        border: none;
+        font-size: 1.2em;
+    }
+}
+
+/* Add floating download button styles for all screen sizes */
+.download-floating-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2B5D8C;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border: none;
+    font-size: 1.4em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.download-floating-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+.download-floating-button:active {
+    transform: scale(0.95);
 }
 
 /* Touch-friendly improvements */
@@ -2384,12 +2445,14 @@ body::-webkit-scrollbar,
                 <div class="progress-percentage-row">
                     <div class="progress-header">
                         <div class="progress-label">PROGRESS</div>
-                        <button id="downloadReportBtn" class="download-button">
-                            <i class="fas fa-download"></i> Download PDF Report
-                        </button>
                     </div>
-                    <div class="progress-values">
-                        <!-- JavaScript will populate these values -->
+                    <div class="progress-grid">
+                        <div class="day-labels">
+                            <!-- Day labels will be populated by JS -->
+                        </div>
+                        <div class="progress-values">
+                            <!-- Progress values will be populated by JS -->
+                        </div>
                     </div>
                 </div>
 
@@ -2466,6 +2529,11 @@ body::-webkit-scrollbar,
             </div>
         </div>
     </div>
+
+    <!-- Floating download button -->
+    <button id="downloadReportBtn" class="download-floating-button" title="Download PDF Report">
+        <i class="fas fa-download"></i>
+    </button>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
