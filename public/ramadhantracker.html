@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learnitab Ramadhan Tracker</title>
+    <title>Ramadan Ibadah Tracker</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
@@ -1899,6 +1899,121 @@ body::-webkit-scrollbar,
     .container {
         margin: 10px auto;
         padding-top: 5px;
+    }
+}
+
+/* Table cell size optimization for mobile */
+@media (max-width: 768px) {
+    /* Make table cells much more compact */
+    #ibadahTable th:not(:first-child),
+    #ibadahTable td:not(:first-child) {
+        padding: 2px 0;
+        width: 22px;
+        min-width: 22px;
+        max-width: 22px;
+    }
+    
+    /* Smaller checkboxes for mobile */
+    .checkbox {
+        width: 14px;
+        height: 14px;
+        transform: scale(0.9);
+    }
+    
+    /* Make first column narrower */
+    #ibadahTable td:first-child {
+        font-size: 0.8em;
+        padding: 5px 5px 5px 10px;
+        min-width: 110px;
+    }
+    
+    /* Make category headers more compact */
+    .category-header td {
+        padding: 8px 10px !important;
+        font-size: 0.9em !important;
+    }
+    
+    /* Reduce vertical padding in all cells to make table more compact */
+    #ibadahTable td {
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+    
+    /* Ensure modal content doesn't overflow */
+    .modal-content {
+        width: 98%;
+        top: 2%;
+        max-height: 96vh;
+    }
+    
+    /* More compact modal header */
+    .modal-header {
+        padding: 10px;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.2em;
+    }
+    
+    .close-modal {
+        font-size: 22px;
+    }
+    
+    .modal-date {
+        font-size: 12px;
+        margin-right: 10px;
+    }
+    
+    /* Make modal body more compact */
+    .modal-body {
+        padding: 10px 5px;
+        max-height: 70vh;
+    }
+    
+    /* Make save button smaller */
+    .save-button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* Extra small devices (phones) */
+@media (max-width: 480px) {
+    /* Even smaller and more compact table */
+    #ibadahTable th:not(:first-child),
+    #ibadahTable td:not(:first-child) {
+        width: 18px;
+        min-width: 18px;
+        max-width: 18px;
+        padding: 1px 0;
+    }
+    
+    .checkbox {
+        width: 12px;
+        height: 12px;
+    }
+    
+    #ibadahTable td:first-child {
+        font-size: 0.75em;
+        padding: 3px 3px 3px 8px;
+        min-width: 100px;
+    }
+}
+
+/* Improve touch targets for checkboxes on mobile */
+@media (hover: none) {
+    .checkbox {
+        margin: 0;
+        border-width: 1px;
+    }
+    
+    .checkbox:checked::after {
+        font-size: 8px;
+    }
+    
+    /* Make sure cells are properly aligned */
+    #ibadahTable td {
+        vertical-align: middle;
     }
 }
     </style>
