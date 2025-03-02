@@ -2016,6 +2016,138 @@ body::-webkit-scrollbar,
         vertical-align: middle;
     }
 }
+
+/* Increase main page sizing for mobile to match modal scale */
+@media (max-width: 768px) {
+    /* Larger title */
+    h1 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    
+    /* Larger update button */
+    .update-button {
+        padding: 15px;
+        margin-bottom: 15px;
+        font-size: 1.1em;
+    }
+    
+    .update-button i {
+        font-size: 1.8em;
+    }
+    
+    /* Larger progress cards */
+    .ibadah-card {
+        padding: 14px 12px;
+        margin-bottom: 10px;
+    }
+    
+    .ibadah-card i {
+        font-size: 2.4em;
+        margin-right: 15px;
+    }
+    
+    .activity-label {
+        font-size: 1.1em;
+        font-weight: 600;
+        width: 130px;
+    }
+    
+    .ibadah-card .progress-bar {
+        height: 28px;
+    }
+    
+    .ibadah-card .progress {
+        font-size: 1em;
+        line-height: 28px;
+    }
+    
+    /* Make progress percentage larger */
+    .progress-value {
+        font-size: 1em;
+        padding: 5px 0;
+    }
+    
+    .day-label {
+        font-size: 0.9em;
+        padding: 4px 0;
+    }
+    
+    /* Larger chart */
+    .chart-container {
+        height: 220px;
+        padding: 15px;
+    }
+    
+    /* Larger statistics */
+    .stat-item {
+        padding: 12px;
+    }
+    
+    .stat-label {
+        font-size: 1em;
+        margin-bottom: 5px;
+    }
+    
+    .stat-value {
+        font-size: 1.4em;
+    }
+    
+    /* Increase overall sizing */
+    .progress-section {
+        padding: 20px 15px;
+        margin-bottom: 20px;
+    }
+    
+    .chart-stats-container {
+        padding: 15px;
+    }
+    
+    /* Increase button sizes */
+    .download-button {
+        padding: 10px 15px;
+        font-size: 1em;
+    }
+    
+    #downloadReportBtn {
+        padding: 12px 20px;
+        font-size: 1.1em;
+        bottom: 25px;
+        right: 25px;
+    }
+}
+
+/* Make small device adjustments more substantial */
+@media (max-width: 480px) {
+    .activity-label {
+        font-size: 1em;
+        width: 120px;
+    }
+    
+    .ibadah-card .progress-bar {
+        height: 26px;
+    }
+    
+    /* Keep chart visible but proportional */
+    .chart-container {
+        height: 200px;
+    }
+    
+    /* Ensure the progress grid is large enough */
+    .progress-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+    
+    .progress-value {
+        padding: 6px 0;
+    }
+    
+    /* Larger stats for consistency */
+    .stat-value {
+        font-size: 1.3em;
+    }
+}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
