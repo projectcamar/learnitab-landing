@@ -967,14 +967,13 @@ tr:not(.category-header):hover {
 /* Enhanced Progress Percentage Row */
 .progress-percentage-row {
     margin: 15px 0;
-    margin-top: 0; /* Remove top margin */
     padding: 12px;
     padding-top: 30px; /* Keep padding for tooltip */
-    padding-bottom: 25px;
     background: white;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     position: relative;
+    overflow: hidden;
 }
 
 .progress-header {
@@ -1019,8 +1018,10 @@ tr:not(.category-header):hover {
 .progress-grid {
     display: grid;
     grid-template-columns: repeat(30, 1fr);
-    gap: 4px; /* Increased from 2px */
+    gap: 2px;
     text-align: center;
+    width: max-content;
+    min-width: 100%;
 }
 
 /* Day labels (Day 1, Day 2, etc.) */
@@ -1043,7 +1044,7 @@ tr:not(.category-header):hover {
 .progress-values {
     display: grid;
     grid-template-columns: repeat(30, 1fr);
-    gap: 4px; /* Increased from 2px */
+    gap: 2px;
     text-align: center;
 }
 
@@ -1059,6 +1060,7 @@ tr:not(.category-header):hover {
     cursor: help;
 }
 
+/* Progress Value Colors */
 .progress-value.level-0 { background-color: #3498db; } /* Blue (0-15%) */
 .progress-value.level-1 { background-color: #1abc9c; } /* Teal (15-30%) */
 .progress-value.level-2 { background-color: #2ecc71; } /* Green (30-45%) */
@@ -1096,45 +1098,99 @@ tr:not(.category-header):hover {
     box-shadow: 0 3px 5px rgba(0,0,0,0.1);
 }
 
-/* Responsive adjustments */
+/* Tooltip styling for progress values */
+.progress-value:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: normal;
+    z-index: 100;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    text-shadow: none;
+    width: auto;
+    max-width: 300px;
+    text-align: center;
+}
+
+/* Small arrow for the tooltip */
+.progress-value:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent rgba(0, 0, 0, 0.8) transparent;
+    pointer-events: none;
+}
+
+/* Responsive adjustments for the progress grid */
 @media (max-width: 1200px) {
     .progress-grid,
     .day-labels,
     .progress-values {
-        grid-template-columns: repeat(15, 1fr);
+        grid-template-columns: repeat(30, 1fr);
     }
     
     .progress-grid {
-        grid-template-rows: repeat(2, auto);
+        width: max-content;
+        min-width: 100%;
     }
     
-    /* Split into two rows for smaller screens */
-    .day-labels:after {
-        content: "";
-        display: block;
-        grid-column: 1 / span 15;
-    }
-    
-    .progress-values:after {
-        content: "";
-        display: block;
-        grid-column: 1 / span 15;
+    .day-label, .progress-value {
+        min-width: 30px;
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .progress-grid,
     .day-labels,
     .progress-values {
-        grid-template-columns: repeat(10, 1fr);
+        grid-template-columns: repeat(30, 1fr);
     }
     
-    .progress-grid {
-        grid-template-rows: repeat(3, auto);
+    .progress-grid-wrapper {
+        overflow-x: auto;
+    }
+    
+    .day-label, .progress-value {
+        min-width: 28px;
+        font-size: 0.75em;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .progress-grid,
+    .day-labels,
+    .progress-values {
+        grid-template-columns: repeat(30, 1fr);
+    }
+    
+    .progress-grid-wrapper {
+        overflow-x: auto;
+        margin: 0 -5px;
+        padding: 0 5px;
     }
     
     .day-label, .progress-value {
         font-size: 0.7em;
+        min-width: 26px;
+    }
+    
+    /* Highlight today's progress value */
+    .progress-value.highlight {
+        box-shadow: 0 0 0 2px #fff, 0 0 0 4px #e74c3c;
+        z-index: 1;
     }
 }
 
@@ -2388,6 +2444,30 @@ body::-webkit-scrollbar,
         overscroll-behavior-y: contain;
     }
 }
+
+/* Progress Grid Wrapper to enable horizontal scrolling */
+.progress-grid-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    padding-bottom: 5px;
+}
+
+.progress-grid-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+/* Container for day labels and values */
+.progress-grid {
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    gap: 2px;
+    text-align: center;
+    width: max-content;
+    min-width: 100%;
+}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -2446,12 +2526,14 @@ body::-webkit-scrollbar,
                     <div class="progress-header">
                         <div class="progress-label">PROGRESS</div>
                     </div>
-                    <div class="progress-grid">
-                        <div class="day-labels">
-                            <!-- Day labels will be populated by JS -->
-                        </div>
-                        <div class="progress-values">
-                            <!-- Progress values will be populated by JS -->
+                    <div class="progress-grid-wrapper">
+                        <div class="progress-grid">
+                            <div class="day-labels">
+                                <!-- Day labels will be populated by JS -->
+                            </div>
+                            <div class="progress-values">
+                                <!-- Progress values will be populated by JS -->
+                            </div>
                         </div>
                     </div>
                 </div>
