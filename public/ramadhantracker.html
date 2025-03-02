@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ramadan Ibadah Tracker</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -347,8 +347,35 @@ h1 {
 
 /* Extra small devices */
 @media (max-width: 480px) {
+    body {
+        margin: 0;
+        padding: 0;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+    }
+    
+    .container {
+        margin: 0;
+        padding: 10px 8px;
+        max-width: 100%;
+    }
+    
+    h1 {
+        font-size: 18px;
+        margin: 8px 0 12px 0;
+    }
+    
+    .progress-section {
+        margin-bottom: 15px;
+        padding: 15px 10px;
+        border-radius: 8px;
+    }
+    
     .ibadah-cards {
         grid-template-columns: 1fr;
+        gap: 8px;
     }
     
     .ibadah-card {
@@ -388,24 +415,41 @@ h1 {
         grid-column: auto;
     }
     
-    /* Optimize progress percentages further */
+    /* Progress percentages optimization for mobile */
     .progress-grid,
     .day-labels,
     .progress-values {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
     }
     
     .progress-grid {
-        grid-template-rows: repeat(6, auto);
+        grid-template-rows: repeat(5, auto);
+        margin-bottom: 10px;
     }
     
-    /* Table optimizations */
+    /* Make percentage values more readable */
+    .progress-value {
+        font-size: 10px;
+        font-weight: 700;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .day-label {
+        font-size: 10px;
+        padding: 2px 0;
+    }
+    
+    /* Table optimizations specifically for mobile */
     #ibadahTable th:not(:first-child),
     #ibadahTable td:not(:first-child) {
-        width: 22px;
-        min-width: 22px;
-        max-width: 22px;
-        padding: 2px 0;
+        width: 20px;
+        min-width: 20px;
+        max-width: 20px;
+        padding: 1px 0;
     }
     
     .checkbox {
@@ -414,40 +458,49 @@ h1 {
     }
     
     #ibadahTable td:first-child {
-        font-size: 0.8em;
-        padding: 5px 5px 5px 10px;
-        min-width: 110px;
+        font-size: 0.7em;
+        padding: 4px 5px 4px 8px;
+        min-width: 90px;
+        max-width: 100px;
     }
     
     .category-header td {
-        padding: 8px 10px !important;
-        font-size: 0.9em !important;
+        padding: 6px 8px !important;
+        font-size: 0.8em !important;
     }
     
-    /* Improve touch targets */
-    .minimize-button {
-        padding: 8px;
+    /* Improve touch targets for better mobile experience */
+    .checkbox {
+        margin: 0 auto;
     }
     
-    .download-button {
-        padding: 5px 8px;
+    /* Modal specific improvements for mobile */
+    .modal-content {
+        width: 100%;
+        max-width: 100%;
+        top: 0;
+        border-radius: 0;
+        max-height: 100vh;
+        height: 100vh;
     }
     
-    /* Make progress values more readable */
-    .progress-value {
-        font-size: 0.7em;
-        padding: 2px 0;
+    .modal-header {
+        padding: 10px;
+        border-radius: 0;
     }
     
-    /* Fixed position for download PDF button on mobile */
-    #downloadReportBtn {
-        position: fixed;
-        bottom: 15px;
-        right: 15px;
-        z-index: 900;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    .modal-body {
+        max-height: calc(100vh - 110px);
+    }
+    
+    .modal-footer {
+        padding: 10px;
+        border-radius: 0;
+    }
+    
+    .modal-footer button {
         padding: 8px 12px;
-        border-radius: 20px;
+        font-size: 0.9em;
     }
 }
 
@@ -512,9 +565,57 @@ h1 {
 
 /* Fix the first column while still allowing horizontal scrolling */
 .tracking-table {
+    width: 100%;
+    max-height: 65vh;
     overflow-x: auto;
     overflow-y: auto;
-    position: relative;
+    border-radius: 5px;
+    background: white;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.tracking-table::-webkit-scrollbar {
+    display: none;
+}
+
+/* Table optimizations to make it work well on mobile */
+#ibadahTable {
+    table-layout: fixed;
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+}
+
+#ibadahTable td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #f9f9f9;
+    z-index: 2;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+#ibadahTable th:first-child {
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    background-color: #2B5D8C;
+}
+
+#ibadahTable th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background-color: #2B5D8C;
+}
+
+/* Modal tracking table styles */
+.modal .tracking-table {
+    max-height: calc(70vh - 120px);
+    border-radius: 0;
+    border: none;
 }
 
 /* Fix modal header on all screen sizes */
@@ -1028,14 +1129,16 @@ tr:not(.category-header):hover {
 .modal-content {
     background-color: #fefefe;
     width: 95%;
-    max-width: 1400px;
+    max-width: 100%;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     animation: modalFadeIn 0.3s;
     margin: 0 auto;
     position: relative;
-    top: 4%;
+    top: 2%;
+    max-height: 95vh;
     transform: translateY(0);
+    overflow: hidden;
 }
 
 @keyframes modalFadeIn {
@@ -1047,16 +1150,19 @@ tr:not(.category-header):hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
+    padding: 10px 15px;
     background-color: #2B5D8C;
     color: white;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.5em;
+    font-size: 1.2em;
     flex: 1;
 }
 
@@ -1072,11 +1178,16 @@ tr:not(.category-header):hover {
 }
 
 .modal-body {
-    padding: 15px 10px;
-    max-height: 75vh;
+    padding: 10px 5px;
+    max-height: calc(85vh - 120px);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
+}
+
+.modal-body::-webkit-scrollbar {
+    display: none;
 }
 
 /* Modal footer with reset and save buttons */
@@ -2147,6 +2258,42 @@ body::-webkit-scrollbar,
     .stat-value {
         font-size: 1.3em;
     }
+}
+
+/* Optimize progress percentages further */
+.progress-grid,
+.day-labels,
+.progress-values {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.progress-grid {
+    grid-template-rows: repeat(5, auto);
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.progress-value {
+    font-size: 0.7em;
+    padding: 4px 2px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Highlight today's progress value */
+.progress-value.highlight {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #e74c3c;
+    z-index: 1;
+}
+
+/* Table optimizations */
+#ibadahTable th:not(:first-child),
+#ibadahTable td:not(:first-child) {
+    width: 22px;
+    min-width: 22px;
+    max-width: 22px;
+    padding: 2px 0;
 }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -3445,6 +3592,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Add setup for buttons
                 setTimeout(setupModalButtons, 100);
             });
+        }
+    });
+});
+
+// Add enhanced mobile handling
+document.addEventListener('DOMContentLoaded', function() {
+    // Prevent pinch zoom
+    document.addEventListener('touchmove', function(event) {
+        if (event.scale !== 1) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+    
+    // Handle table interaction in modals
+    const trackingTable = document.querySelector('.tracking-table');
+    if (trackingTable) {
+        let touchStartX, touchStartY;
+        
+        trackingTable.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        trackingTable.addEventListener('touchmove', function(e) {
+            if (!touchStartX || !touchStartY) {
+                return;
+            }
+            
+            const xDiff = touchStartX - e.touches[0].clientX;
+            const yDiff = touchStartY - e.touches[0].clientY;
+            
+            // If horizontal swipe is greater than vertical, prevent page scroll
+            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                e.stopPropagation();
+            }
+        }, { passive: true });
+    }
+    
+    // Add highlight to today's progress
+    const today = new Date();
+    const dayOfMonth = today.getDate();
+    const progressValues = document.querySelectorAll('.progress-value');
+    
+    if (progressValues && progressValues.length > 0) {
+        // Check if we need to highlight a specific progress value (today's)
+        if (dayOfMonth <= progressValues.length) {
+            progressValues[dayOfMonth - 1].classList.add('highlight');
+        }
+    }
+    
+    // Make modal more mobile-friendly
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        // Prevent touchmove events from bubbling when interacting with the modal body
+        const modalBody = modal.querySelector('.modal-body');
+        if (modalBody) {
+            modalBody.addEventListener('touchmove', function(e) {
+                e.stopPropagation();
+            }, { passive: true });
         }
     });
 });
