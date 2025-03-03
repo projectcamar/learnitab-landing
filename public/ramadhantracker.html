@@ -22,10 +22,7 @@ body {
     background-color: var(--background-color);
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
-    overflow-y: auto; /* Changed from scroll to auto */
-    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
-    height: auto; /* Ensure body can expand */
-    min-height: 100%;
+    overflow-y: scroll; /* Allow vertical scrolling */
 }
 
 .container {
@@ -350,77 +347,31 @@ h1 {
 
 /* Extra small devices */
 @media (max-width: 480px) {
-    body {
-        margin: 0;
-        padding: 0;
-        touch-action: pan-y; /* Allow vertical scrolling explicitly */
-        -webkit-tap-highlight-color: transparent;
-        -webkit-touch-callout: none;
-        user-select: none;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    html, body {
-        position: relative;
-        height: 100%;
-        overflow-y: auto;
-    }
-    
-    .container {
-        margin: 0;
-        padding: 10px 8px;
-        max-width: 100%;
-        overflow-y: visible;
-    }
-    
-    h1 {
-        font-size: 18px;
-        margin: 8px 0 12px 0;
-    }
-    
-    .progress-section {
-        margin-bottom: 15px;
-        padding: 15px 10px;
-        border-radius: 8px;
-    }
-    
     .ibadah-cards {
         grid-template-columns: 1fr;
-        gap: 8px;
     }
     
     .ibadah-card {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 10px;
+        padding: 8px 5px;
     }
     
     .ibadah-card i {
         margin-bottom: 0;
         min-width: 30px;
-        font-size: 1.8em;
     }
     
     .ibadah-card .activity-label {
         text-align: left;
         margin-bottom: 0;
-        width: 85px;
-        font-size: 0.85em;
+        width: 80px;
     }
     
     .ibadah-card .progress-bar {
         flex: 1;
-        margin-left: 12px;
-        height: 22px;
-        min-width: 60%;
-    }
-    
-    .ibadah-card .progress {
-        line-height: 22px;
-        font-size: 0.85em;
-        font-weight: 600;
+        margin-left: 8px;
     }
     
     /* Smaller chart for very small screens */
@@ -437,41 +388,24 @@ h1 {
         grid-column: auto;
     }
     
-    /* Progress percentages optimization for mobile */
+    /* Optimize progress percentages further */
     .progress-grid,
     .day-labels,
     .progress-values {
-        grid-template-columns: repeat(7, 1fr);
-        gap: 2px;
+        grid-template-columns: repeat(5, 1fr);
     }
     
     .progress-grid {
-        grid-template-rows: repeat(5, auto);
-        margin-bottom: 10px;
+        grid-template-rows: repeat(6, auto);
     }
     
-    /* Make percentage values more readable */
-    .progress-value {
-        font-size: 10px;
-        font-weight: 700;
-        height: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .day-label {
-        font-size: 10px;
-        padding: 2px 0;
-    }
-    
-    /* Table optimizations specifically for mobile */
+    /* Table optimizations */
     #ibadahTable th:not(:first-child),
     #ibadahTable td:not(:first-child) {
-        width: 20px;
-        min-width: 20px;
-        max-width: 20px;
-        padding: 1px 0;
+        width: 22px;
+        min-width: 22px;
+        max-width: 22px;
+        padding: 2px 0;
     }
     
     .checkbox {
@@ -480,101 +414,41 @@ h1 {
     }
     
     #ibadahTable td:first-child {
-        font-size: 0.7em;
-        padding: 4px 5px 4px 8px;
-        min-width: 90px;
-        max-width: 100px;
+        font-size: 0.8em;
+        padding: 5px 5px 5px 10px;
+        min-width: 110px;
     }
     
     .category-header td {
-        padding: 6px 8px !important;
-        font-size: 0.8em !important;
+        padding: 8px 10px !important;
+        font-size: 0.9em !important;
     }
     
-    /* Improve touch targets for better mobile experience */
-    .checkbox {
-        margin: 0 auto;
+    /* Improve touch targets */
+    .minimize-button {
+        padding: 8px;
     }
     
-    /* Modal specific improvements for mobile */
-    .modal-content {
-        width: 100%;
-        max-width: 100%;
-        top: 0;
-        border-radius: 0;
-        max-height: 100vh;
-        height: 100vh;
+    .download-button {
+        padding: 5px 8px;
     }
     
-    .modal-header {
-        padding: 10px;
-        border-radius: 0;
+    /* Make progress values more readable */
+    .progress-value {
+        font-size: 0.7em;
+        padding: 2px 0;
     }
     
-    .modal-body {
-        max-height: calc(100vh - 110px);
-    }
-    
-    .modal-footer {
-        padding: 10px;
-        border-radius: 0;
-    }
-    
-    .modal-footer button {
-        padding: 8px 12px;
-        font-size: 0.9em;
-    }
-    
-    /* Floating download button */
+    /* Fixed position for download PDF button on mobile */
     #downloadReportBtn {
         position: fixed;
-        bottom: 16px;
-        right: 16px;
-        z-index: 100;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #2B5D8C;
-        color: white;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-        border: none;
-        font-size: 1.2em;
+        bottom: 15px;
+        right: 15px;
+        z-index: 900;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        padding: 8px 12px;
+        border-radius: 20px;
     }
-}
-
-/* Add floating download button styles for all screen sizes */
-.download-floating-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 100;
-    border-radius: 50%;
-    width: 56px;
-    height: 56px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #2B5D8C;
-    color: white;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    border: none;
-    font-size: 1.4em;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.download-floating-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-}
-
-.download-floating-button:active {
-    transform: scale(0.95);
 }
 
 /* Touch-friendly improvements */
@@ -638,57 +512,9 @@ h1 {
 
 /* Fix the first column while still allowing horizontal scrolling */
 .tracking-table {
-    width: 100%;
-    max-height: 65vh;
     overflow-x: auto;
     overflow-y: auto;
-    border-radius: 5px;
-    background: white;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.tracking-table::-webkit-scrollbar {
-    display: none;
-}
-
-/* Table optimizations to make it work well on mobile */
-#ibadahTable {
-    table-layout: fixed;
-    width: max-content;
-    min-width: 100%;
-    border-collapse: collapse;
-}
-
-#ibadahTable td:first-child {
-    position: sticky;
-    left: 0;
-    background-color: #f9f9f9;
-    z-index: 2;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-}
-
-#ibadahTable th:first-child {
-    position: sticky;
-    left: 0;
-    top: 0;
-    z-index: 5;
-    background-color: #2B5D8C;
-}
-
-#ibadahTable th {
-    position: sticky;
-    top: 0;
-    z-index: 3;
-    background-color: #2B5D8C;
-}
-
-/* Modal tracking table styles */
-.modal .tracking-table {
-    max-height: calc(70vh - 120px);
-    border-radius: 0;
-    border: none;
+    position: relative;
 }
 
 /* Fix modal header on all screen sizes */
@@ -967,13 +793,95 @@ tr:not(.category-header):hover {
 /* Enhanced Progress Percentage Row */
 .progress-percentage-row {
     margin: 15px 0;
-    padding: 12px;
-    padding-top: 30px; /* Keep padding for tooltip */
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.progress-values {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.progress-value {
+    height: 40px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1em;
+    color: white;
     position: relative;
     overflow: hidden;
+    transition: transform 0.2s;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.progress-value:hover {
+    transform: scale(1.05);
+    z-index: 5;
+}
+
+.progress-value[data-day="today"] {
+    box-shadow: 0 0 0 2px #2B5D8C;
+    position: relative;
+}
+
+.progress-value[data-day="today"]::after {
+    content: 'Today';
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2B5D8C;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+/* Color coding for progress values */
+.progress-value[data-value="0%"] {
+    background: #e0e0e0;
+    color: #888;
+}
+
+.progress-value[data-value="20%"] {
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+}
+
+.progress-value[data-value="40%"] {
+    background: linear-gradient(135deg, #fad0c4, #ffd1ff);
+}
+
+.progress-value[data-value="60%"] {
+    background: linear-gradient(135deg, #ffd1ff, #a1c4fd);
+}
+
+.progress-value[data-value="80%"] {
+    background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+}
+
+.progress-value[data-value="100%"] {
+    background: linear-gradient(135deg, #c2e9fb, #81d4fa);
+}
+
+@media (max-width: 768px) {
+    .progress-values {
+        grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+        gap: 6px;
+    }
+    
+    .progress-value {
+        height: 35px;
+        font-size: 0.9em;
+    }
 }
 
 .progress-header {
@@ -981,47 +889,58 @@ tr:not(.category-header):hover {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #e0e0e0;
 }
 
-.progress-header .progress-label {
+.progress-label {
     font-weight: bold;
-    font-size: 1em;
-    color: #2B5D8C;
+    color: #555;
+    font-size: 1.1em;
 }
 
-.progress-header .download-button {
-    background-color: #2B5D8C;
+/* Enhanced download button styling */
+.download-button {
+    background: linear-gradient(to right, #2B5D8C, #4a7dae);
     color: white;
     border: none;
-    border-radius: 5px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    transition: all 0.3s;
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: background-color 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.progress-header .download-button:hover {
-    background-color: #1a4a7c;
+.download-button:hover {
+    background: linear-gradient(to right, #1a4a7c, #3a6d9e);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-.progress-header .download-button i {
-    font-size: 14px;
+.download-button:active {
+    transform: translateY(1px);
+}
+
+.download-button i {
+    font-size: 1.1em;
+}
+
+/* Hide desktop download button on mobile */
+@media (max-width: 480px) {
+    .progress-header .download-button {
+        display: none;
+    }
 }
 
 /* Container for day labels and values */
 .progress-grid {
     display: grid;
     grid-template-columns: repeat(30, 1fr);
-    gap: 2px;
+    gap: 4px; /* Increased from 2px */
     text-align: center;
-    width: max-content;
-    min-width: 100%;
 }
 
 /* Day labels (Day 1, Day 2, etc.) */
@@ -1044,7 +963,7 @@ tr:not(.category-header):hover {
 .progress-values {
     display: grid;
     grid-template-columns: repeat(30, 1fr);
-    gap: 2px;
+    gap: 4px; /* Increased from 2px */
     text-align: center;
 }
 
@@ -1060,7 +979,6 @@ tr:not(.category-header):hover {
     cursor: help;
 }
 
-/* Progress Value Colors */
 .progress-value.level-0 { background-color: #3498db; } /* Blue (0-15%) */
 .progress-value.level-1 { background-color: #1abc9c; } /* Teal (15-30%) */
 .progress-value.level-2 { background-color: #2ecc71; } /* Green (30-45%) */
@@ -1098,99 +1016,45 @@ tr:not(.category-header):hover {
     box-shadow: 0 3px 5px rgba(0,0,0,0.1);
 }
 
-/* Tooltip styling for progress values */
-.progress-value:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: calc(100% + 5px);
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: normal;
-    z-index: 100;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    pointer-events: none;
-    text-shadow: none;
-    width: auto;
-    max-width: 300px;
-    text-align: center;
-}
-
-/* Small arrow for the tooltip */
-.progress-value:hover::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent rgba(0, 0, 0, 0.8) transparent;
-    pointer-events: none;
-}
-
-/* Responsive adjustments for the progress grid */
+/* Responsive adjustments */
 @media (max-width: 1200px) {
     .progress-grid,
     .day-labels,
     .progress-values {
-        grid-template-columns: repeat(30, 1fr);
+        grid-template-columns: repeat(15, 1fr);
     }
     
     .progress-grid {
-        width: max-content;
-        min-width: 100%;
+        grid-template-rows: repeat(2, auto);
     }
     
-    .day-label, .progress-value {
-        min-width: 30px;
+    /* Split into two rows for smaller screens */
+    .day-labels:after {
+        content: "";
+        display: block;
+        grid-column: 1 / span 15;
+    }
+    
+    .progress-values:after {
+        content: "";
+        display: block;
+        grid-column: 1 / span 15;
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
     .progress-grid,
     .day-labels,
     .progress-values {
-        grid-template-columns: repeat(30, 1fr);
+        grid-template-columns: repeat(10, 1fr);
     }
     
-    .progress-grid-wrapper {
-        overflow-x: auto;
-    }
-    
-    .day-label, .progress-value {
-        min-width: 28px;
-        font-size: 0.75em;
-    }
-}
-
-/* Extra small devices */
-@media (max-width: 480px) {
-    .progress-grid,
-    .day-labels,
-    .progress-values {
-        grid-template-columns: repeat(30, 1fr);
-    }
-    
-    .progress-grid-wrapper {
-        overflow-x: auto;
-        margin: 0 -5px;
-        padding: 0 5px;
+    .progress-grid {
+        grid-template-rows: repeat(3, auto);
     }
     
     .day-label, .progress-value {
         font-size: 0.7em;
-        min-width: 26px;
-    }
-    
-    /* Highlight today's progress value */
-    .progress-value.highlight {
-        box-shadow: 0 0 0 2px #fff, 0 0 0 4px #e74c3c;
-        z-index: 1;
     }
 }
 
@@ -1247,89 +1111,130 @@ tr:not(.category-header):hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 999;
+    transition: opacity 0.3s;
+    overflow: hidden;
 }
 
 .modal.active {
     display: block;
+    opacity: 1;
 }
 
 .modal-content {
-    background-color: #fefefe;
-    width: 95%;
-    max-width: 100%;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    animation: modalFadeIn 0.3s;
-    margin: 0 auto;
-    position: relative;
-    top: 2%;
-    max-height: 95vh;
-    transform: translateY(0);
+    background-color: #fff;
+    margin: 5% auto;
+    width: 90%;
+    max-width: 1000px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     overflow: hidden;
+    animation: modalFadeIn 0.3s;
 }
 
 @keyframes modalFadeIn {
-    from {opacity: 0; transform: translateY(10px);}
+    from {opacity: 0; transform: translateY(-20px);}
     to {opacity: 1; transform: translateY(0);}
 }
 
 .modal-header {
+    background: linear-gradient(to right, #2B5D8C, #4a7dae);
+    padding: 15px 20px;
+    color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
-    background-color: #2B5D8C;
-    color: white;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    position: relative;
 }
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.2em;
-    flex: 1;
+    font-size: 1.4em;
+    font-weight: 600;
 }
 
 .close-modal {
     color: white;
-    font-size: 28px;
-    font-weight: bold;
+    font-size: 24px;
     cursor: pointer;
+    transition: transform 0.2s;
 }
 
 .close-modal:hover {
-    color: #ddd;
+    transform: scale(1.2);
 }
 
 .modal-body {
-    padding: 10px 5px;
-    max-height: calc(85vh - 120px);
+    padding: 15px;
+    max-height: 70vh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    overscroll-behavior-y: contain; /* Prevent scroll chaining */
-}
-
-.modal-body::-webkit-scrollbar {
-    display: none;
 }
 
 /* Modal footer with reset and save buttons */
 .modal-footer {
     padding: 15px 20px;
-    background-color: #f5f5f5;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    border-top: 1px solid #e0e0e0;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #eee;
+    background-color: #f9f9f9;
+}
+
+/* Make modal and table fully responsive */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 3% auto;
+        max-height: 90vh;
+    }
+    
+    .modal-header {
+        padding: 12px 15px;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.2em;
+    }
+    
+    .modal-body {
+        padding: 10px;
+        max-height: calc(90vh - 130px);
+    }
+    
+    .modal-footer {
+        padding: 12px 15px;
+    }
+    
+    .tracking-table {
+        max-height: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 98%;
+        margin: 1% auto;
+        border-radius: 10px;
+    }
+    
+    .modal-header {
+        padding: 10px;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.1em;
+    }
+    
+    .modal-body {
+        padding: 8px;
+        max-height: calc(98vh - 120px);
+    }
+    
+    .modal-footer {
+        padding: 10px;
+    }
 }
 
 /* Reset button styling */
@@ -1395,8 +1300,12 @@ tr:not(.category-header):hover {
 
 /* Modal tracking table styles */
 .modal .tracking-table {
-    max-height: 60vh;
+    max-height: 50vh;
     margin-top: 0;
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
 }
 
 /* Chart legend styles */
@@ -1442,6 +1351,8 @@ tr:not(.category-header):hover {
     left: 0;
     z-index: 20;
     border: 1px solid #1a4a7c;
+    width: 140px;
+    min-width: 140px;
 }
 
 /* Activity column (first column) styling for freezing */
@@ -1455,6 +1366,8 @@ tr:not(.category-header):hover {
     font-weight: 500;
     color: #333;
     padding-left: 15px;
+    width: 140px;
+    min-width: 140px;
 }
 
 /* Compact header styling */
@@ -2388,85 +2301,86 @@ body::-webkit-scrollbar,
     .stat-value {
         font-size: 1.3em;
     }
-}
-
-/* Optimize progress percentages further */
-.progress-grid,
-.day-labels,
-.progress-values {
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-}
-
-.progress-grid {
-    grid-template-rows: repeat(5, auto);
-    width: 100%;
-    overflow-x: hidden;
-}
-
-.progress-value {
-    font-size: 0.7em;
-    padding: 4px 2px;
-    border-radius: 4px;
-    text-align: center;
-}
-
-/* Highlight today's progress value */
-.progress-value.highlight {
-    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #e74c3c;
-    z-index: 1;
-}
-
-/* Table optimizations */
-#ibadahTable th:not(:first-child),
-#ibadahTable td:not(:first-child) {
-    width: 22px;
-    min-width: 22px;
-    max-width: 22px;
-    padding: 2px 0;
-}
-
-/* Modal specific improvements for mobile */
-@media (max-width: 480px) {
+    
+    /* Better progress percentage display */
+    .progress-values {
+        overflow-x: auto;
+        display: flex;
+        padding-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .progress-values::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .progress-value {
+        min-width: 44px;
+        height: 44px;
+        font-size: 1em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Floating download button for mobile */
+    #downloadReportBtn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 900;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        padding: 10px 15px;
+        border-radius: 30px;
+        background: linear-gradient(to right, #2B5D8C, #4a7dae);
+        color: white;
+        font-weight: bold;
+        border: none;
+        font-size: 1em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    #downloadReportBtn i {
+        font-size: 1.2em;
+    }
+    
+    /* More compact modal for mobile */
     .modal-content {
-        width: 100%;
-        max-width: 100%;
-        top: 0;
-        border-radius: 0;
-        max-height: 100vh;
-        height: 100vh;
+        max-height: 90vh;
+        width: 95%;
+        margin: 2% auto;
         overflow: hidden;
     }
     
     .modal-body {
-        max-height: calc(100vh - 110px);
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior-y: contain;
+        max-height: calc(90vh - 120px);
+        overflow-y: auto;
     }
-}
-
-/* Progress Grid Wrapper to enable horizontal scrolling */
-.progress-grid-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-    padding-bottom: 5px;
-}
-
-.progress-grid-wrapper::-webkit-scrollbar {
-    display: none;
-}
-
-/* Container for day labels and values */
-.progress-grid {
-    display: grid;
-    grid-template-columns: repeat(30, 1fr);
-    gap: 2px;
-    text-align: center;
-    width: max-content;
-    min-width: 100%;
+    
+    /* Improve mobile table experience */
+    #ibadahTable th:not(:first-child),
+    #ibadahTable td:not(:first-child) {
+        width: 25px;
+        min-width: 25px;
+        max-width: 25px;
+        padding: 3px 1px;
+    }
+    
+    #ibadahTable th:first-child,
+    #ibadahTable td:first-child {
+        width: 120px;
+        min-width: 120px;
+        font-size: 0.9em;
+    }
+    
+    .checkbox {
+        width: 18px;
+        height: 18px;
+    }
 }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -2525,16 +2439,12 @@ body::-webkit-scrollbar,
                 <div class="progress-percentage-row">
                     <div class="progress-header">
                         <div class="progress-label">PROGRESS</div>
+                        <button id="downloadReportBtn" class="download-button">
+                            <i class="fas fa-download"></i> Download PDF Report
+                        </button>
                     </div>
-                    <div class="progress-grid-wrapper">
-                        <div class="progress-grid">
-                            <div class="day-labels">
-                                <!-- Day labels will be populated by JS -->
-                            </div>
-                            <div class="progress-values">
-                                <!-- Progress values will be populated by JS -->
-                            </div>
-                        </div>
+                    <div class="progress-values">
+                        <!-- JavaScript will populate these values -->
                     </div>
                 </div>
 
@@ -2611,11 +2521,6 @@ body::-webkit-scrollbar,
             </div>
         </div>
     </div>
-
-    <!-- Floating download button -->
-    <button id="downloadReportBtn" class="download-floating-button" title="Download PDF Report">
-        <i class="fas fa-download"></i>
-    </button>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -3774,72 +3679,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Add setup for buttons
                 setTimeout(setupModalButtons, 100);
             });
-        }
-    });
-});
-
-// Add enhanced mobile handling
-document.addEventListener('DOMContentLoaded', function() {
-    // Fix for preventing pinch zoom while still allowing scrolling
-    document.addEventListener('touchstart', function(e) {
-        if (e.touches.length > 1) {
-            e.preventDefault();
-        }
-    }, { passive: false });
-    
-    // Only prevent default for multi-touch gestures (pinch zoom), allow scrolling
-    document.addEventListener('touchmove', function(event) {
-        if (event.touches.length > 1) {
-            event.preventDefault();
-        }
-    }, { passive: false });
-    
-    // Handle table interaction in modals
-    const trackingTable = document.querySelector('.tracking-table');
-    if (trackingTable) {
-        let touchStartX, touchStartY;
-        
-        trackingTable.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-        
-        trackingTable.addEventListener('touchmove', function(e) {
-            if (!touchStartX || !touchStartY) {
-                return;
-            }
-            
-            const xDiff = touchStartX - e.touches[0].clientX;
-            const yDiff = touchStartY - e.touches[0].clientY;
-            
-            // If horizontal swipe is greater than vertical, prevent page scroll
-            if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                e.stopPropagation();
-            }
-        }, { passive: true });
-    }
-    
-    // Add highlight to today's progress
-    const today = new Date();
-    const dayOfMonth = today.getDate();
-    const progressValues = document.querySelectorAll('.progress-value');
-    
-    if (progressValues && progressValues.length > 0) {
-        // Check if we need to highlight a specific progress value (today's)
-        if (dayOfMonth <= progressValues.length) {
-            progressValues[dayOfMonth - 1].classList.add('highlight');
-        }
-    }
-    
-    // Make modal more mobile-friendly
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        // Prevent touchmove events from bubbling when interacting with the modal body
-        const modalBody = modal.querySelector('.modal-body');
-        if (modalBody) {
-            modalBody.addEventListener('touchmove', function(e) {
-                e.stopPropagation();
-            }, { passive: true });
         }
     });
 });
