@@ -2460,6 +2460,64 @@ body::-webkit-scrollbar,
         line-height: 22px;
     }
 }
+
+/* Progress value styling with day number */
+.progress-value {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Day number styling */
+.day-label {
+    font-size: 0.65em; /* Smaller than the percentage */
+    color: #666;
+    opacity: 0.8;
+    font-weight: normal;
+    margin-bottom: -2px; /* Bring percentage closer to day number */
+}
+
+/* Adjust spacing for progress values container */
+.progress-values {
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    gap: 4px;
+    padding-top: 12px; /* Make room for day numbers */
+}
+
+/* Mobile optimization for progress values */
+@media (max-width: 768px) {
+    .progress-values {
+        gap: 3px;
+    }
+
+    .day-label {
+        font-size: 0.6em;
+    }
+    
+    /* Ensure today's progress value remains prominent */
+    .progress-value.today-progress {
+        transform: scale(1.2);
+    }
+    
+    .progress-value.today-progress .day-label {
+        font-weight: bold;
+        color: #e74c3c;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .progress-values {
+        gap: 2px;
+    }
+
+    .day-label {
+        font-size: 0.55em;
+    }
+}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -3130,7 +3188,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Count completed tasks, accounting for Jum'at activities
             Object.entries(trackingData).forEach(([activity, data]) => {
                 if (ibadahTypes.jumat.includes(activity)) {
-                    // Only count Friday days for Jum'at activities
                     if (fridayDays.includes(day)) {
                         totalPossible++;
                         if (data[day]) completedTasks++;
@@ -3144,13 +3201,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const percentage = Math.round((completedTasks / totalPossible) * 100);
             
             // Determine color level based on percentage
-            let levelClass = 'level-0'; // Default blue
-            if (percentage > 90) levelClass = 'level-6'; // Red
-            else if (percentage > 75) levelClass = 'level-5'; // Dark Orange
-            else if (percentage > 60) levelClass = 'level-4'; // Orange
-            else if (percentage > 45) levelClass = 'level-3'; // Yellow
-            else if (percentage > 30) levelClass = 'level-2'; // Green
-            else if (percentage > 15) levelClass = 'level-1'; // Teal
+            let levelClass = 'level-0';
+            if (percentage > 90) levelClass = 'level-6';
+            else if (percentage > 75) levelClass = 'level-5';
+            else if (percentage > 60) levelClass = 'level-4';
+            else if (percentage > 45) levelClass = 'level-3';
+            else if (percentage > 30) levelClass = 'level-2';
+            else if (percentage > 15) levelClass = 'level-1';
             
             // Get motivational message based on percentage
             let tooltipMessage = getMotivationalMessage(percentage);
@@ -3159,12 +3216,24 @@ document.addEventListener('DOMContentLoaded', function() {
             valueDiv.className = `progress-value ${levelClass}`;
             
             // Add today-progress class if this is today's day
-            if (day === todayRamadanDay - 1) { // Adjusting for 0-indexed day
+            if (day === todayRamadanDay - 1) {
                 valueDiv.classList.add('today-progress');
             }
             
-            valueDiv.textContent = `${percentage}%`;
+            // Create day number element
+            const dayLabel = document.createElement('span');
+            dayLabel.className = 'day-label';
+            dayLabel.textContent = `Day ${day + 1}`;
+            
+            // Create percentage element
+            const percentageSpan = document.createElement('span');
+            percentageSpan.textContent = `${percentage}%`;
+            
+            // Add elements to value div
+            valueDiv.appendChild(dayLabel);
+            valueDiv.appendChild(percentageSpan);
             valueDiv.setAttribute('data-tooltip', tooltipMessage);
+            
             progressValues.appendChild(valueDiv);
         }
     }
