@@ -566,7 +566,7 @@ export default function Home() {
               <div
                 key={post._id}
                 id={`post-${post._id}`}
-                onClick={() => setSelectedPostTitle(post.title)}
+                onClick={() => handlePostSelection(post)}
                 className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] cursor-pointer border border-gray-100"
               >
                 <div className="flex items-start gap-4 max-w-full">
@@ -1245,10 +1245,18 @@ export default function Home() {
     );
   };
 
-  // Add function to handle mobile post selection
+  // Add this function to handle post selection and scroll reset
   const handlePostSelection = (post: Post) => {
     setSelectedPostTitle(post.title);
-    if (window.innerWidth < 768) { // Mobile breakpoint
+    
+    // Reset scroll position of the detail view
+    const detailView = document.querySelector('.detail-view-container');
+    if (detailView) {
+      detailView.scrollTop = 0;
+    }
+    
+    // For mobile view
+    if (window.innerWidth < 768) {
       setShowMobileDetail(true);
     }
   };
@@ -1371,7 +1379,7 @@ export default function Home() {
           </div>
 
           {/* Detail View - update background */}
-          <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar font-['Plus_Jakarta_Sans'] bg-transparent 
+          <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar detail-view-container font-['Plus_Jakarta_Sans'] bg-transparent 
             ${showMobileDetail ? 'fixed inset-0 z-50 bg-transparent' : 'hidden md:block'}`}>
             <div className="bg-white rounded-xl shadow-lg p-6">
               {selectedPostTitle ? (
