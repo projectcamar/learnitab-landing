@@ -2382,6 +2382,84 @@ body::-webkit-scrollbar,
         height: 18px;
     }
 }
+
+/* Update mobile styles for progress cards */
+@media (max-width: 768px) {
+    /* Make container use more width */
+    .container {
+        width: 95%;
+        max-width: none;
+        padding: 10px;
+    }
+
+    /* Adjust card layout */
+    .ibadah-card {
+        padding: 14px 15px;
+        gap: 15px;
+    }
+
+    /* Make icon smaller to give more space to progress bar */
+    .ibadah-card i {
+        font-size: 1.8em;
+        min-width: 35px;
+    }
+
+    /* Adjust activity label width */
+    .activity-label {
+        min-width: 90px;
+        font-size: 0.9em;
+    }
+
+    /* Make progress bar container wider */
+    .ibadah-card .progress-bar {
+        flex: 1;
+        min-width: 120px; /* Ensure minimum width */
+        height: 24px;
+    }
+
+    /* Ensure progress text is visible */
+    .ibadah-card .progress {
+        font-size: 0.9em;
+        line-height: 24px;
+    }
+}
+
+/* Additional adjustments for very small screens */
+@media (max-width: 480px) {
+    .container {
+        width: 98%;
+        padding: 8px;
+    }
+
+    /* Further optimize card layout */
+    .ibadah-card {
+        padding: 12px 10px;
+        gap: 10px;
+    }
+
+    /* Slightly smaller icon */
+    .ibadah-card i {
+        font-size: 1.6em;
+        min-width: 30px;
+    }
+
+    /* Adjust label for smaller screens */
+    .activity-label {
+        min-width: 80px;
+        font-size: 0.85em;
+    }
+
+    /* Ensure progress bar remains visible */
+    .ibadah-card .progress-bar {
+        min-width: 100px;
+        height: 22px;
+    }
+
+    .ibadah-card .progress {
+        font-size: 0.85em;
+        line-height: 22px;
+    }
+}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
