@@ -117,6 +117,21 @@ type RemoteOKJob = {
   date: string;
 };
 
+// Add Web3Job type definition after other job types
+type Web3Job = {
+  id: number;
+  title: string;
+  date: string;
+  date_epoch: number;
+  country: string;
+  city: string;
+  company: string;
+  location: string;
+  apply_url: string;
+  tags: string[];
+  description: string;
+};
+
 // Add fetchJobicyJobs function
 const fetchJobicyJobs = async () => {
   try {
@@ -285,6 +300,50 @@ const fetchRemoteOKJobs = async () => {
   }
 };
 
+// Add fetchWeb3Jobs function after other fetch functions
+const fetchWeb3Jobs = async () => {
+  try {
+    console.log('Fetching Web3 jobs...');
+    const response = await fetch('https://web3.career/api/v1?token=o8KS57qZNyYZfGAqqQnPuVDK5URZjgwH');
+    const data = await response.json();
+    
+    if (!data[2] || !Array.isArray(data[2])) {
+      console.error('Invalid Web3 jobs response format:', data);
+      return [];
+    }
+
+    return data[2].map((job: Web3Job) => ({
+      _id: job.id.toString(),
+      title: job.title,
+      category: 'jobs',
+      link: job.apply_url,
+      company: job.company,
+      location: job.location || `${job.city}, ${job.country}`,
+      workType: job.tags.includes('remote') ? 'Remote' : 'On-site',
+      body: job.description,
+      source: 'web3',
+      created_at: job.date_epoch * 1000,
+      expired: false,
+      daysLeft: 30,
+      tags: job.tags,
+      labels: {
+        Company: job.company,
+        Position: job.title,
+        Location: job.location || `${job.city}, ${job.country}`,
+        Status: job.tags.includes('remote') ? 'Remote' : 'On-site',
+        'Web3 Tags': job.tags.join(', ')
+      }
+    }));
+  } catch (error: any) {
+    console.error('Error fetching Web3 jobs:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack
+    });
+    return [];
+  }
+};
+
 const DEFAULT_COMPANY_LOGO = 'https://od.lk/s/OTZfOTY3MjAxNDFf/magang-dummy.png';
 
 export default function Home() {
@@ -399,12 +458,13 @@ export default function Home() {
       setIsLoading(true);
       try {
         console.log('Starting initial fetch...');
-        const [response, remotiveJobs, jobicyJobs, arbeitnowJobs, remoteOKJobs] = await Promise.all([
+        const [response, remotiveJobs, jobicyJobs, arbeitnowJobs, remoteOKJobs, web3Jobs] = await Promise.all([
           fetch('/api/posts'),
           fetchRemotiveJobs(),
           fetchJobicyJobs(),
           fetchArbeitnowJobs(),
-          fetchRemoteOKJobs()
+          fetchRemoteOKJobs(),
+          fetchWeb3Jobs()
         ]);
 
         const data = await response.json();
@@ -454,7 +514,8 @@ export default function Home() {
             ...remotiveJobs,
             ...jobicyJobs,
             ...arbeitnowJobs,
-            ...remoteOKJobs
+            ...remoteOKJobs,
+            ...web3Jobs
           ].sort((a, b) => b.created_at - a.created_at);
           
           setPosts(transformedPosts);
@@ -682,8 +743,8 @@ export default function Home() {
   // Add mentor-specific filter options
   const filterOptions = {
     jobs: {
-      sources: ['all', 'remotive', 'jobicy', 'arbeitnow'],
-      types: ['all', 'full-time', 'part-time', 'contract', 'internship'],
+      sources: ['all', 'remotive', 'jobicy', 'arbeitnow', 'remoteok', 'web3'],
+      types: ['all', 'full-time', 'part-time', 'contract', 'internship', 'remote'],
       locations: ['all', 'usa', 'europe', 'asia', 'remote']
     },
     mentors: {
@@ -1195,14 +1256,15 @@ export default function Home() {
   // Update the main fetch function
   const fetchPosts = async () => {
     try {
-      const [remotiveJobs, jobicyJobs, arbeitnowJobs, remoteOKJobs] = await Promise.all([
+      const [remotiveJobs, jobicyJobs, arbeitnowJobs, remoteOKJobs, web3Jobs] = await Promise.all([
         fetchRemotiveJobs(),
         fetchJobicyJobs(),
         fetchArbeitnowJobs(),
-        fetchRemoteOKJobs()
+        fetchRemoteOKJobs(),
+        fetchWeb3Jobs()
       ]);
       
-      return [...remotiveJobs, ...jobicyJobs, ...arbeitnowJobs, ...remoteOKJobs];
+      return [...remotiveJobs, ...jobicyJobs, ...arbeitnowJobs, ...remoteOKJobs, ...web3Jobs];
     } catch (error) {
       console.error('Error fetching jobs:', error);
       return [];
