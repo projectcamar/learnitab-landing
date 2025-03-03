@@ -3010,11 +3010,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // This implementation uses a more accurate calculation approach
         // based on the known Gregorian-Hijri date correspondences
         
-        // Base Hijri date for reference: March 1, 2025 = 2 Ramadan 1446
-        const baseGregorianDate = new Date(2025, 2, 1); // March 1, 2025
-        const baseHijriYear = 1446;
-        const baseHijriMonth = 9; // Ramadan is the 9th month (1-indexed)
-        const baseHijriDay = 2;
+// Base Hijri date for reference: March 1, 2025 = 1 Ramadan 1446
+const baseGregorianDate = new Date(2025, 2, 2); // March 1, 2025
+const baseHijriYear = 1446;
+const baseHijriMonth = 9; // Ramadan is the 9th month (1-indexed)
+const baseHijriDay = 1;
         
         // Calculate difference in days between current date and base date
         const millisecondsPerDay = 24 * 60 * 60 * 1000;
