@@ -65,32 +65,32 @@ const PrivacyPolicy: React.FC = () => {
         <li>fileSystem: To handle file operations within the extension.</li>
       </ul>
 
-      <h3>Geolocation Permissions</h3>
-      <p>Our website may request access to your device's geolocation data to provide weather information based on your current location. Please note the following about how we handle this information:</p>
-      <ul>
+      <h3 className="text-xl font-semibold mt-6 mb-3" style={{ color: '#00698f' }}>Geolocation Permissions</h3>
+      <p className="mb-4">Our website may request access to your device's geolocation data to provide weather information based on your current location. Please note the following about how we handle this information:</p>
+      <ul className="list-disc ml-6 mb-4">
         <li>Your location data is only used to display relevant weather information</li>
         <li>We do not collect, store, or save your location data on our servers</li>
         <li>Your location information remains strictly on your browser</li>
         <li>You can deny or revoke this permission at any time through your browser settings</li>
       </ul>
-      <p>When you grant geolocation permission, this is processed locally within your browser to enhance your experience with our weather feature. We respect your privacy and do not track or monitor your location beyond the immediate use of providing weather information.</p>
+      <p className="mb-4">When you grant geolocation permission, this is processed locally within your browser to enhance your experience with our weather feature. We respect your privacy and do not track or monitor your location beyond the immediate use of providing weather information.</p>
 
-      <h3>Embedded YouTube Videos</h3>
-      <p>Our website may contain embedded YouTube videos. These videos are hosted by YouTube, a service owned by Google LLC.</p>
-      <p>We embed these videos in accordance with YouTube's Terms of Service. YouTube allows for the embedding of videos when:</p>
-      <ul>
+      <h3 className="text-xl font-semibold mt-6 mb-3" style={{ color: '#00698f' }}>Embedded YouTube Videos</h3>
+      <p className="mb-4">Our website may contain embedded YouTube videos. These videos are hosted by YouTube, a service owned by Google LLC.</p>
+      <p className="mb-4">We embed these videos in accordance with YouTube's Terms of Service. YouTube allows for the embedding of videos when:</p>
+      <ul className="list-disc ml-6 mb-4">
         <li>The video uploader has enabled the embedding feature</li>
         <li>We use YouTube's official embedding functionality</li>
         <li>The videos are displayed through the standard YouTube interface</li>
       </ul>
-      <p>When you view pages containing embedded YouTube videos, your browser establishes a direct connection to YouTube's servers. YouTube may collect information about you, including:</p>
-      <ul>
+      <p className="mb-4">When you view pages containing embedded YouTube videos, your browser establishes a direct connection to YouTube's servers. YouTube may collect information about you, including:</p>
+      <ul className="list-disc ml-6 mb-4">
         <li>Your IP address</li>
         <li>Browser type and settings</li>
         <li>The date and time of your visit</li>
         <li>Information stored in cookies</li>
       </ul>
-      <p>For more information about how YouTube handles user data, please review <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a>.</p>
+      <p className="mb-4">For more information about how YouTube handles user data, please review <a href="https://policies.google.com/privacy" target="_blank" className="text-blue-500">Google's Privacy Policy</a>.</p>
 
       <div className="footer-note mt-8 mb-4" style={{ background: 'rgba(0,105,143,0.05)', padding: '2rem', borderRadius: '8px', textAlign: 'center', fontStyle: 'italic' }}>
         <p>By using Learnitab, you acknowledge that you have read and understood this Privacy Policy and agree to the collection, use, and sharing of your information as described herein.</p>
