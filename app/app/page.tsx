@@ -1286,7 +1286,6 @@ export default function Home() {
         <div 
           className="absolute inset-0 z-0 overflow-hidden"
           style={{
-            backgroundImage: 'url(https://od.lk/s/OTZfMTAwNTkwMzk0Xw/Job.pong)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
