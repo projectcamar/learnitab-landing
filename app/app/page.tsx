@@ -344,7 +344,7 @@ const fetchWeb3Jobs = async () => {
   }
 };
 
-const DEFAULT_COMPANY_LOGO = 'https://od.lk/s/OTZfOTY3MjAxNDFf/magang-dummy.png';
+const DEFAULT_COMPANY_LOGO = 'https://od.lk/s/OTZfMTAwNTkwMzk0Xw/Job.png';
 
 export default function Home() {
   const postsPerPage = 15;
@@ -1286,7 +1286,7 @@ export default function Home() {
         <div 
           className="absolute inset-0 z-0 overflow-hidden"
           style={{
-            backgroundImage: 'url(https://cod.lk/s/OTZfOTY3MjAxdNDFf/magang-dumsmy.pang)',
+            backgroundImage: 'url(https://od.lk/s/OTZfMTAwNTkwMzk0Xw/Job.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
