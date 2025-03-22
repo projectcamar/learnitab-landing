@@ -5,906 +5,1845 @@ export default function Home() {
     <div dangerouslySetInnerHTML={{
       __html: `
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learnitab</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css" rel="stylesheet">
+    <!-- Add Plus Jakarta Sans font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Add FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            color: white;
+            margin: 0;
+            text-align: center;
+            background-color: black;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        p {
+            color: rgba(255,255,255, 0.5)
+        }
+        .header {
+            /* Remove this class entirely from styles since we'll handle this in sections */
+        }
+        .footer {
+            /* Remove this class entirely from styles since we'll handle this in sections */
+        }
+        .description {
+            color: gray;
+            padding-top: 50px;
+        }
+        a, a:hover, a:visited {
+            color: white;
+            text-decoration: none;
+        }
+        .disable-selection {
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        h1::after {
+            content: ' Beta';
+            font-size: 12px;
+            position: absolute;
+            top: 3px;
+            padding-left: 5px;
+            font-weight: 400;
+        }
+        h2::after {
+            content: '2';
+            font-size: 12px;
+            position: absolute;
+            top: 14px;
+            padding-left: 5px;
+        }
+        .btn {
+            border-radius: 100px;
+            padding: 10px 25px;
+        }
+        .sections-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            z-index: 1;
+        }
+
+        .section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            scroll-snap-align: start;
+            position: relative;
+            padding: 20px;
+        }
+
+        .content-section {
+            background-color: transparent;
+            padding: 2rem;
+            max-width: 900px;
+            width: 90%;
+            margin: 0 auto;
+            border: none;
+            box-shadow: none;
+        }
+
+        #hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .features-container {
+            position: relative;
+            height: 100vh;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+            background: transparent;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .features-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .features-page {
+            height: 100vh;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .feature-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 450px;         /* Added max-width to cards */
+            margin: 0 auto;           /* Center cards */
+        }
+
+        .feature-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-image {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-content {
+            text-align: left;
+        }
+
+        .nav-dots {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 3;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .nav-dot.active {
+            background: #fff;
+        }
+
+        :root {
+            --primary: #F02050;
+            --primary-darker: #d01040;
+            --background: rgba(0, 0, 0, 0.8);
+            --card-background: rgba(15, 15, 15, 0.9);
+        }
+
+        .btn {
+            background: var(--primary);
+            border: none;
+            padding: 0.875rem 1.5rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            transition: all 0.2s ease;
+            text-transform: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            background: var(--primary-darker);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 32, 80, 0.3);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .3s, opacity .5s;
+        }
+
+        .btn:active::after {
+            transform: scale(0, 0);
+            opacity: .3;
+            transition: 0s;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(to right, #fff, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.7;
+            font-size: 1.1rem;
+            text-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .small {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 2rem;
+        }
+
+        .nav-dots {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50px;
+            backdrop-filter: blur(8px);
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-dot.active {
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .contact-info {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: transparent;
+            border: none;
+        }
+
+        .contact-info p {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        #hero .content-section {
+            text-align: center;
+            max-width: 900px;
+            position: relative;
+            z-index: 2;
+        }
+
+        #about .content-section {
+            text-align: center;
+        }
+
+        .section {
+            padding: 4rem 2rem;
+        }
+
+        /* Smooth scrolling for the whole page */
+        .sections-container {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        .sections-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sections-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .sections-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .sections-container::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-darker);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            background: #9333EA;
+            color: white;
+            border: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-primary:hover {
+            background: #7928CA;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(147, 51, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        #features .content-section {
+            max-width: 1200px;        /* Increased section max-width */
+            padding: 0;               /* Remove padding */
+            width: 100%;             /* Full width */
+        }
+
+        #features h2 {
+            margin-bottom: 1rem;      /* Reduced margin */
+            position: absolute;       /* Position title above cards */
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            text-align: center;
+            z-index: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .features-grid {
+                grid-template-columns: 1fr;  /* Single column on smaller screens */
+            }
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin: 2rem 0;  /* Reduced from 3rem to 2rem */
+        }
+
+        .contact-item {
+            text-align: center;
+            padding: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .contact-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .contact-item:hover .contact-icon {
+            background: rgba(147, 51, 234, 0.2);
+        }
+
+        .contact-icon i {
+            font-size: 24px;
+            color: #9333EA;
+        }
+
+        .contact-item:hover .contact-icon i {
+            transform: scale(1.1);
+            transition: transform 0.3s ease;
+        }
+
+        .contact-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .contact-item p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 2rem;  /* Reduced from 3rem to 2rem */
+        }
+
+        .cta-section h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .contact-item {
+                padding: 1.5rem;
+            }
+        }
+
+        .features-container {
+            position: relative;
+            height: 100vh;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+            background: transparent;
+        }
+
+        .section {
+            overflow: hidden; /* Prevent scrolling outside of sections */
+        }
+
+        .contact-icon img {
+            display: none;
+        }
+
+        .contact-section-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;  /* Add some gap between elements */
+        }
+
+        #contact .content-section {
+            padding-top: 1rem;  /* Reduce top padding */
+        }
+
+        #contact h2 {
+            margin-bottom: 1rem;  /* Reduce bottom margin of the heading */
+        }
+
+        #contact > .content-section > p {
+            margin-bottom: 1rem;  /* Reduce margin below the description */
+        }
+
+        .about-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            height: auto; /* Remove any fixed height */
+        }
+
+        .about-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .about-text {
+            background: rgba(147, 51, 234, 0.05);
+            padding: 1.25rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(147, 51, 234, 0.1);
+            height: auto; /* Remove any fixed height */
+        }
+
+        .about-text p {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .purple-text {
+            color: #9333EA;
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .highlight {
+            color: #9333EA;
+            font-weight: 500;
+        }
+
+        .benefits-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .benefits-list li {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start; /* Align to top */
+            gap: 0.5rem;
+            padding-right: 1rem; /* Add some right padding */
+        }
+
+        .about-footer {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 0 1rem 2rem; /* Add bottom padding */
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .about-wrapper {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            #about.section {
+                padding: 2rem 1rem;
+            }
+
+            .benefits-list li {
+                font-size: 1rem;
+                padding-right: 0.5rem;
+            }
+
+            .about-text p {
+                font-size: 0.9rem;
+            }
+        }
+
+        .btn-with-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-wave {
+            position: relative;
+        }
+
+        .btn-wave::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 100px;
+            background: #9333EA;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            animation: buttonWave 2s infinite;
+        }
+
+        @keyframes buttonWave {
+            0% {
+                width: 100%;
+                height: 100%;
+                opacity: 0.5;
+            }
+            70% {
+                width: 130%;
+                height: 130%;
+                opacity: 0;
+            }
+            100% {
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+            }
+        }
+
+        .chrome-icon {
+            font-size: 1.2rem;
+        }
+
+        .about-container {
+            position: relative;
+            height: 100vh;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+            background: transparent;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .about-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .about-page {
+            height: 100vh;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .about-text {
+            background: rgba(147, 51, 234, 0.05);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(147, 51, 234, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        /* Update existing about styles */
+        #about .content-section {
+            padding: 0;
+            max-width: 100%;
+        }
+
+        #about h2 {
+            position: absolute;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            margin: 0;
+        }
+
+        .about-footer {
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .about-text {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+        }
+
+        .about-text-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .about-text-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+        }
+
+        .final-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+            text-align: center;
+            background: rgba(147, 51, 234, 0.1);
+            padding: 2rem;
+        }
+
+        .message-block {
+            margin: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .highlight-large {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(45deg, #9333EA, #7928CA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(147, 51, 234, 0.3);
+            display: block;
+        }
+
+        .message-small {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 1rem 0;
+            font-weight: 500;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .highlight-large {
+                font-size: 2rem;
+            }
+            
+            .message-small {
+                font-size: 1.1rem;
+            }
+
+            .message-block {
+                margin: 1.5rem 0;
+            }
+
+            .final-message {
+                padding: 1rem;
+            }
+        }
+
+        .cinema-bars {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: 15vh;
+            background: #000;
+            z-index: 10;
+            transition: transform 0.5s ease;
+        }
+
+        .cinema-bar-top {
+            top: 0;
+            transform: translateY(-100%);
+        }
+
+        .cinema-bar-bottom {
+            bottom: 0;
+            transform: translateY(100%);
+        }
+
+        .show-cinema-bars .cinema-bar-top {
+            transform: translateY(0);
+        }
+
+        .show-cinema-bars .cinema-bar-bottom {
+            transform: translateY(0);
+        }
+
+        /* Add/update these mobile responsive styles */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem; /* Smaller heading for mobile */
+                margin-bottom: 1rem;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            .small {
+                font-size: 1rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 0;
+            }
+            
+            .feature-card {
+                padding: 1rem;
+            }
+            
+            .feature-image {
+                height: 150px; /* Smaller images on mobile */
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr; /* Single column on mobile */
+                gap: 1.5rem;
+                padding: 1rem;
+                margin-top: 4rem; /* Add space for the title */
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+            
+            .nav-dots {
+                right: 10px; /* Move dots closer to edge on mobile */
+            }
+            
+            .sections-container {
+                height: 100%;
+                overflow-y: auto;
+            }
+            
+            .section {
+                min-height: 100vh;
+                padding: 2rem 1rem;
+            }
+            
+            .content-section {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            #features h2 {
+                font-size: 1.8rem;
+                padding: 0 1rem;
+            }
+
+            .feature-content h3 {
+                font-size: 1.3rem;
+            }
+
+            .feature-content p {
+                font-size: 1rem;
+            }
+
+            .features-page {
+                padding: 1rem;
+                height: auto;
+                min-height: 100vh;
+            }
+        }
+
+        #contact .about-wrapper {
+            margin-top: 2rem;
+            gap: 1.5rem;
+        }
+
+        #contact .about-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        #contact .benefits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        #contact .benefits-list li {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        #contact .benefits-list i {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            #contact .about-wrapper {
+                grid-template-columns: 1fr;
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+        }
+
+        .music-control {
+            width: 12px;  /* Match dot size */
+            height: 12px; /* Match dot size */
+            border-radius: 50%;
+            background: rgba(147, 51, 234, 0.2);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .music-control:hover {
+            background: rgba(147, 51, 234, 0.3);
+            transform: scale(1.1);
+        }
+
+        .music-control i {
+            font-size: 8px; /* Smaller icon size */
+        }
+
+        @media (max-width: 768px) {
+            .music-control {
+                width: 10px;  /* Match mobile dot size */
+                height: 10px; /* Match mobile dot size */
+            }
+            
+            .music-control i {
+                font-size: 6px; /* Even smaller icon for mobile */
+            }
+        }
+
+        .logo {
+            width: 80px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+
+        #rotating-text {
+            font-weight: 700;  /* Makes the text bold */
+        }
+    </style>
 </head>
 <body>
-    <div id="background-image" class="background-image"></div>
-    <div id="drop-zone" class="drop-zone">
-    <div class="background-image"></div>
-    <div class="blur-overlay"></div>
-        
-        <p>Drag your image here to change background</p>
-    </div>
-    <div class="top-right">
-        <div id="fullscreen-switch" class="switch-container">
-            <img src="src/assets/sidebar-icon/fullscreen.svg" alt="Fullscreen Mode" id="fullscreen-icon">
-            <span class="icon-name">Fullscreen</span>
-        </div>
-        <div id="dark-mode-switch" class="switch-container">
-            <img src="src/assets/sidebar-icon/moon.svg" alt="Dark Mode">
-            <span class="icon-name">Dark Mode</span>
-        </div>
-        <button id="explore-opportunity" class="explore-btn">Explore Opportunity</button>
-    </div>
-    <div class="fullscreen-iframe" id="fullscreen-kanban">
-        <span class="close-fullscreen">&times;</span>
-        <iframe src="https://projectcamar.github.io/learnitab-kanban/" frameborder="0"></iframe>
-    </div>
-    <div class="fullscreen-iframe" id="fullscreen-breathe" style="display: none;">
-        <span class="close-fullscreen">&times;</span>
-        <img src="images/breathe.gif" alt="Breathe Animation" style="width: 100%; height: 100%; object-fit: contain;">
-    </div>
-    <div class="fullscreen-iframe" id="fullscreen-ramadhan" style="display: none;">
-        <span class="close-fullscreen">&times;</span>
-        <iframe src="https://learnitab.com/ramadhantracker" frameborder="0"></iframe>
-    </div>
-    <div class="sidebar">
-        <div class="sidebar-icon-container" id="background-changer">
-            <img src="src/assets/sidebar-icon/image.svg" alt="Change Background" class="sidebar-icon" data-emoji="🖼️">
-            <span class="icon-name">Change Background</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/file.svg" alt="Google Docs" class="sidebar-icon" data-iframe-src="https://docs.google.com/document/u/0/" data-emoji="📝">
-            <span class="icon-name">Google Docs</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/google-sheets.svg" alt="Google Sheet" class="sidebar-icon" data-iframe-src="https://docs.google.com/spreadsheets/" data-emoji="📊">
-            <span class="icon-name">Google Sheet</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/pdf.svg" alt="Small PDF" class="sidebar-icon" data-iframe-src="https://smallpdf.com/pdf-tools/" data-emoji="📄">
-            <span class="icon-name">Small PDF</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/canva.svg" alt="Canva" class="sidebar-icon" data-iframe-src="https://www.canva.com/features/" data-emoji="🎨">
-            <span class="icon-name">Canva</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/kanban.svg" alt="Kanban Tracker" class="sidebar-icon" data-iframe-src="kanban.html" data-emoji="📋">
-            <span class="icon-name">Kanban Tracker</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/calculator.svg" alt="Calculator" class="sidebar-icon" data-iframe-src="https://www.desmos.com/scientific" data-emoji="🔢">
-            <span class="icon-name">Calculator</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/chatgpt.svg" alt="ChatGPT" class="sidebar-icon" data-iframe-src="https://chatgpt.com" data-emoji="🤖">
-            <span class="icon-name">ChatGPT</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/music.svg" alt="Media: Spotify, Apple Music & Youtube" class="sidebar-icon" data-iframe-src="spotify.html" data-emoji="🎵">
-            <span class="icon-name">Media: Spotify, Apple Music & Youtube</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/quillbot.svg" alt="Pomodoro" class="sidebar-icon" data-iframe-src="https://pomofocus.io/" data-emoji="⏰">
-            <span class="icon-name">Pomodoro</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/calendar.svg" alt="Countdown Days" class="sidebar-icon" id="countdown-icon" data-emoji="📅">
-            <span class="icon-name">Countdown Days</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/notion.svg" alt="Notion" class="sidebar-icon" data-iframe-src="https://www.notion.so/login" data-emoji="📔">
-            <span class="icon-name">Notion</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/breathe.svg" alt="Breathe" class="sidebar-icon" data-emoji="🧘">
-            <span class="icon-name">Breathe</span>
-        </div>
-        <div class="sidebar-icon-container">
-            <img src="src/assets/sidebar-icon/moon.svg" alt="Ramadhan Tracker" class="sidebar-icon" data-emoji="🌙">
-            <span class="icon-name">Ramadhan Tracker</span>
-        </div>
-    </div>
+    <audio id="backgroundMusic" loop autoplay>
+        <source src="https://od.lk/s/OTZfMTAwMzI2Mzk3Xw/Is%20It%20The%20Answer%20-%20Reality%20Club.mp3" type="audio/mp3">
+    </audio>
 
-    <div class="cat-container">
-        <img src="src/assets/catidle.gif" alt="Cat" id="cat-gif" class="cat-gif">
-        <audio id="cat-spin-sound" preload="auto">
-            <source src="src/assets/catspinningsound.mp3" type="audio/mpeg">
-        </audio>
-    </div>
+    <div class="cinema-bar-top cinema-bars"></div>
+    <div class="cinema-bar-bottom cinema-bars"></div>
 
-    <div class="tools-list-hover-area"></div>
-    <div id="tools-list" class="tools-list" style="display: none;">
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/file.svg" alt="Google Docs" class="tool-icon" data-iframe-src="https://docs.google.com/document/u/0/" data-emoji="📝">
-            <span class="icon-name">Google Docs</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/google-sheets.svg" alt="Google Sheet" class="tool-icon" data-iframe-src="https://docs.google.com/spreadsheets/" data-emoji="📊">
-            <span class="icon-name">Google Sheet</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/pdf.svg" alt="Small PDF" class="tool-icon" data-iframe-src="https://smallpdf.com/pdf-tools" data-emoji="📄">
-            <span class="icon-name">Small PDF</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/canva.svg" alt="Canva" class="tool-icon" data-iframe-src="https://www.canva.com/features" data-emoji="🎨">
-            <span class="icon-name">Canva</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/kanban.svg" alt="Kanban Tracker" class="tool-icon" data-iframe-src="https://projectcamar.github.io/learnitab-kanban/" data-emoji="📋">
-            <span class="icon-name">Kanban Tracker</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/calculator.svg" alt="Calculator" class="tool-icon" data-iframe-src="https://www.desmos.com/scientific" data-emoji="🔢">
-            <span class="icon-name">Calculator</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/chatgpt.svg" alt="ChatGPT" class="tool-icon" data-iframe-src="https://chatgpt.com" data-emoji="🤖">
-            <span class="icon-name">ChatGPT</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/music.svg" alt="Media: Spotify, Apple Music & Youtube" class="tool-icon" data-iframe-src="spotify.html" data-emoji="🎵">
-            <span class="icon-name">Media: Spotify, Apple Music & Youtube</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/quillbot.svg" alt="Pomodoro" class="tool-icon" data-iframe-src="https://pomofocus.io/" data-emoji="⏰">
-            <span class="icon-name">Pomodoro</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/calendar.svg" alt="Countdown Days" class="tool-icon" id="countdown-icon-list" data-emoji="📅">
-            <span class="icon-name">Countdown Days</span>
-        </div>
-        <div class="tool-icon-container" id="background-changer-list">
-            <img src="src/assets/sidebar-icon/image.svg" alt="Change Background" class="tool-icon" data-emoji="🖼️">
-            <span class="icon-name">Change Background</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/breathe.svg" alt="Breathe" class="tool-icon" data-emoji="🧘">
-            <span class="icon-name">Breathe</span>
-        </div>
-        <div class="tool-icon-container">
-            <img src="src/assets/sidebar-icon/moon.svg" alt="Ramadhan Tracker" class="tool-icon" data-emoji="🌙">
-            <span class="icon-name">Ramadhan Tracker</span>
-        </div>
-    </div>
-    
-
-    <div id="welcome-screen" class="welcome-screen">
-        <div class="onboarding-step" id="welcome-step">
-            <div class="welcome-animation">
-                <div class="floating-circles">
-                    <div class="circle c1"></div>
-                    <div class="circle c2"></div>
-                    <div class="circle c3"></div>
-                    <div class="circle c4"></div>
-                    <div class="circle c5"></div>
+    <div class="sections-container">
+        <section class="section" id="hero">
+            <div class="content-section">
+                <img src="/images/Logo%20Learnitab.png" alt="Learnitab Logo" class="logo">
+                <h1><strong>Learnitab</strong></h1>
+                <p class="small"><strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips</p>
+                <div class="button-group">
+                    <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
+                       class="btn btn-primary btn-with-icon btn-wave">
+                        <i class="fab fa-chrome chrome-icon"></i>
+                        Add to Chrome
+                    </a>
+                    <a href="https://learnitab.com/app" 
+                       class="btn btn-secondary">
+                        Learnitab Opportunity Portal #KaburAjaDulu
+                    </a>
                 </div>
-                <div class="shine-effect"></div>
             </div>
-            <img src="images/Learnitab_Welcome.png" alt="Learnitab Logo" class="welcome-logo pulse-animation" draggable="false">
-            <h1 class="welcome-title">Ready for Your Study Adventure?</h1>
-            <p class="welcome-subtitle">Your Personal Study Space Awaits!</p>
-            <button class="onboarding-button gradient-btn" data-next="step1">
-                <span class="btn-text">Begin Journey</span>
-                <span class="btn-icon">→</span>
-            </button>
-            <div class="decorative-dots">
-                <div class="dot-row"></div>
-                <div class="dot-row"></div>
-                <div class="dot-row"></div>
-            </div>
-        </div>
+        </section>
 
-        <div class="onboarding-step" id="step1" style="display: none;">
-            <div class="welcome-animation">
-                <div class="floating-circles">
-                    <div class="circle c1" style="top: 70%; left: 10%; width: 150px; height: 150px;"></div>
-                    <div class="circle c2" style="top: -30px; right: 20%; width: 100px; height: 100px;"></div>
-                    <div class="circle c3" style="bottom: 15%; right: 5%; width: 120px; height: 120px;"></div>
-                    <div class="circle c4" style="top: 30%; left: -20px; width: 90px; height: 90px;"></div>
-                    <div class="circle c5" style="bottom: -20px; left: 30%; width: 110px; height: 110px;"></div>
-                </div>
-                <div class="shine-effect"></div>
-            </div>
-            <div class="onboarding-content" style="width: 50%; float: left; padding-right: 20px;">
-                <h2>Your Dream Study Space is Here!</h2>
-                <p>Imagine having everything you need for studying in one place - from Google Docs for notes, ChatGPT for homework help, to Spotify for study music. No more tab chaos, just pure focus!</p>
-                <button class="onboarding-button" data-next="step2">Show Me More</button>
-            </div>
-            <div class="showcase-images">
-                <img src="images/showcase1.jpg" alt="Showcase 1" class="showcase-img" draggable="false">
-                <img src="images/showcase3.jpg" alt="Showcase 3" class="showcase-img" draggable="false">
-                <img src="images/showcase4.jpg" alt="Showcase 4" class="showcase-img" draggable="false">
-            </div>
-            <img src="src/assets/add-icon/arrow.svg" class="guide-arrow" alt="Guide Arrow">
-        </div>
-
-        <div class="onboarding-step" id="step2" style="display: none;">
-            <div class="welcome-animation">
-                <div class="floating-circles">
-                    <div class="circle c1" style="top: 20%; right: 15%; width: 130px; height: 130px;"></div>
-                    <div class="circle c2" style="bottom: 40%; left: 5%; width: 110px; height: 110px;"></div>
-                    <div class="circle c3" style="top: -40px; left: 30%; width: 150px; height: 150px;"></div>
-                    <div class="circle c4" style="bottom: -30px; right: 25%; width: 120px; height: 120px;"></div>
-                    <div class="circle c5" style="top: 50%; right: -20px; width: 100px; height: 100px;"></div>
-                </div>
-                <div class="shine-effect"></div>
-            </div>
-            <div class="onboarding-content">
-                <h2>Level Up Your Student Life!</h2>
-                <p>Want to stand out? Connect with amazing mentors and discover job opportunities that match your interests. Our Opportunity Portal helps you find remote, on-site, and visa sponsorship positions across all regions and job types!</p>
-            </div>
-            <div class="showcase-container">
-                <img src="images/showcase2.jpg" alt="Showcase 2" class="showcase-img" style="width: 600px; height: auto; margin-left: 100px; margin-top: -30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" draggable="false">
-            </div>
-            <img src="src/assets/add-icon/arrow.svg" class="guide-arrow" alt="Guide Arrow">
-            <button class="onboarding-button" data-next="name-step">Let's Make It Mine</button>
-            <div class="privacy-policy-footer">
-                By continuing, you agree to our <a href="https://learnitab.com/privacy" target="_blank">Terms of Service</a> and <a href="https://learnitab.com/privacy" target="_blank">Privacy Policy</a>
-                <div class="privacy-settings">Your privacy matters – review our policy in settings</div>
-            </div>
-        </div>
-
-        <div class="onboarding-step" id="name-step" style="display: none;">
-            <div class="surreal-container">
-                <div class="floating-elements">
-                    <div class="float-item f1" style="top: 20%; right: 15%; width: 130px; height: 130px;"></div>
-                    <div class="float-item f2" style="bottom: 40%; left: 5%; width: 110px; height: 110px;"></div>
-                    <div class="float-item f3" style="top: -40px; left: 30%; width: 150px; height: 150px;"></div>
-                    <div class="float-item f4" style="bottom: -30px; right: 25%; width: 120px; height: 120px;"></div>
-                    <div class="float-item f5" style="top: 50%; right: -20px; width: 100px; height: 100px;"></div>
-                </div>
-                
-                <div class="glowing-rings">
-                    <div class="ring r1"></div>
-                    <div class="ring r2"></div>
-                    <div class="ring r3"></div>
-                </div>
-
-                <div class="name-content">
-                    <h2 class="glitch-text" data-text="What Should We Call You?">What Should We Call You?</h2>
-                    <p class="fade-text">Let's make this space truly yours!</p>
+        <section class="section" id="features">
+            <div class="content-section">
+                <h2>Explore the Learnitab Universe</h2>
+                <div class="features-container">
+                    <!-- First Scroll -->
+                    <div class="features-page">
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0001.jpg" alt="Time Management" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>⏰ Time Management</h3>
+                                    <p>Stay on top of your tasks with our intelligent Todo List and visualize important dates with Countdown Timers.</p>
+                                </div>
+                            </div>
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0002.jpg" alt="Student Tools" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>🎯 Student Tools</h3>
+                                    <p>Access KBBI, Gramatika, Wikipedia, Scientific Calculator, and Pomodoro Timer all in one place for seamless studying.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
-                    <div class="input-wrapper">
-                        <div class="input-highlight"></div>
-                        <input type="text" id="name-input" placeholder="Your name here">
-                        <div class="input-particles"></div>
+                    <!-- Second Scroll -->
+                    <div class="features-page">
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0003.jpg" alt="AI Assistance" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>🤖 AI Assistance</h3>
+                                    <p>Get instant help with research, writing, and problem-solving using integrated ChatGPT and Google Gemini.</p>
+                                </div>
+                            </div>
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0004.jpg" alt="Spotify Integration" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>🎵 Spotify Integration</h3>
+                                    <p>Access your favorite study playlists without leaving your dashboard, creating the perfect ambiance for productive work.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Third Scroll -->
+                    <div class="features-page">
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0005.jpg" alt="Personalization" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>🎨 Personalization</h3>
+                                    <p>Set the perfect mood for your study sessions with customizable backgrounds and choose between Dark/Light Mode for comfort.</p>
+                                </div>
+                            </div>
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0006.jpg" alt="Dual-Mode Interface" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>🔄 Dual-Mode Interface</h3>
+                                    <p>Choose between Focus Mode for distraction-free work and Explore Opportunity Mode to discover new possibilities and resources.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="about">
+            <div class="content-section">
+                <h2>About Learnitab</h2>
+                <div class="about-container">
+                    <!-- First Scroll - Vision & Mission Together -->
+                    <div class="about-page">
+                        <div class="about-text-container">
+                            <div class="about-text">
+                                <h3 class="purple-text">Our Vision</h3>
+                                <p>To cultivate a generation of <span class="highlight">well-prepared</span>, <span class="highlight">highly skilled</span> graduates who are not just job-ready, but poised to become innovators and leaders in the global marketplace.</p>
+                            </div>
+                            <div class="about-text">
+                                <h3 class="purple-text">Our Mission</h3>
+                                <p>To <span class="highlight">empower global students</span> by providing a comprehensive platform that bridges the gap between academic learning and real-world skills. We aim to <span class="highlight">nurture personal growth</span>, enhance productivity, and create pathways to opportunities.</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <button id="name-submit" class="pulse-button">
-                        <span class="button-text">Start My Journey</span>
-                        <div class="button-particles"></div>
-                    </button>
+                    <!-- Second Scroll -->
+                    <div class="about-page">
+                        <div class="about-text">
+                            <h3 class="purple-text">Why Learnitab?</h3>
+                            <ul class="benefits-list">
+                                <li>✓ Centralized study dashboard for enhanced productivity</li>
+                                <li>✓ AI-powered tools for personalized learning assistance</li>
+                                <li>✓ Career development resources and opportunities</li>
+                                <li>✓ Seamless integration of academic and practical skills</li>
+                                <li>✓ Community-driven platform for peer support and collaboration</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Third Scroll -->
+                    <div class="about-page">
+                        <div class="about-text final-message">
+                            <div class="about-footer">
+                                <div class="message-block">
+                                    <span class="highlight-large">Join us in revolutionizing the way</span>
+                                    <span class="highlight-large">students learn and grow</span>
+                                    <span class="message-small">With Learnitab, you're not just studying;</span>
+                                    <span class="highlight-large">you're building your future</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="privacy-policy-footer">
-                By continuing, you agree to our <a href="https://learnitab.com/privacy" target="_blank">Terms of Service</a> and <a href="https://learnitab.com/privacy" target="_blank">Privacy Policy</a>
-                <div class="privacy-settings">Your privacy matters – review our policy in settings</div>
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <div id="main-content" class="main-content" style="display: none;">
-        <div class="greeting" id="greeting">
-            <span id="greeting-text"></span>
-            <span id="user-name" class="editable-name" title="Click to edit">
-                <span id="user-name-text"></span>
-                <i class="fas fa-edit edit-icon"></i>
-            </span>
-            <span id="greeting-punctuation"></span>
-        </div>
-        <div id="name-edit-container" class="name-edit-container" style="display: none;">
-            <input type="text" id="name-edit-input" class="name-edit-input">
-            <button id="name-edit-save" class="name-edit-save">Save</button>
-            <button id="name-edit-cancel" class="name-edit-cancel">Cancel</button>
-        </div>
-        <div class="date-weather">
-            <span id="date"></span>
-            <span class="weather-divider">•</span>
-            <span id="temperature"></span>
-        </div>
-        <div id="time" class="time"></div>
-        <div id="quote" class="quote">Loading quote...</div>
-    <div class="search-hover-area"></div>
-        <div class="search-container">
-            <div class="search-bar">
-                <input type="text" id="search-input" class="search-input" placeholder="Search anything...">
-                <button id="search-button" class="search-button">
-                    <img src="src/assets/add-icon/magnifying-glass.svg" alt="Search Icon" class="icon">
-                </button>
-            </div>
-            <ul id="suggestions" class="suggestions"></ul>
-        </div>
+        <section class="section" id="contact">
+            <div class="content-section">
+                <h2>Get in Touch</h2>
+                <p>Have questions or want to collaborate? We'd love to hear from you!</p>
+                
+                <div class="about-wrapper">
+                    <div class="about-text">
+                        <h3 class="purple-text">Email</h3>
+                        <a href="mailto:learnitab@gmail.com" style="text-decoration: none;">
+                            <p>learnitab@gmail.com</p>
+                        </a>
+                    </div>
+                    
+                    <div class="about-text">
+                        <h3 class="purple-text">Social Media</h3>
+                        <div class="benefits-list">
+                            <a href="https://instagram.com/learnitab" target="_blank" style="text-decoration: none;">
+                                <li>
+                                    <i class="fab fa-instagram" style="color: #9333EA"></i>
+                                    @learnitab
+                                </li>
+                            </a>
+                            <a href="https://www.linkedin.com/company/learnitab" target="_blank" style="text-decoration: none;">
+                                <li>
+                                    <i class="fab fa-linkedin-in" style="color: #9333EA"></i>
+                                    Learnitab
+                                </li>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="add-item-container">
-            <input type="text" class="add-item-input" placeholder="Write your list here...">
-            <button class="list-toggle-button">
-                <img src="src/assets/add-icon/angle-down.svg" alt="List Toggle Icon" class="icon" id="list-icon">
-            </button>
-        </div>
-
-        <div class="shortcut-container">
-            <div class="shortcuts-list"></div>
-            <div id="add-shortcut-button" class="shortcut-icon add-shortcut-button" style="display: none;">
-                <span class="plus-icon">+</span>
-                <span class="shortcut-name">Add<br>Shortcut</span>
-            </div>
-        </div>
-
-        <div class="list-content" id="list-content">
-        </div>
-    </div>
-    <div id="card-mode" class="card-mode" style="display: none;">
-        <div class="card" id="greeting-card">
-            <h2>Greeting</h2>
-            <div id="card-greeting"></div>
-            <div id="card-date"></div>
-            <div id="card-time"></div>
-        </div>
-        <div class="card" id="quote-card">
-            <h2>Quote</h2>
-            <div id="card-quote"></div>
-        </div>
-        <div class="card" id="search-card">
-            <h2>Search</h2>
-            <div id="card-search"></div>
-        </div>
-        <div class="card" id="list-card">
-            <h2>To-Do List</h2>
-            <div id="card-list"></div>
-        </div>
-    </div>
-    <div id="iframe-container" style="display: none;">
-        <div class="iframe-header">
-            <div class="greeting-small" id="greeting-small">Hi, <span id="user-name-small"></span>!</div>
-            <div class="student-dashboard">Opportunity Portal - Find remote, on-site, and visa sponsorship positions across all regions and job types.</div>
-        </div>
-        <iframe src="https://learnitab.com/app" frameborder="0"></iframe>
-    </div>
-
-    <div class="draggable" id="draggable-iframe-template" style="display: none;" data-last-accessed="">
-        <div class="draggable-header">
-            <span class="draggable-title-container">
-                <span class="draggable-title" style="color: #fff;">Draggable iFrame</span>
-            </span>
-            <div class="icons">
-                <i class="fas fa-window-minimize minimize-btn"></i>
-                <i class="fas fa-times close-btn"></i>
-            </div>
-        </div>
-        <iframe frameborder="0"></iframe>
-    </div>
-
-    <div class="custom-context-menu" id="context-menu">
-        <ul>
-            <li id="minimize-all">Minimize All Tabs</li>
-            <li id="close-all-tabs">Close All Tabs</li>
-            <li id="explore-opportunity-context" class="bold-text">Explore Opportunity</li>
-            <li id="open-google-docs">Google Docs</li>
-            <li id="open-spotify">Open Spotify</li>
-            <li id="open-calculator">Open Calculator</li>
-            <li id="open-chatgpt">Open ChatGPT</li>
-            <li id="open-kanban">Kanban Tracker</li>
-            <li id="change-background">Change Background</li>
-            <li id="open-countdown">Countdown Days</li>
-        </ul>
-    </div>
-    <div id="background-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div class="modal-header">
-            <h2>Choose a Background</h2>
-                <div class="add-custom-btn">
-                    <input type="file" id="custom-bg-upload" accept="image/*" style="display: none;">
-                    <label for="custom-bg-upload">
-                        <i class="fas fa-plus"></i> Add Custom Background
-                    </label>
+                <div class="cta-section">
+                    <h3>Ready to innovate with us?</h3>
+                    <a href="mailto:learnitab@gmail.com" class="btn btn-primary">Start a Conversation</a>
                 </div>
             </div>
+        </section>
+
+        <section class="section" id="footer">
+            <div class="content-section">
+                <h4>Transform Your Learning Experience</h4>
+                <small>
+                    <a href="#" target="_blank">Learn More About Learnitab</a>
+                </small>
+            </div>
+        </section>
+    </div>
+
+    <div class="nav-dots">
+        <button id="musicToggle" class="music-control">
+            <i class="fas fa-pause"></i>
+        </button>
+        <div class="nav-dot active" data-section="hero"></div>
+        <div class="nav-dot" data-section="features"></div>
+        <div class="nav-dot" data-section="about"></div>
+        <div class="nav-dot" data-section="contact"></div>
+    </div>
+
+    <script>
+        // Three JS Template
+        //----------------------------------------------------------------- BASIC parameters
+        var renderer = new THREE.WebGLRenderer({antialias:true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        if (window.innerWidth > 800) {
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.shadowMap.needsUpdate = true;
+        }
+
+        document.body.appendChild(renderer.domElement);
+
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        var camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 1, 500);
+        camera.position.set(0, 2, 14);
+
+        var scene = new THREE.Scene();
+        var city = new THREE.Object3D();
+        var smoke = new THREE.Object3D();
+        var town = new THREE.Object3D();
+
+        var createCarPos = true;
+        var uSpeed = 0.001;
+
+        //----------------------------------------------------------------- FOG background
+        var normalFogColor = 0x0A0A2A;
+        var footerFogColor = 0x000000;
+        var normalBuildingColor = 0x000000;
+        var footerBuildingColor = 0x0A1A3F;  // Dark navy blue
+        var isTransitioning = false;
+
+        scene.background = new THREE.Color(normalFogColor);
+        scene.fog = new THREE.Fog(normalFogColor, 10, 16);
+
+        //----------------------------------------------------------------- RANDOM Function
+        function mathRandom(num = 8) {
+            return -Math.random() * num + Math.random() * num;
+        }
+
+        //----------------------------------------------------------------- CHANGE building colors
+        var setTintNum = true;
+        function setTintColor() {
+            setTintNum = !setTintNum;
+            return 0x000000;
+        }
+
+        //----------------------------------------------------------------- CREATE City
+        function init() {
+            var segments = 2;
+            for (var i = 1; i < 100; i++) {
+                var geometry = new THREE.CubeGeometry(1,0,0,segments,segments,segments);
+                var material = new THREE.MeshStandardMaterial({
+                    color: setTintColor(),
+                    wireframe: false,
+                    shading: THREE.SmoothShading,
+                    side: THREE.DoubleSide
+                });
+                var wmaterial = new THREE.MeshLambertMaterial({
+                    color: 0xFFFFFF,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.03,
+                    side: THREE.DoubleSide
+                });
+
+                var cube = new THREE.Mesh(geometry, material);
+                var wire = new THREE.Mesh(geometry, wmaterial);
+                var floor = new THREE.Mesh(geometry, material);
+                var wfloor = new THREE.Mesh(geometry, wmaterial);
+                
+                cube.add(wfloor);
+                cube.castShadow = true;
+                cube.receiveShadow = true;
+                cube.rotationValue = 0.1 + Math.abs(mathRandom(8));
+                
+                floor.scale.y = 0.05;
+                cube.scale.y = 0.1 + Math.abs(mathRandom(8));
+                
+                var cubeWidth = 0.9;
+                cube.scale.x = cube.scale.z = cubeWidth + mathRandom(1-cubeWidth);
+                cube.position.x = Math.round(mathRandom());
+                cube.position.z = Math.round(mathRandom());
+                
+                floor.position.set(cube.position.x, 0, cube.position.z);
+                
+                town.add(floor);
+                town.add(cube);
+            }
+
+            // Particular
+            var gmaterial = new THREE.MeshToonMaterial({color:0xFFFF00, side:THREE.DoubleSide});
+            var gparticular = new THREE.CircleGeometry(0.01, 3);
+            var aparticular = 5;
             
-            <!-- Single background container without nested divs -->
-            <div class="background-options">
-                <!-- Regular backgrounds -->
-                <div class="background-option" data-bg="images/1.gif">
-                    <div class="background-preview" style="background-image: url('images/1.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/2.gif">
-                    <div class="background-preview" style="background-image: url('images/2.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/3.gif">
-                    <div class="background-preview" style="background-image: url('images/3.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/4.gif">
-                    <div class="background-preview" style="background-image: url('images/4.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/5.gif">
-                    <div class="background-preview" style="background-image: url('images/5.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/6.gif">
-                    <div class="background-preview" style="background-image: url('images/6.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/7.gif">
-                    <div class="background-preview" style="background-image: url('images/7.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/8.gif">
-                    <div class="background-preview" style="background-image: url('images/8.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/9.gif">
-                    <div class="background-preview" style="background-image: url('images/9.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/10.gif">
-                    <div class="background-preview" style="background-image: url('images/10.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/11.gif">
-                    <div class="background-preview" style="background-image: url('images/11.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/12.gif">
-                    <div class="background-preview" style="background-image: url('images/12.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/13.gif">
-                    <div class="background-preview" style="background-image: url('images/13.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/14.gif">
-                    <div class="background-preview" style="background-image: url('images/14.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/15.gif">
-                    <div class="background-preview" style="background-image: url('images/15.png');"></div>
-                </div>
-                
-                <!-- New static PNG backgrounds -->
-                <div class="background-option" data-bg="images/bg_1.png">
-                    <div class="background-preview" style="background-image: url('images/bg_1.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/bg_2.png">
-                    <div class="background-preview" style="background-image: url('images/bg_2.png');"></div>
-                </div>
-                <div class="background-option" data-bg="images/bg_3.png">
-                    <div class="background-preview" style="background-image: url('images/bg_3.png');"></div>
-                </div>
-                
-                <!-- Video backgrounds section divider -->
-                <div class="video-section-divider"></div>
-                
-                <!-- Video backgrounds -->
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="nQRFSKnG000">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/nQRFSKnG000/0.jpg');"></div>
-                    <span class="youtube-label">Study with Enhypen</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="ANuQjiEMMcU">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/ANuQjiEMMcU/0.jpg');"></div>
-                    <span class="youtube-label">Study with Bangchan</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="8fUStnj06II">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/8fUStnj06II/0.jpg');"></div>
-                    <span class="youtube-label">Study with BTS</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="IrHlDvCdEhk">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/IrHlDvCdEhk/0.jpg');"></div>
-                    <span class="youtube-label">Study with IVE</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="kNPihHVBBOQ">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/kNPihHVBBOQ/0.jpg');"></div>
-                    <span class="youtube-label">Study with NCT</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="kD1wOiq9Abs">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/kD1wOiq9Abs/0.jpg');"></div>
-                    <span class="youtube-label">Study ENHYPEN Jay</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="QFfZlBdAhgs">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/QFfZlBdAhgs/0.jpg');"></div>
-                    <span class="youtube-label">Hyunjin Stray Kids</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="e5pC8Eg6vt0">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/e5pC8Eg6vt0/0.jpg');"></div>
-                    <span class="youtube-label">Study with Minji NewJeans</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="UqyE--PPQLE">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/UqyE--PPQLE/0.jpg');"></div>
-                    <span class="youtube-label">Suga BTS</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="anU4bUUFvPw">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/anU4bUUFvPw/0.jpg');"></div>
-                    <span class="youtube-label">Study w/ AESPA</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="TBJVvyMBDdk">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/TBJVvyMBDdk/0.jpg');"></div>
-                    <span class="youtube-label">Study w/ BTS</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="ghaFWN4bGyA">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/ghaFWN4bGyA/0.jpg');"></div>
-                    <span class="youtube-label">Study with Ryujin Red Velvet</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="EYpwvrJlV-s">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/EYpwvrJlV-s/0.jpg');"></div>
-                    <span class="youtube-label">Felix Stray Kids</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="FGLrDT4xrLo">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/FGLrDT4xrLo/0.jpg');"></div>
-                    <span class="youtube-label">Study with EXO</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="grCmdIxPHFc">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/grCmdIxPHFc/0.jpg');"></div>
-                    <span class="youtube-label">Study with TXT</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="94xotVEfIM0">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/94xotVEfIM0/0.jpg');"></div>
-                    <span class="youtube-label">Study w/ Blackpink</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="xIrQbb3GFoY">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/xIrQbb3GFoY/0.jpg');"></div>
-                    <span class="youtube-label">Study with SKZ</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="UcvqDaXHing">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/UcvqDaXHing/0.jpg');"></div>
-                    <span class="youtube-label">Study w/ SKZ 2</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="CGhWkVgxI2U">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/CGhWkVgxI2U/0.jpg');"></div>
-                    <span class="youtube-label">SKZ Hanjisung</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="CFQzQN9P23w">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/CFQzQN9P23w/0.jpg');"></div>
-                    <span class="youtube-label">Study with SKZ</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="t0ud3Eet1yo">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/t0ud3Eet1yo/0.jpg');"></div>
-                    <span class="youtube-label">Study with Seventeen</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="FCam_mAqXi8">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/FCam_mAqXi8/0.jpg');"></div>
-                    <span class="youtube-label">BTS V Kim Taehyung</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="wHVyZjqw2EM">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/wHVyZjqw2EM/0.jpg');"></div>
-                    <span class="youtube-label">BTS X Blackpink Study</span>
-                </div>
-                
-                <!-- New Ambience section divider -->
-                <div class="video-section-divider-2"></div>
-                
-                <!-- Ambience video backgrounds -->
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="MLm07I49RiE" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/MLm07I49RiE/0.jpg');"></div>
-                    <span class="youtube-label">Sky</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="5OQawXs9X1o" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/5OQawXs9X1o/0.jpg');"></div>
-                    <span class="youtube-label">Milky Way Galaxy</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="A9Hi0mn85Eg" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/A9Hi0mn85Eg/0.jpg');"></div>
-                    <span class="youtube-label">Japan Night Walk</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="qmN1Gf8rRc8" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/qmN1Gf8rRc8/0.jpg');"></div>
-                    <span class="youtube-label">Japan Aerial</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="KjkZspnLHoI" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/KjkZspnLHoI/0.jpg');"></div>
-                    <span class="youtube-label">Japan Countryside</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="CxwJrzEdw1U" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/CxwJrzEdw1U/0.jpg');"></div>
-                    <span class="youtube-label">Norway 4K</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="KOc146R8sws" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/KOc146R8sws/0.jpg');"></div>
-                    <span class="youtube-label">Norway Relaxation</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="N-TV_6eIDxw" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/N-TV_6eIDxw/0.jpg');"></div>
-                    <span class="youtube-label">Aurora</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="Da9S9yjZZP4" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/Da9S9yjZZP4/0.jpg');"></div>
-                    <span class="youtube-label">Novigrad</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="gP9sGBywjks" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/gP9sGBywjks/0.jpg');"></div>
-                    <span class="youtube-label">Rain Storm</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="SiryvrStb8E" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/SiryvrStb8E/0.jpg');"></div>
-                    <span class="youtube-label">Tokyo Raining Night</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="kZN2yTa1HcY" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/kZN2yTa1HcY/0.jpg');"></div>
-                    <span class="youtube-label">Japan Cherry Blossoms</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="DPyOZB62Rh0" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/DPyOZB62Rh0/0.jpg');"></div>
-                    <span class="youtube-label">Downtown Seoul</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="pQzt0sQ3Pio" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/pQzt0sQ3Pio/0.jpg');"></div>
-                    <span class="youtube-label">Kyoto Morning</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="AEE5vALCqKc" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/AEE5vALCqKc/0.jpg');"></div>
-                    <span class="youtube-label">Japan Cherry Blossom Seasons 2</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="gosjiD288Jk" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/gosjiD288Jk/0.jpg');"></div>
-                    <span class="youtube-label">Celestial Relaxation</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="AgpWX18dby4" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/AgpWX18dby4/0.jpg');"></div>
-                    <span class="youtube-label">Oceanscapes</span>
-                </div>
-                <div class="background-option youtube-bg" data-bg-type="youtube" data-video-id="wnhvanMdx4s" data-unmute="true">
-                    <div class="youtube-preview" style="background-image: url('https://img.youtube.com/vi/wnhvanMdx4s/0.jpg');"></div>
-                    <span class="youtube-label">Earth from Space</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="script.js"></script>
-    <div id="countdown-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Add Countdown</h2>
-            <form id="countdown-form">
-                <input type="text" id="event-title" placeholder="Event Title" required>
-                <input type="text" id="event-link" placeholder="Add link (optional)">
-                <input type="date" id="event-date" required>
-                <button type="submit">Add Countdown</button>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Add this container for the countdown bubbles -->
-    <div id="countdown-bubbles-container"></div>
-    
-    <!-- Add this modal for editing countdown -->
-    <div id="edit-countdown-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Edit Countdown</h2>
-            <form id="edit-countdown-form">
-                <input type="text" id="edit-event-title" placeholder="Event Title" required>
-                <input type="text" id="edit-event-link" placeholder="Add link (optional)">
-                <input type="date" id="edit-event-date" required>
-                <button type="submit">Update Countdown</button>
-            </form>
-        </div>
-    </div>
-    <div class="toggle-switch-container" style="display: none;">
-        <span>Sidebar</span>
-        <label class="switch">
-            <input type="checkbox" id="toggle-tools-mode">
-            <span class="slider round"></span>
-        </label>
-        <span>Tools List</span>
-    </div>
-    <div class="switches-hover-area"></div>
-    <div id="add-edit-shortcuts-switch" class="switch-container hideable-switch">
-        <img src="src/assets/sidebar-icon/edit.svg" alt="Add/Edit Shortcuts">
-        <span class="icon-name">Add/Edit Shortcuts</span>
-    </div>
-    <div id="settings-switch" class="settings-switch switch-container hideable-switch">
-        <img src="src/assets/sidebar-icon/settings.svg" alt="Settings">
-        <span class="icon-name">Settings</span>
-    </div>
-    <div id="mode-switch" class="mode-switch switch-container">
-        <img src="src/assets/sidebar-icon/tools-list.svg" alt="Switch Mode" id="mode-switch-icon">
-        <span class="icon-name">Switch Layout</span>
-    </div>
+            for (var h = 1; h < 300; h++) {
+                var particular = new THREE.Mesh(gparticular, gmaterial);
+                particular.position.set(mathRandom(aparticular), mathRandom(aparticular), mathRandom(aparticular));
+                particular.rotation.set(mathRandom(), mathRandom(), mathRandom());
+                smoke.add(particular);
+            }
+            
+            var pmaterial = new THREE.MeshPhongMaterial({
+                color: 0x000000,
+                side: THREE.DoubleSide,
+                roughness: 10,
+                metalness: 0.6,
+                opacity: 0.9,
+                transparent: true
+            });
+            var pgeometry = new THREE.PlaneGeometry(60,60);
+            var pelement = new THREE.Mesh(pgeometry, pmaterial);
+            pelement.rotation.x = -90 * Math.PI / 180;
+            pelement.position.y = -0.001;
+            pelement.receiveShadow = true;
 
-<div id="shortcut-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Edit Shortcut</h2>
-        <form id="shortcut-form">
-            <div class="shortcut-form-group">
-                <label for="shortcut-name">Name:</label>
-                <input type="text" id="shortcut-name" placeholder="Shortcut Name" required>
-            </div>
-            <div class="shortcut-form-group">
-                <label for="shortcut-link">URL:</label>
-                <input type="text" id="shortcut-link" placeholder="google.com" required>
-            </div>
-            <div class="shortcut-buttons">
-                <button type="button" id="shortcut-cancel">Cancel</button>
-                <button type="submit" id="shortcut-save">Save</button>
-            </div>
-        </form>
-    </div>
-</div>
-<div id="settings-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Settings</h2>
-        <div class="settings-container">
-            <!-- Appearance Settings Group -->
-            <div class="settings-group">
-                <h3>Appearance Settings</h3>
-                <div class="setting-item">
-                    <label for="background-blur">Background Blur</label>
-                    <div class="setting-tooltip">Adjust the blur intensity of your background image</div>
-                    <input type="range" id="background-blur" min="0" max="20" step="1" value="0">
-                </div>
-                
-                <div class="setting-item">
-                    <label for="flip-background">Flip Background Mirror</label>
-                    <div class="setting-tooltip">Mirror your background image horizontally</div>
-                    <label class="switch">
-                        <input type="checkbox" id="flip-background">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                
-                <div class="setting-item">
-                    <label for="cinematic-mode">Cinematic Mode</label>
-                    <div class="setting-tooltip">Adds cinematic black bars at the top and bottom of the screen when idle</div>
-                    <label class="switch">
-                        <input type="checkbox" id="cinematic-mode">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                
-                <div class="setting-item">
-                    <label for="show-cat">Show Cat</label>
-                    <div class="setting-tooltip">Show/hide the interactive cat at the bottom of the screen</div>
-                    <label class="switch">
-                        <input type="checkbox" id="show-cat" checked>
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                
-                <div class="setting-item">
-                    <label for="icon-style">Icon Style</label>
-                    <div class="setting-tooltip">Choose between default icons or emoji style for all application icons</div>
-                    <select id="icon-style" class="settings-select">
-                        <option value="default">Default Icons</option>
-                        <option value="emoji">Emoji Style</option>
-                    </select>
-                </div>
-            </div>
+            city.add(pelement);
+        }
 
-            <!-- Content Settings Group -->
-            <div class="settings-group">
-                <h3>Content & Features</h3>
-                <div class="setting-item">
-                    <label for="show-quotes">Show Quotes</label>
-                    <div class="setting-tooltip">Toggle visibility of inspirational quotes on your dashboard</div>
-                    <label class="switch">
-                        <input type="checkbox" id="show-quotes" checked>
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                
-                <div class="setting-item">
-                    <label for="quote-type">Quote Type</label>
-                    <div class="setting-tooltip">Choose the type of quotes to display: motivational, religious, or humorous</div>
-                    <select id="quote-type" class="settings-select">
-                        <option value="motivational">Motivational Quote</option>
-                        <option value="bible">Bible Verse</option>
-                        <option value="quran">Qur'an Verse</option>
-                        <option value="joke">Random Joke</option>
-                        <option value="stoic">Stoic Quote</option>
-                    </select>
-                </div>
-                
-                <div class="setting-item">
-                    <label for="show-add-item">Show Add Item</label>
-                    <div class="setting-tooltip">Toggle visibility of the to-do list input field</div>
-                    <label class="switch">
-                        <input type="checkbox" id="show-add-item" checked>
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                
-                <div class="setting-item">
-                    <label for="show-btc">Bitcoin Price Tracker</label>
-                    <div class="setting-tooltip">Show/hide the Bitcoin price widget with real-time updates</div>
-                    <label class="switch">
-                        <input type="checkbox" id="show-btc">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                
-                <div class="setting-item">
-                    <label for="use-chrome-defaults">Use Chrome Defaults Search</label>
-                    <div class="setting-tooltip">Use Chrome's default search behavior instead of custom search</div>
-                    <label class="switch">
-                        <input type="checkbox" id="use-chrome-defaults">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-            </div>
+        //----------------------------------------------------------------- MOUSE function
+        var raycaster = new THREE.Raycaster();
+        var mouse = new THREE.Vector2(), INTERSECTED;
+        var intersected;
 
-            <!-- Data Management Group -->
-            <div class="settings-group">
-                <h3>Data Management</h3>
-                <div class="setting-item import-export">
-                    <label>Import/Export Data</label>
-                    <div class="setting-tooltip">
-                        Backup or restore your personal data including shortcuts, background preferences, settings configuration, and countdown events
-                    </div>
-                    <div class="import-export-buttons">
-                        <button id="export-data" class="data-btn">
-                            <i class="fas fa-download"></i>
-                            Export User Data
-                        </button>
-                        <button id="import-data" class="data-btn">
-                            <i class="fas fa-upload"></i>
-                            Import User Data
-                        </button>
-                        <input type="file" id="import-file" style="display: none;" accept=".json">
-                    </div>
-                </div>
-            </div>
+        function onMouseMove(event) {
+            event.preventDefault();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
 
-            <!-- About/Connect Section -->
-            <div class="settings-group">
-                <h3>About & Connect</h3>
-                <div class="setting-item">
-                    <p>Your feedback shapes Learnitab's future! Please share your thoughts through our <a href="https://forms.gle/sTDsqTb1Us7Qxvyg6" target="_blank" style="color: white; font-weight: bold;">feedback form</a> and connect with us on social media for the latest updates and features.</p>
-                    <div class="social-media-icons" style="display: flex; gap: 10px;">
-                        <a href="https://discord.gg/rXRza3Wn" target="_blank" title="Join us on Discord">
-                            <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="#7289DA" viewBox="0 0 24 24"><path d="M20.317 4.369a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.444.864-.608 1.249-1.844-.276-3.68-.276-5.486 0-.164-.393-.405-.874-.617-1.249a.077.077 0 0 0-.079-.037c-1.6.3-3.15.822-4.885 1.515a.07.07 0 0 0-.032.027C.533 9.045-.32 13.579.099 18.057a.082.082 0 0 0 .031.055c2.052 1.5 4.033 2.422 5.992 3.029a.077.077 0 0 0 .084-.027c.461-.63.873-1.295 1.226-1.994a.076.076 0 0 0-.041-.104c-.652-.249-1.27-.555-1.87-.892a.077.077 0 0 1-.008-.127c.126-.094.252-.192.373-.291a.074.074 0 0 1 .077-.01c3.927 1.793 8.18 1.793 12.061 0a.073.073 0 0 1 .079.009c.121.099.247.197.373.291a.077.077 0 0 1-.007.127 12.298 12.298 0 0 1-1.87.891.076.076 0 0 0-.042.105c.36.699.772 1.364 1.226 1.993a.076.076 0 0 0 .084.028c1.959-.607 3.94-1.53 5.992-3.029a.077.077 0 0 0 .031-.055c.5-5.177-.838-9.661-3.548-13.661a.06.06 0 0 0-.031-.027zM8.02 15.331c-1.182 0-2.156-1.085-2.156-2.419 0-1.333.955-2.418 2.156-2.418 1.21 0 2.174 1.085 2.156 2.418 0 1.334-.955 2.419-2.156 2.419zm7.974 0c-1.182 0-2.156-1.085-2.156-2.419 0-1.333.955-2.418 2.156-2.418 1.21 0 2.174 1.085 2.156 2.418 0 1.334-.946 2.419-2.156 2.419z"/></svg>
-                        </a>
-                        <a href="https://www.instagram.com/learnitab/" target="_blank" title="Follow us on Instagram">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#E4405F" viewBox="0 0 24 24">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-                              </svg>
-                        </a>
-                        <a href="https://www.linkedin.com/company/learnitab" target="_blank" title="Connect with us on LinkedIn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#0077B5" viewBox="0 0 24 24">
-                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.137 1.445-2.137 2.939v5.667h-3.554V8.997h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V8.997h3.564v11.455zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                              </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
+        function onDocumentTouchStart(event) {
+            if (event.touches.length == 1) {
+                event.preventDefault();
+                mouse.x = event.touches[0].pageX - window.innerWidth / 2;
+                mouse.y = event.touches[0].pageY - window.innerHeight / 2;
+            }
+        }
 
-            <div class="settings-group">
-                <h3>Support</h3>
-                <div class="setting-item support-plea">
-                    <div class="support-header">
-                        <i class="fas fa-heart pulse-heart" style="color: #ff6b6b; font-size: 24px; margin-right: 10px;"></i>
-                        <h4 style="margin: 0; color: #ff6b6b;">Help Keep Learnitab Alive!</h4>
-                    </div>
-                    <p>Learnitab is and will <span style="font-weight: bold; text-decoration: underline;">always be completely free</span> for everyone! But servers aren't free, and we're running on pure passion (and coffee ☕). If you've found value in Learnitab, consider supporting us with any amount you can. Every contribution helps us keep the lights on and continue making your study experience amazing!</p>
-                    <div class="support-buttons" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-                        <a href="https://saweria.co/learnitab" target="_blank" class="support-button" style="text-decoration: none; padding: 10px 15px; background: linear-gradient(135deg, #4a4a4a, #333); color: white; border-radius: 6px; text-align: center; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease;">
-                            <i class="fas fa-mug-hot" style="margin-right: 8px;"></i>Buy us a coffee via Saweria
-                        </a>
-                        <a href="https://sociabuzz.com/learnitab/donate" style="text-decoration: none; padding: 10px 15px; background: linear-gradient(135deg, #4a4a4a, #333); color: white; border-radius: 6px; text-align: center; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease;">
-                            <i class="fas fa-hand-holding-heart" style="margin-right: 8px;"></i>Support via SociaBuzz
-                        </a>
-                    </div>
-                </div>
-            </div>
+        function onDocumentTouchMove(event) {
+            if (event.touches.length == 1) {
+                event.preventDefault();
+                mouse.x = event.touches[0].pageX - window.innerWidth / 2;
+                mouse.y = event.touches[0].pageY - window.innerHeight / 2;
+            }
+        }
 
-            <!-- Privacy Policy text at the bottom, outside any section -->
-            <p style="margin-top: 20px; font-size: 14px; color: #aaa; text-align: center; border-top: 1px solid #444; padding-top: 15px;">
-                By using Learnitab, you agree to our <a href="https://learnitab.com/privacy" target="_blank" style="color: #ccc; text-decoration: underline;">Terms of Service</a> and <a href="https://learnitab.com/privacy" target="_blank" style="color: #ccc; text-decoration: underline;">Privacy Policy</a>. Your privacy is important to us.
-            </p>
-            <div class="rating-container" style="margin-top: 15px; background: linear-gradient(135deg, #4a4a4a, #333); border-radius: 8px; padding: 12px; text-align: center;">
-                <p style="margin: 0 0 10px 0;">Enjoying Learnitab? Please rate us in the Chrome Web Store!</p>
-                <a href="https://chromewebstore.google.com/detail/learnitabproductivity-das/gpfbhkcbpgghppecgkdnipkmnojaeblj" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #1a73e8; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; transition: background-color 0.2s;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
-                    </svg>
-                    Rate us 5 stars
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-<div class="btc-widget">
-    <span class="close-btn">&times;</span>
-    <div class="btc-price">Loading...</div>
-    <div class="btc-updated"></div>
-</div>
-</div>
-</div>
-<audio id="hover-sound" preload="auto">
-    <source src="src/assets/tick.mp3" type="audio/mpeg">
-    <source src="src/assets/tick.wav" type="audio/wav">
-</audio>
+        window.addEventListener('mousemove', onMouseMove, false);
+        window.addEventListener('touchstart', onDocumentTouchStart, false);
+        window.addEventListener('touchmove', onDocumentTouchMove, false);
+
+        //----------------------------------------------------------------- Lights
+        var ambientLight = new THREE.AmbientLight(0xFFFFFF, 4);
+        var lightFront = new THREE.SpotLight(0xFFFFFF, 20, 50);  // Increased distance from 10 to 50
+        var lightBack = new THREE.PointLight(0xFFFFFF, 0.5, 50);  // Added distance parameter
+
+        lightFront.rotation.x = 45 * Math.PI / 180;
+        lightFront.rotation.z = -45 * Math.PI / 180;
+        lightFront.position.set(5, 5, 5);
+        lightFront.castShadow = true;
+        lightFront.shadow.mapSize.width = 6000;
+        lightFront.shadow.mapSize.height = lightFront.shadow.mapSize.width;
+        lightFront.penumbra = 0.1;
+        lightBack.position.set(0,6,0);
+
+        smoke.position.y = 2;
+
+        scene.add(ambientLight);
+        city.add(lightFront);
+        scene.add(lightBack);
+        scene.add(city);
+        city.add(smoke);
+        city.add(town);
+
+        //----------------------------------------------------------------- GRID Helper
+        var gridHelper = new THREE.GridHelper(60, 120, 0xFF0000, 0x000000);
+        city.add(gridHelper);
+
+        //----------------------------------------------------------------- LINES world
+        function createCars(cScale = 2, cPos = 20, cColor = 0xFFFF00) {
+            var cMat = new THREE.MeshToonMaterial({color:cColor, side:THREE.DoubleSide});
+            var cGeo = new THREE.CubeGeometry(1, cScale/40, cScale/40);
+            var cElem = new THREE.Mesh(cGeo, cMat);
+            var cAmp = 3;
+            
+            if (createCarPos) {
+                createCarPos = false;
+                cElem.position.x = -cPos;
+                cElem.position.z = (mathRandom(cAmp));
+                // Store the tween in the element for later control
+                cElem.tween = TweenMax.to(cElem.position, 3, {
+                    x: cPos, 
+                    repeat: -1, 
+                    yoyo: true, 
+                    delay: mathRandom(3)
+                });
+            } else {
+                createCarPos = true;
+                cElem.position.x = (mathRandom(cAmp));
+                cElem.position.z = -cPos;
+                cElem.rotation.y = 90 * Math.PI / 180;
+                // Store the tween in the element for later control
+                cElem.tween = TweenMax.to(cElem.position, 5, {
+                    z: cPos, 
+                    repeat: -1, 
+                    yoyo: true, 
+                    delay: mathRandom(3), 
+                    ease: Power1.easeInOut
+                });
+            }
+            
+            cElem.receiveShadow = true;
+            cElem.castShadow = true;
+            cElem.position.y = Math.abs(mathRandom(5));
+            city.add(cElem);
+        }
+
+        function generateLines() {
+            for (var i = 0; i < 60; i++) {
+                createCars(0.1, 20);
+            }
+        }
+
+        //----------------------------------------------------------------- CAMERA position
+        function cameraSet() {
+            createCars(0.1, 20, 0xFFFFFF);
+        }
+
+        //----------------------------------------------------------------- ANIMATE
+        function animate() {
+            var time = Date.now() * 0.00005;
+            requestAnimationFrame(animate);
+            
+            // Get current section
+            const currentScrollSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+            const isInFooter = currentScrollSection.closest('#footer');
+            
+            // Pause/Resume car animations based on footer section
+            city.children.forEach(child => {
+                if (child.tween) {
+                    if (isInFooter && !child.tween.paused()) {
+                        child.tween.pause();
+                    } else if (!isInFooter && child.tween.paused()) {
+                        child.tween.resume();
+                    }
+                }
+            });
+            
+            // Check if device is mobile
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isInFooter && !isTransitioning) {
+                isTransitioning = true;
+                
+                // Remove fog completely in footer
+                scene.fog.density = 0;
+                TweenMax.to(scene.fog.color, 1, {
+                    r: 0,
+                    g: 0,
+                    b: 0
+                });
+                TweenMax.to(scene.background, 1, {
+                    r: 0,
+                    g: 0,
+                    b: 0
+                });
+                
+                // Increase light intensity for footer section
+                TweenMax.to(lightFront, 1, {
+                    intensity: 30  // Increased from 20 to 30
+                });
+                TweenMax.to(lightBack, 1, {
+                    intensity: 1.0  // Increased from 0.5 to 1.0
+                });
+                TweenMax.to(ambientLight, 1, {
+                    intensity: 6  // Increased from 4 to 6
+                });
+                
+                // Building color transition with brighter values
+                town.children.forEach(building => {
+                    if (building.material) {
+                        TweenMax.to(building.material.color, 1, {
+                            r: new THREE.Color(footerBuildingColor).r,
+                            g: new THREE.Color(footerBuildingColor).g,
+                            b: new THREE.Color(footerBuildingColor).b
+                        });
+                        // Make materials more responsive to light
+                        building.material.metalness = 0.3;
+                        building.material.roughness = 0.7;
+                    }
+                });
+                
+                // Initial camera position
+                TweenMax.to(camera.position, 1, {
+                    y: 3,
+                    z: 16,
+                    onComplete: function() {
+                        // Start continuous zoom out animation
+                        TweenMax.to(camera.position, 90, {
+                            z: 30,
+                            repeat: -1,
+                            yoyo: true,
+                            ease: Power1.easeInOut
+                        });
+                    }
+                });
+                
+                TweenMax.to(city.position, 1, {
+                    y: 1
+                });
+                
+            } else if (!isInFooter && isTransitioning) {
+                isTransitioning = false;
+                
+                // Kill any ongoing zoom animations
+                TweenMax.killTweensOf(camera.position);
+                
+                // Restore normal fog when leaving footer
+                scene.fog = new THREE.Fog(normalFogColor, 10, 16);
+                TweenMax.to(scene.fog.color, 1, {
+                    r: new THREE.Color(normalFogColor).r,
+                    g: new THREE.Color(normalFogColor).g,
+                    b: new THREE.Color(normalFogColor).b
+                });
+                TweenMax.to(scene.background, 1, {
+                    r: new THREE.Color(normalFogColor).r,
+                    g: new THREE.Color(normalFogColor).g,
+                    b: new THREE.Color(normalFogColor).b
+                });
+                
+                // Restore normal light intensities
+                TweenMax.to(lightFront, 1, {
+                    intensity: 20
+                });
+                TweenMax.to(lightBack, 1, {
+                    intensity: 0.5
+                });
+                TweenMax.to(ambientLight, 1, {
+                    intensity: 4
+                });
+                
+                town.children.forEach(building => {
+                    if (building.material) {
+                        TweenMax.to(building.material.color, 1, {
+                            r: new THREE.Color(normalBuildingColor).r,
+                            g: new THREE.Color(normalBuildingColor).g,
+                            b: new THREE.Color(normalBuildingColor).b
+                        });
+                        // Restore original material properties
+                        building.material.metalness = 0.6;
+                        building.material.roughness = 0.4;
+                    }
+                });
+                
+                TweenMax.to(camera.position, 1, {
+                    y: 2,
+                    z: 14
+                });
+                
+                TweenMax.to(city.position, 1, {
+                    y: 0
+                });
+            }
+            
+            // Only apply rotation on non-mobile devices
+            if (!isMobile && !isInFooter) {
+                // Only reverse horizontal rotation for About and Contact sections
+                if (currentScrollSection.closest('#about') || currentScrollSection.closest('#contact')) {
+                    city.rotation.y += ((mouse.x * 8) - camera.rotation.y) * uSpeed;
+                } else {
+                    city.rotation.y -= ((mouse.x * 8) - camera.rotation.y) * uSpeed;
+                }
+                // Keep vertical rotation consistent across all sections
+                city.rotation.x -= (-(mouse.y * 2) - camera.rotation.x) * uSpeed;
+                
+                if (city.rotation.x < -0.05) city.rotation.x = -0.05;
+                else if (city.rotation.x > 1) city.rotation.x = 1;
+            }
+            
+            camera.lookAt(city.position);
+            renderer.render(scene, camera);
+        }
+
+        //----------------------------------------------------------------- START functions
+        generateLines();
+        init();
+        animate();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            const featuresSection = document.getElementById('features');
+            const featuresContainer = document.querySelector('.features-container');
+            let isScrolling = false;
+
+            // Function to determine which section is most visible in the viewport
+            function getCurrentSection() {
+                let maxVisibility = 0;
+                let currentSection = 0;
+                
+                sections.forEach((section, index) => {
+                    const rect = section.getBoundingClientRect();
+                    const viewHeight = Math.min(window.innerHeight, rect.height);
+                    const visibility = Math.min(rect.bottom, viewHeight) - Math.max(rect.top, 0);
+                    
+                    if (visibility > maxVisibility) {
+                        maxVisibility = visibility;
+                        currentSection = index;
+                    }
+                });
+                
+                return currentSection;
+            }
+
+            function updateNavDots(index) {
+                navDots.forEach(dot => dot.classList.remove('active'));
+                navDots[index].classList.add('active');
+            }
+
+            // Function to force scroll to nearest section
+            function snapToNearestSection() {
+                const currentSection = getCurrentSection();
+                sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+                updateNavDots(currentSection);
+            }
+
+            // Add periodic check for section alignment
+            setInterval(() => {
+                if (!isScrolling) {
+                    const currentSection = getCurrentSection();
+                    const activeNavIndex = Array.from(navDots).findIndex(dot => dot.classList.contains('active'));
+                    
+                    if (activeNavIndex !== currentSection) {
+                        updateNavDots(currentSection);
+                        snapToNearestSection();
+                    }
+                }
+            }, 1000); // Check every second
+
+            window.addEventListener('wheel', function(e) {
+                const currentSection = getCurrentSection();
+                const isInFeatures = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2).closest('#features');
+                const isInAbout = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2).closest('#about');
+                
+                if (isInFeatures || isInAbout) {
+                    e.preventDefault();
+                    
+                    const container = isInFeatures ? featuresContainer : document.querySelector('.about-container');
+                    const pages = container.querySelectorAll(isInFeatures ? '.features-page' : '.about-page');
+                    const scrollAmount = container.scrollTop;
+                    const pageHeight = container.clientHeight;
+                    const totalHeight = pageHeight * (pages.length - 1);
+                    
+                    if (e.deltaY > 0 && scrollAmount >= totalHeight) {
+                        // Move to next main section
+                        sections[currentSection + 1].scrollIntoView({ behavior: 'smooth' });
+                        updateNavDots(currentSection + 1);
+                    } else if (e.deltaY < 0 && scrollAmount <= 0) {
+                        // Move to previous main section
+                        sections[currentSection - 1].scrollIntoView({ behavior: 'smooth' });
+                        updateNavDots(currentSection - 1);
+                    } else {
+                        container.scrollBy({
+                            top: e.deltaY > 0 ? pageHeight : -pageHeight,
+                            behavior: 'smooth'
+                        });
+                    }
+                } else {
+                    // Normal section scrolling
+                    if (isScrolling) return;
+                    
+                    isScrolling = true;
+                    setTimeout(() => isScrolling = false, 1000);
+
+                    const nextSection = e.deltaY > 0 ? currentSection + 1 : currentSection - 1;
+                    
+                    if (nextSection >= 0 && nextSection < sections.length) {
+                        sections[nextSection].scrollIntoView({ behavior: 'smooth' });
+                        updateNavDots(nextSection);
+                    }
+                }
+            }, { passive: false });
+
+            // Update click handlers for nav dots
+            navDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    sections[index].scrollIntoView({ behavior: 'smooth' });
+                    updateNavDots(index);
+                });
+            });
+        });
+
+        // Add this function to handle window resize
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            
+            // Reset rotation when switching to mobile
+            if (isMobile) {
+                city.rotation.y = 0;
+                city.rotation.x = 0;
+            }
+            
+            // Update camera and renderer
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Update the window resize event listener
+        window.removeEventListener('resize', onWindowResize);
+        window.addEventListener('resize', handleResize);
+        
+        // Call handleResize initially to set correct state
+        handleResize();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const audio = document.getElementById('backgroundMusic');
+            const musicToggle = document.getElementById('musicToggle');
+            const icon = musicToggle.querySelector('i');
+            
+            // Function to handle play/pause
+            function toggleMusic() {
+                if (audio.paused) {
+                    audio.play();
+                    icon.className = 'fas fa-pause';
+                } else {
+                    audio.pause();
+                    icon.className = 'fas fa-play';
+                }
+            }
+
+            // Add click event listener
+            musicToggle.addEventListener('click', toggleMusic);
+
+            // Force autoplay when page loads
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Autoplay started successfully
+                    icon.className = 'fas fa-pause';
+                })
+                .catch(error => {
+                    // Auto-play was prevented
+                    icon.className = 'fas fa-play';
+                    // Try playing on first user interaction with the page
+                    document.addEventListener('click', function initPlay() {
+                        audio.play();
+                        icon.className = 'fas fa-pause';
+                        document.removeEventListener('click', initPlay);
+                    }, { once: true });
+                });
+            }
+
+            // Update button state when audio plays/pauses
+            audio.addEventListener('play', () => {
+                icon.className = 'fas fa-pause';
+            });
+
+            audio.addEventListener('pause', () => {
+                icon.className = 'fas fa-play';
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sectionsContainer = document.querySelector('.sections-container');
+            
+            // Function to check if we're in the first or last section
+            function checkCinemaBars() {
+                const currentSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+                const isInHero = currentSection.closest('#hero');
+                const isInFooter = currentSection.closest('#footer');
+                
+                if (isInHero || isInFooter) {
+                    document.body.classList.add('show-cinema-bars');
+                } else {
+                    document.body.classList.remove('show-cinema-bars');
+                }
+            }
+
+            // Check on scroll
+            sectionsContainer.addEventListener('scroll', checkCinemaBars);
+            
+            // Initial check
+            checkCinemaBars();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const phrases = [
+                "Productivity",
+                "Study",
+                "Career"
+            ];
+            
+            const rotatingText = document.getElementById('rotating-text');
+            let currentIndex = 0;
+            
+            function updateText() {
+                // Fade out
+                rotatingText.style.opacity = 0;
+                
+                setTimeout(() => {
+                    // Update text
+                    currentIndex = (currentIndex + 1) % phrases.length;
+                    rotatingText.textContent = phrases[currentIndex];
+                    
+                    // Fade in
+                    rotatingText.style.opacity = 1;
+                }, 200); // Half of the transition time
+            }
+            
+            // Add CSS transition
+            rotatingText.style.transition = 'opacity 0.4s ease';
+            
+            // Start rotation with 2 second interval
+            setInterval(updateText, 2000);
+        });
+    </script>
 </body>
 </html>
       `
