@@ -755,11 +755,112 @@ export default function Home() {
             padding: 0 2rem;
         }
 
+        .about-text {
+            background: rgba(147, 51, 234, 0.05);
+            padding: 1.25rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(147, 51, 234, 0.1);
+            height: auto;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .about-text:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.2);
+        }
+
+        /* Add decorative elements */
+        .about-text::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(147, 51, 234, 0.1);
+            z-index: 0;
+        }
+
+        .about-text::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: -30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(147, 51, 234, 0.05);
+            z-index: 0;
+        }
+
+        .purple-text {
+            color: #9333EA;
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Add icons to the headings */
+        .purple-text::before {
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .vision-title::before {
+            content: '\f6e3'; /* Binoculars icon */
+        }
+
+        .mission-title::before {
+            content: '\f3ed'; /* Target icon */
+        }
+
+        .about-text p {
+            position: relative;
+            z-index: 1;
+        }
+
+        .highlight-box {
+            position: relative;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 0.5rem;
+            border-left: 3px solid #9333EA;
+        }
+
+        .section-divider {
+            width: 40px;
+            height: 4px;
+            background: linear-gradient(90deg, #9333EA, transparent);
+            margin: 1rem 0;
+        }
+
+        /* Add responsive adjustments */
         @media (max-width: 768px) {
             .about-text-container {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
                 padding: 0 1rem;
+            }
+            
+            .purple-text::before {
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
             }
         }
 
@@ -1331,13 +1432,21 @@ export default function Home() {
                     <!-- First Scroll - Vision & Mission Together -->
                     <div class="about-page">
                         <div class="about-text-container">
-                            <div class="about-text">
-                                <h3 class="purple-text">Our Vision</h3>
+                            <div class="about-text vision-card">
+                                <h3 class="purple-text vision-title">Our Vision</h3>
+                                <div class="section-divider"></div>
                                 <p>To cultivate a generation of <span class="highlight">well-prepared</span>, <span class="highlight">highly skilled</span> graduates who are not just job-ready, but poised to become innovators and leaders in the global marketplace.</p>
+                                <div class="highlight-box">
+                                    <p><i class="fas fa-quote-left" style="opacity: 0.3; margin-right: 5px;"></i> Building tomorrow's leaders through today's education <i class="fas fa-quote-right" style="opacity: 0.3; margin-left: 5px;"></i></p>
+                                </div>
                             </div>
-                            <div class="about-text">
-                                <h3 class="purple-text">Our Mission</h3>
+                            <div class="about-text mission-card">
+                                <h3 class="purple-text mission-title">Our Mission</h3>
+                                <div class="section-divider"></div>
                                 <p>To <span class="highlight">empower global students</span> by providing a comprehensive platform that bridges the gap between academic learning and real-world skills. We aim to <span class="highlight">nurture personal growth</span>, enhance productivity, and create pathways to opportunities.</p>
+                                <div class="highlight-box">
+                                    <p><i class="fas fa-star" style="color: #9333EA; margin-right: 5px;"></i> Transforming education through technology and innovation</p>
+                                </div>
                             </div>
                         </div>
                     </div>
