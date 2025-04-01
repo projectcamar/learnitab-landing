@@ -1016,7 +1016,7 @@ export default function Home() {
             font-weight: 700;  /* Makes the text bold */
         }
 
-        /* Update browser dropdown styles for click behavior */
+        /* Browser bubble styles */
         .browser-dropdown {
             position: relative;
             display: inline-block;
@@ -1024,41 +1024,79 @@ export default function Home() {
 
         .browser-options {
             position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 0 0 12px 12px;
-            overflow: hidden;
-            max-height: 0;
-            transition: max-height 0.3s ease, opacity 0.3s ease;
+            top: 50%;
+            left: 110%; /* Position to the right of the button */
+            transform: translateY(-50%);
+            display: flex;
+            gap: 10px;
+            background: transparent;
             opacity: 0;
-            z-index: 10;
             pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 10;
         }
 
         .browser-dropdown.active .browser-options {
-            max-height: 200px;
             opacity: 1;
             pointer-events: all;
         }
 
         .browser-option {
-            padding: 12px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
             color: white;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .browser-option:hover {
-            background: rgba(147, 51, 234, 0.3);
+            transform: translateY(-5px);
+            background: rgba(147, 51, 234, 0.8);
         }
 
         .browser-icon {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+        }
+
+        /* Add tooltip for browser options */
+        .browser-option {
+            position: relative;
+        }
+
+        .browser-option::after {
+            content: attr(data-browser);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .browser-option:hover::after {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .browser-options {
+                top: 120%;
+                left: 0;
+                transform: none;
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -1079,24 +1117,21 @@ export default function Home() {
                 <div class="button-group">
                     <div class="browser-dropdown">
                         <button class="btn btn-primary btn-with-icon btn-wave" id="browserDropdownBtn">
-                            <i class="fas fa-download chrome-icon"></i>
+                            <i class="fas fa-globe chrome-icon"></i>
                             Add to your browser
                         </button>
                         <div class="browser-options">
                             <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
-                               class="browser-option">
+                               class="browser-option" data-browser="Chrome">
                                 <i class="fab fa-chrome browser-icon"></i>
-                                Add to Chrome
                             </a>
                             <a href="https://microsoftedge.microsoft.com/addons/detail/learnitab-study-with-kp/hgmcgdhikmfcnkngnfenmcppmbbhdaaf" 
-                               class="browser-option">
+                               class="browser-option" data-browser="Edge">
                                 <i class="fab fa-edge browser-icon"></i>
-                                Add to Edge
                             </a>
                             <a href="https://addons.mozilla.org/en-US/firefox/addon/learnitab-study-dashboard/" 
-                               class="browser-option">
+                               class="browser-option" data-browser="Firefox">
                                 <i class="fab fa-firefox browser-icon"></i>
-                                Add to Firefox
                             </a>
                         </div>
                     </div>
