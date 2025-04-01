@@ -2162,8 +2162,8 @@ export default function Home() {
             // Add CSS transition
             rotatingText.style.transition = 'opacity 0.4s ease';
             
-            // Start rotation with 2 second interval
-            setInterval(updateText, 2000);
+            // Start rotation with 3.5 second interval
+            setInterval(updateText, 3500);
             
             // NEW CODE: Add rotating browser text and icons
             const browsers = [
