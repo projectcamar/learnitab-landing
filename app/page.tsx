@@ -1124,6 +1124,7 @@ export default function Home() {
                 <img src="/images/Logo%20Learnitab.png" alt="Learnitab Logo" class="logo">
                 <h1><strong>Learnitab</strong></h1>
                 <p class="small"><strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips</p>
+                <p class="trusted-text">Trusted by 250+ users worldwide</p>
                 <div class="button-group">
                     <div class="browser-dropdown">
                         <button class="btn btn-primary btn-with-icon btn-wave" id="browserDropdownBtn">
@@ -1311,9 +1312,10 @@ export default function Home() {
         <section class="section" id="footer">
             <div class="content-section">
                 <h4>Transform Your Learning Experience</h4>
-                <small>
-                    <a href="#" target="_blank">Learn More About Learnitab</a>
-                </small>
+                <p>
+                    Discover a streamlined approach to studying and productivity. 
+                    <a href="https://learnitab.com/privacy" target="_blank">Privacy Policy</a>
+                </p>
             </div>
         </section>
     </div>
