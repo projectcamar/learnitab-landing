@@ -1764,6 +1764,134 @@ export default function Home() {
                 padding: 0.6rem 1.2rem;
             }
         }
+
+        /* Update the benefits section to be smaller */
+        .enhanced-benefits {
+            max-width: 90%; /* Reduce container size by 10% */
+            margin: 0 auto; /* Center the container */
+        }
+
+        .benefit-item {
+            display: flex;
+            gap: 1rem; /* Reduced from 1.25rem */
+            align-items: flex-start;
+            padding: 0.9rem; /* Reduced from 1rem */
+            background: rgba(147, 51, 234, 0.05);
+            border-radius: 0.75rem;
+            border-left: 3px solid #9333EA;
+            transition: all 0.3s ease;
+            font-size: 0.95em; /* Reduce text size */
+        }
+
+        .benefit-icon {
+            background: rgba(147, 51, 234, 0.15);
+            min-width: 42px; /* Reduced from 48px */
+            height: 42px; /* Reduced from 48px */
+            border-radius: 10px; /* Reduced from 12px */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem; /* Reduced from 1.25rem */
+            color: #9333EA;
+            box-shadow: 0 4px 10px rgba(147, 51, 234, 0.2);
+        }
+
+        .benefit-content h4 {
+            margin: 0 0 0.2rem; /* Reduced from 0.25rem */
+            font-size: 1rem; /* Reduced from 1.1rem */
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+        }
+
+        .benefit-content p {
+            margin: 0;
+            font-size: 0.85rem; /* Reduced from 0.95rem */
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.4; /* Reduced from 1.5 */
+        }
+
+        .benefits-grid {
+            display: flex;
+            gap: 1.25rem; /* Reduced from 1.5rem */
+            margin-top: 1.25rem; /* Reduced from 1.5rem */
+        }
+
+        .benefits-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem; /* Reduced from 1.5rem */
+        }
+
+        /* Footer styles for centered content */
+        .footer-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .footer-center-content {
+            margin: 2rem auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 600px;
+        }
+
+        .trusted-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 100px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            display: inline-flex;
+        }
+
+        .support-text {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .footer-donation-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .footer-donation-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 0.75rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-donation-links {
+                flex-wrap: wrap;
+            }
+            
+            .footer-donation-link {
+                width: auto;
+                min-width: 80px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2033,34 +2161,37 @@ export default function Home() {
         </section>
 
         <section class="section" id="footer">
-            <div class="content-section">
+            <div class="content-section footer-content">
                 <h4>Transform Your Learning Experience</h4>
                 <p>
                     <strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips.
                 </p>
                 
-                <!-- Add the trusted banner -->
-                <div class="trusted-footer">
-                    <i class="fas fa-shield-alt"></i>
-                    Trusted by 250+ users worldwide
-                </div>
-                
-                <!-- Add donation links to footer -->
-                <div class="footer-donation">
-                    <p class="support-text">Support Learnitab</p>
-                    <div class="footer-donation-links">
-                        <a href="https://sociabuzz.com/learnitab/donate" class="footer-donation-link" target="_blank" title="Donate via SociaBuzz">
-                            <i class="fas fa-hand-holding-heart"></i>
-                            <span>SociaBuzz</span>
-                        </a>
-                        <a href="https://ko-fi.com/learnitab" class="footer-donation-link" target="_blank" title="Support on Ko-fi">
-                            <i class="fas fa-mug-hot"></i>
-                            <span>Ko-fi</span>
-                        </a>
-                        <a href="https://saweria.co/learnitab" class="footer-donation-link" target="_blank" title="Donate via Saweria">
-                            <i class="fas fa-donate"></i>
-                            <span>Saweria</span>
-                        </a>
+                <!-- Center-aligned content section -->
+                <div class="footer-center-content">
+                    <!-- Trusted banner -->
+                    <div class="trusted-footer">
+                        <i class="fas fa-shield-alt"></i>
+                        Trusted by 250+ users worldwide
+                    </div>
+                    
+                    <!-- Support Learnitab section -->
+                    <div class="footer-donation">
+                        <p class="support-text">Support Learnitab</p>
+                        <div class="footer-donation-links">
+                            <a href="https://sociabuzz.com/learnitab/donate" class="footer-donation-link" target="_blank" title="Donate via SociaBuzz">
+                                <i class="fas fa-hand-holding-heart"></i>
+                                <span>SociaBuzz</span>
+                            </a>
+                            <a href="https://ko-fi.com/learnitab" class="footer-donation-link" target="_blank" title="Support on Ko-fi">
+                                <i class="fas fa-mug-hot"></i>
+                                <span>Ko-fi</span>
+                            </a>
+                            <a href="https://saweria.co/learnitab" class="footer-donation-link" target="_blank" title="Donate via Saweria">
+                                <i class="fas fa-donate"></i>
+                                <span>Saweria</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 
