@@ -1016,7 +1016,7 @@ export default function Home() {
             font-weight: 700;  /* Makes the text bold */
         }
 
-        /* Add browser dropdown styles */
+        /* Update browser dropdown styles for click behavior */
         .browser-dropdown {
             position: relative;
             display: inline-block;
@@ -1035,11 +1035,13 @@ export default function Home() {
             transition: max-height 0.3s ease, opacity 0.3s ease;
             opacity: 0;
             z-index: 10;
+            pointer-events: none;
         }
 
-        .browser-dropdown:hover .browser-options {
+        .browser-dropdown.active .browser-options {
             max-height: 200px;
             opacity: 1;
+            pointer-events: all;
         }
 
         .browser-option {
@@ -1076,12 +1078,16 @@ export default function Home() {
                 <p class="small"><strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips</p>
                 <div class="button-group">
                     <div class="browser-dropdown">
-                        <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
-                           class="btn btn-primary btn-with-icon btn-wave">
-                            <i class="fab fa-chrome chrome-icon"></i>
-                            Add to Chrome
-                        </a>
+                        <button class="btn btn-primary btn-with-icon btn-wave" id="browserDropdownBtn">
+                            <i class="fas fa-download chrome-icon"></i>
+                            Add to your browser
+                        </button>
                         <div class="browser-options">
+                            <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
+                               class="browser-option">
+                                <i class="fab fa-chrome browser-icon"></i>
+                                Add to Chrome
+                            </a>
                             <a href="https://microsoftedge.microsoft.com/addons/detail/learnitab-study-with-kp/hgmcgdhikmfcnkngnfenmcppmbbhdaaf" 
                                class="browser-option">
                                 <i class="fab fa-edge browser-icon"></i>
@@ -1899,6 +1905,24 @@ export default function Home() {
             
             // Start rotation with 2 second interval
             setInterval(updateText, 2000);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Browser dropdown toggle
+            const browserDropdownBtn = document.getElementById('browserDropdownBtn');
+            const browserDropdown = document.querySelector('.browser-dropdown');
+            
+            browserDropdownBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                browserDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!browserDropdown.contains(e.target)) {
+                    browserDropdown.classList.remove('active');
+                }
+            });
         });
     </script>
 </body>
