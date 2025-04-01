@@ -1320,6 +1320,104 @@ export default function Home() {
                 padding-top: 0.75rem;
             }
         }
+
+        /* Add these styles to enhance the Why Learnitab section */
+        .enhanced-benefits {
+            background: rgba(20, 20, 30, 0.5) !important;
+            border: 1px solid rgba(147, 51, 234, 0.2) !important;
+            backdrop-filter: blur(10px);
+            padding: 2rem !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .why-learnitab-title::before {
+            content: '\f00c'; /* Checkmark icon */
+        }
+
+        .benefits-list.enhanced {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .benefit-item {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            padding: 1rem;
+            background: rgba(147, 51, 234, 0.05);
+            border-radius: 0.75rem;
+            border-left: 3px solid #9333EA;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item:hover {
+            transform: translateX(5px);
+            background: rgba(147, 51, 234, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .benefit-icon {
+            background: rgba(147, 51, 234, 0.15);
+            min-width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #9333EA;
+            box-shadow: 0 4px 10px rgba(147, 51, 234, 0.2);
+        }
+
+        .benefit-content {
+            flex-grow: 1;
+        }
+
+        .benefit-content h4 {
+            margin: 0 0 0.25rem;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+        }
+
+        .benefit-content p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .enhanced-benefits {
+                padding: 1.5rem !important;
+            }
+            
+            .benefits-list.enhanced {
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .benefit-item {
+                padding: 0.75rem;
+                gap: 1rem;
+            }
+            
+            .benefit-icon {
+                min-width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+            
+            .benefit-content h4 {
+                font-size: 1rem;
+            }
+            
+            .benefit-content p {
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1476,14 +1574,45 @@ export default function Home() {
 
                     <!-- Second Scroll -->
                     <div class="about-page">
-                        <div class="about-text">
-                            <h3 class="purple-text">Why Learnitab?</h3>
-                            <ul class="benefits-list">
-                                <li>✓ Centralized study dashboard for enhanced productivity</li>
-                                <li>✓ AI-powered tools for personalized learning assistance</li>
-                                <li>✓ Career development resources and opportunities</li>
-                                <li>✓ Seamless integration of academic and practical skills</li>
-                                <li>✓ Community-driven platform for peer support and collaboration</li>
+                        <div class="about-text enhanced-benefits">
+                            <h3 class="purple-text why-learnitab-title">Why Learnitab?</h3>
+                            <div class="section-divider"></div>
+                            <ul class="benefits-list enhanced">
+                                <li class="benefit-item">
+                                    <div class="benefit-icon"><i class="fas fa-tasks"></i></div>
+                                    <div class="benefit-content">
+                                        <h4>Centralized Dashboard</h4>
+                                        <p>One place for all your study tools to maximize productivity and time management</p>
+                                    </div>
+                                </li>
+                                <li class="benefit-item">
+                                    <div class="benefit-icon"><i class="fas fa-robot"></i></div>
+                                    <div class="benefit-content">
+                                        <h4>AI-Powered Tools</h4>
+                                        <p>Intelligent learning assistance to help you understand and retain information better</p>
+                                    </div>
+                                </li>
+                                <li class="benefit-item">
+                                    <div class="benefit-icon"><i class="fas fa-briefcase"></i></div>
+                                    <div class="benefit-content">
+                                        <h4>Career Development</h4>
+                                        <p>Access to resources and opportunities to build your career path with confidence</p>
+                                    </div>
+                                </li>
+                                <li class="benefit-item">
+                                    <div class="benefit-icon"><i class="fas fa-graduation-cap"></i></div>
+                                    <div class="benefit-content">
+                                        <h4>Academic Integration</h4>
+                                        <p>Seamless blend of theoretical learning and practical skill-building tools</p>
+                                    </div>
+                                </li>
+                                <li class="benefit-item">
+                                    <div class="benefit-icon"><i class="fas fa-users"></i></div>
+                                    <div class="benefit-content">
+                                        <h4>Community Support</h4>
+                                        <p>Connect with peers for collaboration, motivation and shared learning experiences</p>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -1497,7 +1626,6 @@ export default function Home() {
                                     <span class="highlight-large">students learn and grow</span>
                                     <span class="message-small">With Learnitab, you're not just studying;</span>
                                     <span class="highlight-large">you're building your future</span>
-                                    <span class="message-small">at Your Fingertips</span>
                                 </div>
                             </div>
                         </div>
@@ -1871,8 +1999,8 @@ export default function Home() {
                     y: 3,
                     z: 16,
                     onComplete: function() {
-                        // Start continuous zoom out animation
-                        TweenMax.to(camera.position, 90, {
+                        // Start continuous zoom out animation - 2x faster (45 instead of 90 seconds)
+                        TweenMax.to(camera.position, 45, {
                             z: 30,
                             repeat: -1,
                             yoyo: true,
