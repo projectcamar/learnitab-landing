@@ -1140,6 +1140,51 @@ export default function Home() {
             }
         }
 
+        /* Add styles for donation links */
+        .donation-links {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .donation-link {
+            width: 40px;
+            height: 40px;
+            background: rgba(147, 51, 234, 0.2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            font-size: 1.1rem;
+        }
+
+        .donation-link:hover {
+            background: rgba(147, 51, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(147, 51, 234, 0.3);
+        }
+
+        /* Add responsive styles for mobile */
+        @media (max-width: 768px) {
+            .donation-links {
+                top: 10px;
+                left: 10px;
+                gap: 8px;
+            }
+            
+            .donation-link {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+        }
+
         /* Add this style for the rotating browser text */
         #rotating-browser {
             font-weight: 500;
@@ -1161,6 +1206,17 @@ export default function Home() {
     <div class="cinema-bar-bottom cinema-bars"></div>
 
     <!-- Add the trusted label as a floating element -->
+    <div class="donation-links">
+        <a href="https://sociabuzz.com/learnitab/donate" class="donation-link" target="_blank" title="Donate via SociaBuzz">
+            <i class="fas fa-hand-holding-heart"></i>
+        </a>
+        <a href="https://ko-fi.com/learnitab" class="donation-link" target="_blank" title="Support on Ko-fi">
+            <i class="fas fa-mug-hot"></i>
+        </a>
+        <a href="https://saweria.co/learnitab" class="donation-link" target="_blank" title="Donate via Saweria">
+            <i class="fas fa-donate"></i>
+        </a>
+    </div>
     <div class="trusted-label">
         <i class="fas fa-shield-alt"></i>
         Trusted by 250+ users worldwide
