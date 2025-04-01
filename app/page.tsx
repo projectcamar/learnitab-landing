@@ -864,19 +864,125 @@ export default function Home() {
             }
         }
 
+        /* Reduce size of the "Join us in revolutionizing the way" container */
         .final-message {
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 70vh;
+            min-height: 56vh; /* Reduced from 70vh (20% smaller) */
             text-align: center;
             background: rgba(20, 20, 40, 0.7) !important;
-            padding: 3rem !important;
+            padding: 2.4rem !important; /* Reduced from 3rem */
             overflow: hidden;
             border-radius: 1.5rem !important;
             border: 1px solid rgba(147, 51, 234, 0.3) !important;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+            max-width: 80%; /* Added to make container width 20% smaller */
+            margin: 0 auto; /* Center the container */
+        }
+
+        .message-block {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem; /* Reduced from 1rem */
+            margin: 2rem 0;
+            width: 100%;
+        }
+
+        .highlight-large {
+            font-size: 2.8rem; /* Reduced from 3.5rem */
+            font-weight: 700;
+            background: linear-gradient(45deg, #9333EA, #4F46E5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(147, 51, 234, 0.5);
+            line-height: 1.1;
+        }
+
+        .message-small {
+            font-size: 1.2rem; /* Reduced from 1.5rem */
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .glow-text {
+            animation: pulsate 2s infinite alternate;
+            font-size: 2.4rem; /* Reduced from 3rem */
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-top: 1.2rem; /* Reduced from 1.5rem */
+            padding: 0.8rem 1.6rem; /* Reduced from 1rem 2rem */
+            background: linear-gradient(45deg, #9333EA, #4F46E5);
+            border-radius: 100px;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 1rem; /* Reduced from 1.1rem */
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem; /* Reduced from 0.8rem */
+            margin: 0.4rem 0; /* Reduced from 0.5rem */
+        }
+
+        .divider-line {
+            height: 1px;
+            width: 4rem; /* Reduced from 5rem */
+            background: rgba(147, 51, 234, 0.5);
+        }
+
+        .divider-dot {
+            width: 0.4rem; /* Reduced from 0.5rem */
+            height: 0.4rem; /* Reduced from 0.5rem */
+            border-radius: 50%;
+            background: #9333EA;
+        }
+
+        .floating-shapes .shape {
+            transform: scale(0.8); /* Reduced from 1 */
+        }
+
+        /* Update responsive styles for the smaller container */
+        @media (max-width: 768px) {
+            .final-message {
+                padding: 1.6rem !important; /* Reduced from 2rem */
+                min-height: 50vh; /* Further reduced for mobile */
+            }
+            
+            .highlight-large {
+                font-size: 1.8rem; /* Reduced from 2rem */
+            }
+            
+            .message-small {
+                font-size: 1rem; /* Reduced from 1.2rem */
+            }
+            
+            .glow-text {
+                font-size: 1.6rem; /* Reduced from 2rem */
+            }
+
+            .action-button {
+                padding: 0.6rem 1.2rem; /* Reduced from 0.7rem 1.4rem */
+                font-size: 0.9rem; /* Reduced from 1rem */
+            }
+            
+            .floating-shapes .shape {
+                transform: scale(0.6); /* Reduced from 0.7 */
+            }
         }
 
         .animated-bg {
@@ -964,15 +1070,6 @@ export default function Home() {
             100% { transform: translate(0, 0) rotate(0deg); }
         }
 
-        .message-block {
-            margin: 2rem 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            position: relative;
-            z-index: 1;
-        }
-
         .animated-text {
             opacity: 0;
             transform: translateY(20px);
@@ -995,142 +1092,6 @@ export default function Home() {
             to {
                 opacity: 1;
                 transform: translateY(0);
-            }
-        }
-
-        .highlight-large {
-            font-size: 2.7rem;
-            font-weight: 800;
-            line-height: 1.2;
-            background: linear-gradient(45deg, #9333EA, #7928CA);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(147, 51, 234, 0.3);
-            display: block;
-            letter-spacing: -0.5px;
-        }
-
-        .glow-text {
-            animation: textGlow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes textGlow {
-            from {
-                text-shadow: 0 0 10px rgba(147, 51, 234, 0.3);
-            }
-            to {
-                text-shadow: 0 0 30px rgba(147, 51, 234, 0.7);
-            }
-        }
-
-        .message-small {
-            font-size: 1.5rem;
-            color: rgba(255, 255, 255, 0.95);
-            margin: 1.25rem 0;
-            font-weight: 500;
-            display: block;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 1rem 0;
-        }
-
-        .divider-line {
-            height: 2px;
-            width: 100px;
-            background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.7), transparent);
-            margin: 0 10px;
-        }
-
-        .divider-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #9333EA;
-            box-shadow: 0 0 10px rgba(147, 51, 234, 0.7);
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        .action-button {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: linear-gradient(45deg, #9333EA, #7928CA);
-            color: white;
-            padding: 0.8rem 1.6rem;
-            border-radius: 100px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            box-shadow: 0 5px 15px rgba(147, 51, 234, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .action-button::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transform: rotate(45deg);
-            transition: all 0.7s ease;
-            opacity: 0;
-        }
-
-        .action-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(147, 51, 234, 0.6);
-        }
-
-        .action-button:hover::before {
-            left: 100%;
-            opacity: 1;
-        }
-
-        .button-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        @media (max-width: 768px) {
-            .highlight-large {
-                font-size: 2rem;
-            }
-            
-            .message-small {
-                font-size: 1.2rem;
-            }
-
-            .message-block {
-                margin: 1.5rem 0;
-                gap: 0.5rem;
-            }
-
-            .final-message {
-                padding: 2rem 1.5rem !important;
-            }
-            
-            .action-button {
-                padding: 0.7rem 1.4rem;
-                font-size: 1rem;
-            }
-            
-            .floating-shapes .shape {
-                transform: scale(0.7);
             }
         }
 
