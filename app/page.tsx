@@ -1892,6 +1892,114 @@ export default function Home() {
                 min-width: 80px;
             }
         }
+
+        /* Restructured footer layout styles */
+        .footer-content {
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .footer-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 70vh;
+            padding-bottom: 5rem; /* Extra padding at bottom to account for cinematic bar */
+        }
+
+        .footer-title-section {
+            margin-top: 2rem;
+        }
+
+        .footer-title-section h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .footer-center-content {
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 600px;
+        }
+
+        .trusted-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 100px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            display: inline-flex;
+        }
+
+        .support-text {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .footer-donation-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .footer-donation-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 0.75rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+
+        .privacy-policy-link {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+        }
+
+        .privacy-policy-link a {
+            color: rgba(255, 255, 255, 0.6);
+            transition: color 0.2s ease;
+        }
+
+        .privacy-policy-link a:hover {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .footer-wrapper {
+                padding-bottom: 6rem; /* Even more padding on mobile */
+            }
+            
+            .footer-donation-links {
+                flex-wrap: wrap;
+            }
+            
+            .footer-donation-link {
+                width: auto;
+                min-width: 80px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2162,41 +2270,47 @@ export default function Home() {
 
         <section class="section" id="footer">
             <div class="content-section footer-content">
-                <h4>Transform Your Learning Experience</h4>
-                <p>
-                    <strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips.
-                </p>
-                
-                <!-- Center-aligned content section -->
-                <div class="footer-center-content">
-                    <!-- Trusted banner -->
-                    <div class="trusted-footer">
-                        <i class="fas fa-shield-alt"></i>
-                        Trusted by 250+ users worldwide
+                <div class="footer-wrapper">
+                    <!-- Title section at top -->
+                    <div class="footer-title-section">
+                        <h4>Transform Your Learning Experience</h4>
+                        <p>
+                            <strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips.
+                        </p>
                     </div>
                     
-                    <!-- Support Learnitab section -->
-                    <div class="footer-donation">
-                        <p class="support-text">Support Learnitab</p>
-                        <div class="footer-donation-links">
-                            <a href="https://sociabuzz.com/learnitab/donate" class="footer-donation-link" target="_blank" title="Donate via SociaBuzz">
-                                <i class="fas fa-hand-holding-heart"></i>
-                                <span>SociaBuzz</span>
-                            </a>
-                            <a href="https://ko-fi.com/learnitab" class="footer-donation-link" target="_blank" title="Support on Ko-fi">
-                                <i class="fas fa-mug-hot"></i>
-                                <span>Ko-fi</span>
-                            </a>
-                            <a href="https://saweria.co/learnitab" class="footer-donation-link" target="_blank" title="Donate via Saweria">
-                                <i class="fas fa-donate"></i>
-                                <span>Saweria</span>
-                            </a>
+                    <!-- Center-aligned content section -->
+                    <div class="footer-center-content">
+                        <!-- Trusted banner -->
+                        <div class="trusted-footer">
+                            <i class="fas fa-shield-alt"></i>
+                            Trusted by 250+ users worldwide
+                        </div>
+                        
+                        <!-- Support Learnitab section -->
+                        <div class="footer-donation">
+                            <p class="support-text">Support Learnitab</p>
+                            <div class="footer-donation-links">
+                                <a href="https://sociabuzz.com/learnitab/donate" class="footer-donation-link" target="_blank" title="Donate via SociaBuzz">
+                                    <i class="fas fa-hand-holding-heart"></i>
+                                    <span>SociaBuzz</span>
+                                </a>
+                                <a href="https://ko-fi.com/learnitab" class="footer-donation-link" target="_blank" title="Support on Ko-fi">
+                                    <i class="fas fa-mug-hot"></i>
+                                    <span>Ko-fi</span>
+                                </a>
+                                <a href="https://saweria.co/learnitab" class="footer-donation-link" target="_blank" title="Donate via Saweria">
+                                    <i class="fas fa-donate"></i>
+                                    <span>Saweria</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="privacy-policy-link">
-                    <a href="https://learnitab.com/privacy" target="_blank">Privacy Policy</a>
+                    
+                    <!-- Privacy policy link with extra bottom margin -->
+                    <div class="privacy-policy-link">
+                        <a href="https://learnitab.com/privacy" target="_blank">Privacy Policy</a>
+                    </div>
                 </div>
             </div>
         </section>
