@@ -1328,7 +1328,7 @@ export default function Home() {
             <div class="content-section">
                 <img src="/images/Logo%20Learnitab.png" alt="Learnitab Logo" class="logo">
                 <h1><strong>Learnitab</strong></h1>
-                <p class="small"><strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips</p>
+                <p class="small"><strong><span id="rotating-text">blabllaba</span></strong> at Your Fingertips</p>
                 <div class="button-group">
                     <div class="browser-dropdown">
                         <button class="btn btn-primary btn-with-icon btn-wave" id="browserDropdownBtn">
@@ -2188,6 +2188,22 @@ export default function Home() {
                     
                     // Update icon class
                     rotatingBrowserIcon.className = "fab " + browsers[currentBrowserIndex].icon + " browser-icon";
+                    
+                    // Fade in with different animations
+                    rotatingBrowser.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                    rotatingBrowserIcon.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                    
+                    // Apply different animations
+                    if (currentBrowserIndex === 0) {
+                        rotatingBrowser.style.transform = 'scale(1.1)';
+                        rotatingBrowserIcon.style.transform = 'rotate(10deg)';
+                    } else if (currentBrowserIndex === 1) {
+                        rotatingBrowser.style.transform = 'translateY(-5px)';
+                        rotatingBrowserIcon.style.transform = 'rotate(-10deg)';
+                    } else {
+                        rotatingBrowser.style.transform = 'scale(0.9)';
+                        rotatingBrowserIcon.style.transform = 'translateY(5px)';
+                    }
                     
                     // Fade in
                     rotatingBrowser.style.opacity = 1;
