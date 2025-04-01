@@ -1,93 +1,9 @@
 'use client'
-import { useState, useEffect } from 'react';
 
 export default function Home() {
-  // For the rotating text
-  const [currentPhrase, setCurrentPhrase] = useState("Productivity");
-  const [isDropdownActive, setIsDropdownActive] = useState(false);
-  
-  useEffect(() => {
-    const phrases = ["Productivity", "Study", "Career"];
-    let currentIndex = 0;
-    
-    const interval = setInterval(() => {
-      currentIndex = (currentIndex + 1) % phrases.length;
-      // Fade out and in effect handled by CSS
-      setCurrentPhrase(phrases[currentIndex]);
-    }, 2000);
-    
-    return () => clearInterval(interval);
-  }, []);
-  
-  const toggleDropdown = (e) => {
-    e.preventDefault();
-    setIsDropdownActive(!isDropdownActive);
-  };
-  
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (isDropdownActive && !e.target.closest('.browser-dropdown')) {
-        setIsDropdownActive(false);
-      }
-    };
-    
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [isDropdownActive]);
-  
-  // Hero section as React component
-  const HeroSection = () => (
-    <section className="section" id="hero">
-      <div className="content-section">
-        <img src="/images/Logo%20Learnitab.png" alt="Learnitab Logo" className="logo" />
-        <h1><strong>Learnitab</strong></h1>
-        <p className="small">
-          <strong><span id="rotating-text" style={{transition: 'opacity 0.4s ease'}}>
-            {currentPhrase}
-          </span></strong> at Your Fingertips
-        </p>
-        <div className="button-group">
-          <div className={`browser-dropdown ${isDropdownActive ? 'active' : ''}`}>
-            <button 
-              className="btn btn-primary btn-with-icon btn-wave" 
-              onClick={toggleDropdown}
-            >
-              <i className="fas fa-globe chrome-icon"></i>
-              Add to your browser
-            </button>
-            <div className="browser-options">
-              <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
-                className="browser-option" data-browser="Chrome">
-                <i className="fab fa-chrome browser-icon"></i>
-              </a>
-              <a href="https://microsoftedge.microsoft.com/addons/detail/learnitab-study-with-kp/hgmcgdhikmfcnkngnfenmcppmbbhdaaf" 
-                className="browser-option" data-browser="Edge">
-                <i className="fab fa-edge browser-icon"></i>
-              </a>
-              <a href="https://addons.mozilla.org/en-US/firefox/addon/learnitab-study-dashboard/" 
-                className="browser-option" data-browser="Firefox">
-                <i className="fab fa-firefox browser-icon"></i>
-              </a>
-            </div>
-          </div>
-          <a href="https://learnitab.com/app" 
-            className="btn btn-secondary">
-            Learnitab Opportunity Portal #KaburAjaDulu
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-  
   return (
-    <>
-      {/* React Hero Section */}
-      <HeroSection />
-      
-      {/* Rest of the page as dangerouslySetInnerHTML */}
-      <div dangerouslySetInnerHTML={{
-        __html: `
+    <div dangerouslySetInnerHTML={{
+      __html: `
 <!DOCTYPE html>
 <html>
 <head>
@@ -1203,8 +1119,40 @@ export default function Home() {
     <div class="cinema-bar-bottom cinema-bars"></div>
 
     <div class="sections-container">
-        <!-- Skip the hero section since we're rendering it with React -->
-        
+        <section class="section" id="hero">
+            <div class="content-section">
+                <img src="/images/Logo%20Learnitab.png" alt="Learnitab Logo" class="logo">
+                <h1><strong>Learnitab</strong></h1>
+                <p class="small"><strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips</p>
+                <div class="button-group">
+                    <div class="browser-dropdown">
+                        <button class="btn btn-primary btn-with-icon btn-wave" id="browserDropdownBtn">
+                            <i class="fas fa-globe chrome-icon"></i>
+                            Add to your browser
+                        </button>
+                        <div class="browser-options">
+                            <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
+                               class="browser-option" data-browser="Chrome">
+                                <i class="fab fa-chrome browser-icon"></i>
+                            </a>
+                            <a href="https://microsoftedge.microsoft.com/addons/detail/learnitab-study-with-kp/hgmcgdhikmfcnkngnfenmcppmbbhdaaf" 
+                               class="browser-option" data-browser="Edge">
+                                <i class="fab fa-edge browser-icon"></i>
+                            </a>
+                            <a href="https://addons.mozilla.org/en-US/firefox/addon/learnitab-study-dashboard/" 
+                               class="browser-option" data-browser="Firefox">
+                                <i class="fab fa-firefox browser-icon"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <a href="https://learnitab.com/app" 
+                       class="btn btn-secondary">
+                        Learnitab Opportunity Portal #KaburAjaDulu
+                    </a>
+                </div>
+            </div>
+        </section>
+
         <section class="section" id="features">
             <div class="content-section">
                 <h2>Explore the Learnitab Universe</h2>
