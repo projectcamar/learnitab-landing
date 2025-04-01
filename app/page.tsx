@@ -870,15 +870,15 @@ export default function Home() {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 56vh; /* Reduced from 70vh (20% smaller) */
+            min-height: 50vh; /* Further reduced from 56vh to 50vh (about 10% smaller) */
             text-align: center;
             background: rgba(20, 20, 40, 0.7) !important;
-            padding: 2.4rem !important; /* Reduced from 3rem */
+            padding: 2rem !important; /* Slightly reduced from 2.4rem */
             overflow: hidden;
             border-radius: 1.5rem !important;
             border: 1px solid rgba(147, 51, 234, 0.3) !important;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
-            max-width: 80%; /* Added to make container width 20% smaller */
+            max-width: 80%; /* Keeping width at 80% */
             margin: 0 auto; /* Center the container */
         }
 
@@ -889,8 +889,8 @@ export default function Home() {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.8rem; /* Reduced from 1rem */
-            margin: 2rem 0;
+            gap: 0.8rem;
+            margin: 1.6rem 0; /* Reduced from 2rem to match height reduction */
             width: 100%;
         }
 
@@ -959,8 +959,8 @@ export default function Home() {
         /* Update responsive styles for the smaller container */
         @media (max-width: 768px) {
             .final-message {
-                padding: 1.6rem !important; /* Reduced from 2rem */
-                min-height: 50vh; /* Further reduced for mobile */
+                padding: 1.4rem !important; /* Slightly reduced */
+                min-height: 45vh; /* Further reduced for mobile */
             }
             
             .highlight-large {
@@ -2074,6 +2074,141 @@ export default function Home() {
                 min-width: 80px;
             }
         }
+
+        /* Apply consistent container styling to main section containers */
+        .enhanced-benefits,
+        .about-text,
+        .features-page,
+        .contact-form-container {
+            position: relative;
+            background: rgba(20, 20, 40, 0.7) !important;
+            border-radius: 1.5rem !important;
+            border: 1px solid rgba(147, 51, 234, 0.3) !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+            overflow: hidden;
+            padding: 2rem !important;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        /* Add floating shapes to each container for visual interest */
+        .enhanced-benefits::before,
+        .about-text::before,
+        .features-page::before,
+        .contact-form-container::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, rgba(147, 51, 234, 0.15), rgba(79, 70, 229, 0.15));
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            right: -40px;
+            bottom: -40px;
+            z-index: 1;
+        }
+
+        .enhanced-benefits::after,
+        .about-text::after,
+        .features-page::after,
+        .contact-form-container::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, rgba(79, 70, 229, 0.15), rgba(147, 51, 234, 0.15));
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            left: -20px;
+            top: -20px;
+            z-index: 1;
+        }
+
+        /* Make sure content is above the decorative elements */
+        .about-text .section-divider,
+        .about-text h3,
+        .about-text p,
+        .benefits-grid,
+        .features-page > *,
+        .contact-form-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Enhanced styling for footer section */
+        .footer-content {
+            position: relative;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            max-width: 90%;
+            margin: 2rem auto;
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        .footer-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Add decorative elements to footer */
+        .footer-bg-element {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.15;
+            background: linear-gradient(45deg, #9333EA, #4F46E5);
+        }
+
+        .footer-bg-element.elem-1 {
+            width: 200px;
+            height: 200px;
+            top: -100px;
+            right: -50px;
+        }
+
+        .footer-bg-element.elem-2 {
+            width: 150px;
+            height: 150px;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        .footer-bg-element.elem-3 {
+            width: 100px;
+            height: 100px;
+            top: 30%;
+            right: 10%;
+        }
+
+        /* Consistent hover effects across all interactive elements */
+        .benefit-item:hover,
+        .footer-donation-link:hover,
+        .about-text a:hover,
+        .features-page a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(147, 51, 234, 0.3);
+            background: rgba(147, 51, 234, 0.1);
+        }
+
+        /* Apply for mobile */
+        @media (max-width: 768px) {
+            .enhanced-benefits,
+            .about-text,
+            .features-page,
+            .contact-form-container,
+            .footer-content {
+                max-width: 95%;
+                padding: 1.5rem !important;
+            }
+            
+            .enhanced-benefits::before,
+            .about-text::before,
+            .features-page::before,
+            .contact-form-container::before,
+            .footer-bg-element {
+                transform: scale(0.7);
+            }
+        }
     </style>
 </head>
 <body>
@@ -2344,8 +2479,13 @@ export default function Home() {
 
         <section class="section" id="footer">
             <div class="content-section footer-content">
+                <!-- Add decorative background elements -->
+                <div class="footer-bg-element elem-1"></div>
+                <div class="footer-bg-element elem-2"></div>
+                <div class="footer-bg-element elem-3"></div>
+                
                 <div class="footer-wrapper">
-                    <!-- Trusted banner now at the top -->
+                    <!-- Rest of footer content unchanged -->
                     <div class="trusted-banner-container">
                         <div class="trusted-footer">
                             <i class="fas fa-shield-alt"></i>
@@ -2353,9 +2493,7 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    <!-- Center-aligned content section -->
                     <div class="footer-center-content">
-                        <!-- Title section moved to the middle -->
                         <div class="footer-title-section">
                             <h4>Transform Your Learning Experience</h4>
                             <p>
@@ -2363,7 +2501,6 @@ export default function Home() {
                             </p>
                         </div>
                         
-                        <!-- Support Learnitab section -->
                         <div class="footer-donation">
                             <p class="support-text">Support Learnitab</p>
                             <div class="footer-donation-links">
@@ -2383,7 +2520,6 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    <!-- Privacy policy link with extra bottom margin -->
                     <div class="privacy-policy-link">
                         <a href="https://learnitab.com/privacy" target="_blank">Privacy Policy</a>
                     </div>
