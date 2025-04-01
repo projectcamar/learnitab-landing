@@ -1296,6 +1296,30 @@ export default function Home() {
         .browser-icon {
             transition: opacity 0.4s ease;
         }
+
+        .privacy-policy-link {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+        }
+
+        .privacy-policy-link a {
+            color: rgba(255, 255, 255, 0.6);
+            transition: color 0.2s ease;
+        }
+
+        .privacy-policy-link a:hover {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .privacy-policy-link {
+                margin-top: 1.5rem;
+                padding-top: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1328,7 +1352,6 @@ export default function Home() {
             <div class="content-section">
                 <img src="/images/Logo%20Learnitab.png" alt="Learnitab Logo" class="logo">
                 <h1><strong>Learnitab</strong></h1>
-                <p class="small">at Your Fingertips</p>
                 <div class="button-group">
                     <div class="browser-dropdown">
                         <button class="btn btn-primary btn-with-icon btn-wave" id="browserDropdownBtn">
@@ -1527,8 +1550,10 @@ export default function Home() {
                 <h4>Transform Your Learning Experience</h4>
                 <p>
                     <strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips.
-                    <a href="https://learnitab.com/privacy" target="_blank">Privacy Policy</a>
                 </p>
+                <div class="privacy-policy-link">
+                    <a href="https://learnitab.com/privacy" target="_blank">Privacy Policy</a>
+                </div>
             </div>
         </section>
     </div>
