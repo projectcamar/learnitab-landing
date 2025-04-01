@@ -373,6 +373,7 @@ export default function Home() {
             gap: 1rem;
             justify-content: center;
             margin-top: 2rem;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
         }
 
         .btn-primary {
@@ -1016,7 +1017,7 @@ export default function Home() {
             font-weight: 700;  /* Makes the text bold */
         }
 
-        /* Browser bubble styles */
+        /* Browser bubble styles - updated position */
         .browser-dropdown {
             position: relative;
             display: inline-block;
@@ -1024,9 +1025,9 @@ export default function Home() {
 
         .browser-options {
             position: absolute;
-            top: 50%;
-            left: 110%; /* Position to the right of the button */
-            transform: translateY(-50%);
+            top: 120%; /* Position below the button */
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             gap: 10px;
             background: transparent;
@@ -1089,12 +1090,21 @@ export default function Home() {
             opacity: 1;
         }
 
+        /* Adjust button group spacing to accommodate dropdown */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
         @media (max-width: 768px) {
             .browser-options {
                 top: 120%;
-                left: 0;
-                transform: none;
-                width: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: auto;
                 justify-content: center;
             }
         }
