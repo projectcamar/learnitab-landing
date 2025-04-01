@@ -1108,6 +1108,37 @@ export default function Home() {
                 justify-content: center;
             }
         }
+
+        /* Add this new style for the trusted label */
+        .trusted-label {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(147, 51, 234, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            backdrop-filter: blur(8px);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .trusted-label i {
+            color: #9333EA;
+        }
+        
+        @media (max-width: 768px) {
+            .trusted-label {
+                top: 10px;
+                right: 10px;
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1118,13 +1149,18 @@ export default function Home() {
     <div class="cinema-bar-top cinema-bars"></div>
     <div class="cinema-bar-bottom cinema-bars"></div>
 
+    <!-- Add the trusted label as a floating element -->
+    <div class="trusted-label">
+        <i class="fas fa-shield-alt"></i>
+        Trusted by 250+ users worldwide
+    </div>
+
     <div class="sections-container">
         <section class="section" id="hero">
             <div class="content-section">
                 <img src="/images/Logo%20Learnitab.png" alt="Learnitab Logo" class="logo">
                 <h1><strong>Learnitab</strong></h1>
                 <p class="small"><strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips</p>
-                <p class="trusted-text">Trusted by 250+ users worldwide</p>
                 <div class="button-group">
                     <div class="browser-dropdown">
                         <button class="btn btn-primary btn-with-icon btn-wave" id="browserDropdownBtn">
