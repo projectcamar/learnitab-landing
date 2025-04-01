@@ -1015,6 +1015,49 @@ export default function Home() {
         #rotating-text {
             font-weight: 700;  /* Makes the text bold */
         }
+
+        /* Add browser dropdown styles */
+        .browser-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .browser-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            z-index: 10;
+        }
+
+        .browser-dropdown:hover .browser-options {
+            max-height: 200px;
+            opacity: 1;
+        }
+
+        .browser-option {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            transition: background 0.2s ease;
+        }
+
+        .browser-option:hover {
+            background: rgba(147, 51, 234, 0.3);
+        }
+
+        .browser-icon {
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
@@ -1032,11 +1075,25 @@ export default function Home() {
                 <h1><strong>Learnitab</strong></h1>
                 <p class="small"><strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips</p>
                 <div class="button-group">
-                    <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
-                       class="btn btn-primary btn-with-icon btn-wave">
-                        <i class="fab fa-chrome chrome-icon"></i>
-                        Add to Chrome
-                    </a>
+                    <div class="browser-dropdown">
+                        <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
+                           class="btn btn-primary btn-with-icon btn-wave">
+                            <i class="fab fa-chrome chrome-icon"></i>
+                            Add to Chrome
+                        </a>
+                        <div class="browser-options">
+                            <a href="https://microsoftedge.microsoft.com/addons/detail/learnitab-study-with-kp/hgmcgdhikmfcnkngnfenmcppmbbhdaaf" 
+                               class="browser-option">
+                                <i class="fab fa-edge browser-icon"></i>
+                                Add to Edge
+                            </a>
+                            <a href="https://addons.mozilla.org/en-US/firefox/addon/learnitab-study-dashboard/" 
+                               class="browser-option">
+                                <i class="fab fa-firefox browser-icon"></i>
+                                Add to Firefox
+                            </a>
+                        </div>
+                    </div>
                     <a href="https://learnitab.com/app" 
                        class="btn btn-secondary">
                         Learnitab Opportunity Portal #KaburAjaDulu
