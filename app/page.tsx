@@ -1139,6 +1139,11 @@ export default function Home() {
                 padding: 6px 12px;
             }
         }
+
+        /* Add this style for the browser button text transition */
+        #browser-text, #browser-icon {
+            transition: opacity 0.4s ease;
+        }
     </style>
 </head>
 <body>
@@ -1164,8 +1169,8 @@ export default function Home() {
                 <div class="button-group">
                     <div class="browser-dropdown">
                         <button class="btn btn-primary btn-with-icon btn-wave" id="browserDropdownBtn">
-                            <i class="fas fa-globe chrome-icon"></i>
-                            Add to your browser
+                            <i id="browser-icon" class="fab fa-chrome chrome-icon"></i>
+                            Add to your <span id="browser-text">Chrome</span>
                         </button>
                         <div class="browser-options">
                             <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
@@ -2006,6 +2011,39 @@ export default function Home() {
                     browserDropdown.classList.remove('active');
                 }
             });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add this new function for browser text rotation
+            const browsers = [
+                { name: "Chrome", icon: "fa-chrome" },
+                { name: "Firefox", icon: "fa-firefox" },
+                { name: "Edge", icon: "fa-edge" }
+            ];
+            
+            const browserText = document.getElementById('browser-text');
+            const browserIcon = document.getElementById('browser-icon');
+            let browserIndex = 0;
+            
+            function updateBrowserText() {
+                // Fade out
+                browserText.style.opacity = 0;
+                browserIcon.style.opacity = 0;
+                
+                setTimeout(() => {
+                    // Update text and icon
+                    browserIndex = (browserIndex + 1) % browsers.length;
+                    browserText.textContent = browsers[browserIndex].name;
+                    browserIcon.className = `fab ${browsers[browserIndex].icon} chrome-icon`;
+                    
+                    // Fade in
+                    browserText.style.opacity = 1;
+                    browserIcon.style.opacity = 1;
+                }, 200); // Half of the transition time
+            }
+            
+            // Start rotation with 2 second interval
+            setInterval(updateBrowserText, 2000);
         });
     </script>
 </body>
