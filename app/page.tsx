@@ -865,24 +865,141 @@ export default function Home() {
         }
 
         .final-message {
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 70vh;
             text-align: center;
+            background: rgba(20, 20, 40, 0.7) !important;
+            padding: 3rem !important;
+            overflow: hidden;
+            border-radius: 1.5rem !important;
+            border: 1px solid rgba(147, 51, 234, 0.3) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .animated-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(50, 10, 80, 0.4), rgba(20, 10, 40, 0.4));
+            z-index: -1;
+            animation: gradientShift 10s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .floating-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .shape {
+            position: absolute;
             background: rgba(147, 51, 234, 0.1);
-            padding: 2rem;
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(2px);
+            transform: rotate(20deg);
+        }
+
+        .shape-1 {
+            top: -5%;
+            left: -10%;
+            width: 250px;
+            height: 250px;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .shape-2 {
+            bottom: -15%;
+            right: -5%;
+            width: 200px;
+            height: 200px;
+            animation: float 18s ease-in-out infinite reverse;
+        }
+
+        .shape-3 {
+            top: 20%;
+            right: -15%;
+            width: 180px;
+            height: 180px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .shape-4 {
+            bottom: 10%;
+            left: -5%;
+            width: 150px;
+            height: 150px;
+            animation: float 12s ease-in-out infinite reverse;
+        }
+
+        .shape-5 {
+            top: 40%;
+            left: 10%;
+            width: 100px;
+            height: 100px;
+            animation: float 25s ease-in-out infinite;
+            background: rgba(147, 51, 234, 0.2);
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, 15px) rotate(5deg); }
+            50% { transform: translate(5px, 5px) rotate(10deg); }
+            75% { transform: translate(-5px, 10px) rotate(5deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
         }
 
         .message-block {
             margin: 2rem 0;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .animated-text {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUpIn 0.7s forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.6s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.9s;
+        }
+
+        @keyframes fadeUpIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .highlight-large {
-            font-size: 2.5rem;
+            font-size: 2.7rem;
             font-weight: 800;
             line-height: 1.2;
             background: linear-gradient(45deg, #9333EA, #7928CA);
@@ -890,14 +1007,103 @@ export default function Home() {
             -webkit-text-fill-color: transparent;
             text-shadow: 0 0 30px rgba(147, 51, 234, 0.3);
             display: block;
+            letter-spacing: -0.5px;
+        }
+
+        .glow-text {
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            from {
+                text-shadow: 0 0 10px rgba(147, 51, 234, 0.3);
+            }
+            to {
+                text-shadow: 0 0 30px rgba(147, 51, 234, 0.7);
+            }
         }
 
         .message-small {
-            font-size: 1.4rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin: 1rem 0;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 1.25rem 0;
             font-weight: 500;
             display: block;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .divider-line {
+            height: 2px;
+            width: 100px;
+            background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.7), transparent);
+            margin: 0 10px;
+        }
+
+        .divider-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #9333EA;
+            box-shadow: 0 0 10px rgba(147, 51, 234, 0.7);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(45deg, #9333EA, #7928CA);
+            color: white;
+            padding: 0.8rem 1.6rem;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(147, 51, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.7s ease;
+            opacity: 0;
+        }
+
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(147, 51, 234, 0.6);
+        }
+
+        .action-button:hover::before {
+            left: 100%;
+            opacity: 1;
+        }
+
+        .button-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
         }
 
         @media (max-width: 768px) {
@@ -906,15 +1112,25 @@ export default function Home() {
             }
             
             .message-small {
-                font-size: 1.1rem;
+                font-size: 1.2rem;
             }
 
             .message-block {
                 margin: 1.5rem 0;
+                gap: 0.5rem;
             }
 
             .final-message {
-                padding: 1rem;
+                padding: 2rem 1.5rem !important;
+            }
+            
+            .action-button {
+                padding: 0.7rem 1.4rem;
+                font-size: 1rem;
+            }
+            
+            .floating-shapes .shape {
+                transform: scale(0.7);
             }
         }
 
@@ -1418,6 +1634,136 @@ export default function Home() {
                 font-size: 0.85rem;
             }
         }
+
+        /* Update the benefits styles for a 2-column grid layout */
+        .benefits-grid {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .benefits-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Keep existing styles for individual benefit items */
+        .benefit-item {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            padding: 1rem;
+            background: rgba(147, 51, 234, 0.05);
+            border-radius: 0.75rem;
+            border-left: 3px solid #9333EA;
+            transition: all 0.3s ease;
+        }
+
+        /* Add responsive styles for mobile */
+        @media (max-width: 768px) {
+            .benefits-grid {
+                flex-direction: column;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .benefits-column {
+                gap: 1rem;
+            }
+            
+            .benefit-item {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Add styles for footer donation links */
+        .footer-donation {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .support-text {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .footer-donation-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-donation-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 0.75rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-donation-link i {
+            font-size: 1.2rem;
+            color: #9333EA;
+        }
+
+        .footer-donation-link span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .footer-donation-link:hover {
+            background: rgba(147, 51, 234, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Add styles for trusted banner in footer */
+        .trusted-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            padding: 0.75rem 1.5rem;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 100px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            display: inline-flex;
+        }
+
+        .trusted-footer i {
+            color: #9333EA;
+        }
+
+        @media (max-width: 768px) {
+            .footer-donation-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            
+            .footer-donation-link {
+                width: 80%;
+                flex-direction: row;
+                justify-content: center;
+            }
+            
+            .trusted-footer {
+                font-size: 0.8rem;
+                padding: 0.6rem 1.2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1427,23 +1773,6 @@ export default function Home() {
 
     <div class="cinema-bar-top cinema-bars"></div>
     <div class="cinema-bar-bottom cinema-bars"></div>
-
-    <!-- Add the trusted label as a floating element -->
-    <div class="donation-links">
-        <a href="https://sociabuzz.com/learnitab/donate" class="donation-link" target="_blank" title="Donate via SociaBuzz">
-            <i class="fas fa-hand-holding-heart"></i>
-        </a>
-        <a href="https://ko-fi.com/learnitab" class="donation-link" target="_blank" title="Support on Ko-fi">
-            <i class="fas fa-mug-hot"></i>
-        </a>
-        <a href="https://saweria.co/learnitab" class="donation-link" target="_blank" title="Donate via Saweria">
-            <i class="fas fa-donate"></i>
-        </a>
-    </div>
-    <div class="trusted-label">
-        <i class="fas fa-shield-alt"></i>
-        Trusted by 250+ users worldwide
-    </div>
 
     <div class="sections-container">
         <section class="section" id="hero">
@@ -1577,55 +1906,85 @@ export default function Home() {
                         <div class="about-text enhanced-benefits">
                             <h3 class="purple-text why-learnitab-title">Why Learnitab?</h3>
                             <div class="section-divider"></div>
-                            <ul class="benefits-list enhanced">
-                                <li class="benefit-item">
-                                    <div class="benefit-icon"><i class="fas fa-tasks"></i></div>
-                                    <div class="benefit-content">
-                                        <h4>Centralized Dashboard</h4>
-                                        <p>One place for all your study tools to maximize productivity and time management</p>
+                            <div class="benefits-grid">
+                                <div class="benefits-column">
+                                    <div class="benefit-item">
+                                        <div class="benefit-icon"><i class="fas fa-tasks"></i></div>
+                                        <div class="benefit-content">
+                                            <h4>Centralized Dashboard</h4>
+                                            <p>One place for all your study tools to maximize productivity and time management</p>
+                                        </div>
                                     </div>
-                                </li>
-                                <li class="benefit-item">
-                                    <div class="benefit-icon"><i class="fas fa-robot"></i></div>
-                                    <div class="benefit-content">
-                                        <h4>AI-Powered Tools</h4>
-                                        <p>Intelligent learning assistance to help you understand and retain information better</p>
+                                    <div class="benefit-item">
+                                        <div class="benefit-icon"><i class="fas fa-robot"></i></div>
+                                        <div class="benefit-content">
+                                            <h4>AI-Powered Tools</h4>
+                                            <p>Intelligent learning assistance to help you understand and retain information better</p>
+                                        </div>
                                     </div>
-                                </li>
-                                <li class="benefit-item">
-                                    <div class="benefit-icon"><i class="fas fa-briefcase"></i></div>
-                                    <div class="benefit-content">
-                                        <h4>Career Development</h4>
-                                        <p>Access to resources and opportunities to build your career path with confidence</p>
+                                    <div class="benefit-item">
+                                        <div class="benefit-icon"><i class="fas fa-briefcase"></i></div>
+                                        <div class="benefit-content">
+                                            <h4>Career Development</h4>
+                                            <p>Access to resources and opportunities to build your career path with confidence</p>
+                                        </div>
                                     </div>
-                                </li>
-                                <li class="benefit-item">
-                                    <div class="benefit-icon"><i class="fas fa-graduation-cap"></i></div>
-                                    <div class="benefit-content">
-                                        <h4>Academic Integration</h4>
-                                        <p>Seamless blend of theoretical learning and practical skill-building tools</p>
+                                </div>
+                                <div class="benefits-column">
+                                    <div class="benefit-item">
+                                        <div class="benefit-icon"><i class="fas fa-graduation-cap"></i></div>
+                                        <div class="benefit-content">
+                                            <h4>Academic Integration</h4>
+                                            <p>Seamless blend of theoretical learning and practical skill-building tools</p>
+                                        </div>
                                     </div>
-                                </li>
-                                <li class="benefit-item">
-                                    <div class="benefit-icon"><i class="fas fa-users"></i></div>
-                                    <div class="benefit-content">
-                                        <h4>Community Support</h4>
-                                        <p>Connect with peers for collaboration, motivation and shared learning experiences</p>
+                                    <div class="benefit-item">
+                                        <div class="benefit-icon"><i class="fas fa-users"></i></div>
+                                        <div class="benefit-content">
+                                            <h4>Community Support</h4>
+                                            <p>Connect with peers for collaboration, motivation and shared learning experiences</p>
+                                        </div>
                                     </div>
-                                </li>
-                            </ul>
+                                    <div class="benefit-item">
+                                        <div class="benefit-icon"><i class="fas fa-paint-brush"></i></div>
+                                        <div class="benefit-content">
+                                            <h4>Personalization</h4>
+                                            <p>Customize your learning environment with themes, backgrounds and workflow settings</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Third Scroll -->
                     <div class="about-page">
                         <div class="about-text final-message">
+                            <div class="animated-bg"></div>
+                            <div class="floating-shapes">
+                                <div class="shape shape-1"></div>
+                                <div class="shape shape-2"></div>
+                                <div class="shape shape-3"></div>
+                                <div class="shape shape-4"></div>
+                                <div class="shape shape-5"></div>
+                            </div>
                             <div class="about-footer">
                                 <div class="message-block">
-                                    <span class="highlight-large">Join us in revolutionizing the way</span>
-                                    <span class="highlight-large">students learn and grow</span>
-                                    <span class="message-small">With Learnitab, you're not just studying;</span>
-                                    <span class="highlight-large">you're building your future</span>
+                                    <span class="highlight-large animated-text">Join us in revolutionizing the way</span>
+                                    <span class="highlight-large animated-text delay-1">students learn and grow</span>
+                                    <div class="divider">
+                                        <span class="divider-dot"></span>
+                                        <span class="divider-line"></span>
+                                        <span class="divider-dot"></span>
+                                    </div>
+                                    <span class="message-small animated-text delay-2">With Learnitab, you're not just studying;</span>
+                                    <span class="highlight-large animated-text delay-3 glow-text">you're building your future</span>
+                                    <div class="action-buttons">
+                                        <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" class="action-button">
+                                            <span class="button-icon"><i class="fas fa-rocket"></i></span>
+                                            <span class="button-text">Get Started</span>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1679,6 +2038,32 @@ export default function Home() {
                 <p>
                     <strong><span id="rotating-text">Productivity</span></strong> at Your Fingertips.
                 </p>
+                
+                <!-- Add the trusted banner -->
+                <div class="trusted-footer">
+                    <i class="fas fa-shield-alt"></i>
+                    Trusted by 250+ users worldwide
+                </div>
+                
+                <!-- Add donation links to footer -->
+                <div class="footer-donation">
+                    <p class="support-text">Support Learnitab</p>
+                    <div class="footer-donation-links">
+                        <a href="https://sociabuzz.com/learnitab/donate" class="footer-donation-link" target="_blank" title="Donate via SociaBuzz">
+                            <i class="fas fa-hand-holding-heart"></i>
+                            <span>SociaBuzz</span>
+                        </a>
+                        <a href="https://ko-fi.com/learnitab" class="footer-donation-link" target="_blank" title="Support on Ko-fi">
+                            <i class="fas fa-mug-hot"></i>
+                            <span>Ko-fi</span>
+                        </a>
+                        <a href="https://saweria.co/learnitab" class="footer-donation-link" target="_blank" title="Donate via Saweria">
+                            <i class="fas fa-donate"></i>
+                            <span>Saweria</span>
+                        </a>
+                    </div>
+                </div>
+                
                 <div class="privacy-policy-link">
                     <a href="https://learnitab.com/privacy" target="_blank">Privacy Policy</a>
                 </div>
