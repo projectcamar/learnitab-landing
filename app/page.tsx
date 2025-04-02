@@ -2249,6 +2249,59 @@ export default function Home() {
             white-space: nowrap;
             transition: background 0.4s ease, border-color 0.4s ease; /* Add transition for background */
         }
+
+        /* Add browser-specific button styling with hover and active states */
+        .btn-browser-chrome {
+            background: linear-gradient(45deg, #4285F4, #0F9D58);
+            border-color: #4285F4;
+        }
+
+        .btn-browser-chrome:hover, 
+        .btn-browser-chrome:active, 
+        .btn-browser-chrome:focus {
+            background: linear-gradient(45deg, #3b78dc, #0e8b4e);
+            border-color: #3b78dc;
+        }
+
+        .btn-browser-firefox {
+            background: linear-gradient(45deg, #FF9400, #FF4B2B);
+            border-color: #FF9400;
+        }
+
+        .btn-browser-firefox:hover, 
+        .btn-browser-firefox:active, 
+        .btn-browser-firefox:focus {
+            background: linear-gradient(45deg, #e68600, #e64426);
+            border-color: #e68600;
+        }
+
+        .btn-browser-edge {
+            background: linear-gradient(45deg, #0078D7, #41A5EE);
+            border-color: #0078D7;
+        }
+
+        .btn-browser-edge:hover, 
+        .btn-browser-edge:active, 
+        .btn-browser-edge:focus {
+            background: linear-gradient(45deg, #006bbd, #3a94d7);
+            border-color: #006bbd;
+        }
+
+        /* Override any default button hover effects */
+        .btn-primary.btn-with-icon:hover,
+        .btn-primary.btn-with-icon:active,
+        .btn-primary.btn-with-icon:focus {
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Ensure dropdown menu button keeps its color */
+        .browser-dropdown.active .btn-browser-chrome,
+        .browser-dropdown.active .btn-browser-firefox,
+        .browser-dropdown.active .btn-browser-edge {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
