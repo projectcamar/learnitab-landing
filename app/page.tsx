@@ -2228,7 +2228,7 @@ export default function Home() {
                     <div class="browser-dropdown">
                         <button class="btn btn-primary btn-with-icon btn-wave" id="browserDropdownBtn">
                             <i class="fab fa-chrome browser-icon" id="rotating-browser-icon"></i>
-                            Add to your <span id="rotating-browser">Chrome</span>
+                            <span id="browser-prefix">Add to your</span> <span id="rotating-browser">Chrome</span>
                         </button>
                         <div class="browser-options">
                             <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
@@ -3170,12 +3170,14 @@ export default function Home() {
             
             const rotatingBrowser = document.getElementById('rotating-browser');
             const rotatingBrowserIcon = document.getElementById('rotating-browser-icon');
+            const browserPrefix = document.getElementById('browser-prefix'); // Add this line
             let currentBrowserIndex = 0;
             
             function updateBrowser() {
                 // Fade out
                 rotatingBrowser.style.opacity = 0;
                 rotatingBrowserIcon.style.opacity = 0;
+                browserPrefix.style.opacity = 0; // Add this line
                 
                 setTimeout(() => {
                     // Update text and icon
@@ -3188,8 +3190,14 @@ export default function Home() {
                     // Fade in
                     rotatingBrowser.style.opacity = 1;
                     rotatingBrowserIcon.style.opacity = 1;
+                    browserPrefix.style.opacity = 1; // Add this line
                 }, 200); // Half of the transition time
             }
+            
+            // Apply transitions to all elements
+            rotatingBrowser.style.transition = 'opacity 0.4s ease';
+            rotatingBrowserIcon.style.transition = 'opacity 0.4s ease';
+            browserPrefix.style.transition = 'opacity 0.4s ease'; // Add this line
             
             // Start browser rotation with 2 second interval
             setInterval(updateBrowser, 2000);
