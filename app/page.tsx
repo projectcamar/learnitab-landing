@@ -2226,6 +2226,29 @@ export default function Home() {
             transition: opacity 0.4s ease;
             display: inline-block; /* Ensure consistent spacing */
         }
+
+        /* Add browser-specific button styling */
+        .btn-browser-chrome {
+            background: linear-gradient(45deg, #4285F4, #0F9D58);
+            border-color: #4285F4;
+        }
+
+        .btn-browser-firefox {
+            background: linear-gradient(45deg, #FF9400, #FF4B2B);
+            border-color: #FF9400;
+        }
+
+        .btn-browser-edge {
+            background: linear-gradient(45deg, #0078D7, #41A5EE);
+            border-color: #0078D7;
+        }
+
+        .btn-primary.btn-with-icon {
+            min-width: 200px; /* Fixed width for the button */
+            text-align: center;
+            white-space: nowrap;
+            transition: background 0.4s ease, border-color 0.4s ease; /* Add transition for background */
+        }
     </style>
 </head>
 <body>
@@ -3180,21 +3203,22 @@ export default function Home() {
             
             // NEW CODE: Add rotating browser text and icons
             const browsers = [
-                { name: "Chrome", icon: "fa-chrome" },
-                { name: "Firefox", icon: "fa-firefox" },
-                { name: "Edge", icon: "fa-edge" }
+                { name: "Chrome", icon: "fa-chrome", class: "btn-browser-chrome" },
+                { name: "Firefox", icon: "fa-firefox", class: "btn-browser-firefox" },
+                { name: "Edge", icon: "fa-edge", class: "btn-browser-edge" }
             ];
             
             const rotatingBrowser = document.getElementById('rotating-browser');
             const rotatingBrowserIcon = document.getElementById('rotating-browser-icon');
-            const browserPrefix = document.getElementById('browser-prefix'); // Add this line
+            const browserPrefix = document.getElementById('browser-prefix');
+            const browserButton = document.getElementById('browserDropdownBtn');
             let currentBrowserIndex = 0;
             
             function updateBrowser() {
                 // Fade out
                 rotatingBrowser.style.opacity = 0;
                 rotatingBrowserIcon.style.opacity = 0;
-                browserPrefix.style.opacity = 0; // Add this line
+                browserPrefix.style.opacity = 0;
                 
                 setTimeout(() => {
                     // Update text and icon
@@ -3204,17 +3228,24 @@ export default function Home() {
                     // Update icon class
                     rotatingBrowserIcon.className = "fab " + browsers[currentBrowserIndex].icon + " browser-icon";
                     
+                    // Update button color class
+                    browserButton.classList.remove("btn-browser-chrome", "btn-browser-firefox", "btn-browser-edge");
+                    browserButton.classList.add(browsers[currentBrowserIndex].class);
+                    
                     // Fade in
                     rotatingBrowser.style.opacity = 1;
                     rotatingBrowserIcon.style.opacity = 1;
-                    browserPrefix.style.opacity = 1; // Add this line
+                    browserPrefix.style.opacity = 1;
                 }, 200); // Half of the transition time
             }
             
-            // Apply transitions to all elements
+            // Apply transitions
             rotatingBrowser.style.transition = 'opacity 0.4s ease';
             rotatingBrowserIcon.style.transition = 'opacity 0.4s ease';
-            browserPrefix.style.transition = 'opacity 0.4s ease'; // Add this line
+            browserPrefix.style.transition = 'opacity 0.4s ease';
+            
+            // Set initial button class
+            browserButton.classList.add(browsers[currentBrowserIndex].class);
             
             // Start browser rotation with 2 second interval
             setInterval(updateBrowser, 2000);
