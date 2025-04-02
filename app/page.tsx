@@ -2257,14 +2257,14 @@ export default function Home() {
 
         /* Chrome styling */
         .browser-option[data-browser="Chrome"] {
-            color: #4285F4;
+            color:rgb(205, 220, 245);
         }
 
         .browser-option[data-browser="Chrome"]:hover,
         .browser-option[data-browser="Chrome"]:active,
         .browser-option[data-browser="Chrome"]:focus {
             background: linear-gradient(45deg, rgba(66, 133, 244, 0.15), rgba(15, 157, 88, 0.15));
-            color: #4285F4;
+            color:rgb(209, 227, 255);
             transform: translateY(-2px);
         }
 
