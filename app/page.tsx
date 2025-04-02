@@ -2209,6 +2209,23 @@ export default function Home() {
                 transform: scale(0.7);
             }
         }
+
+        /* Add these styles to fix the button size and spacing issues */
+        .btn-primary.btn-with-icon {
+            min-width: 200px; /* Fixed width for the button */
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        #browser-prefix {
+            margin-right: -4px; /* Remove the gap between "Add to your" and browser name */
+        }
+
+        #rotating-browser {
+            font-weight: 700;
+            transition: opacity 0.4s ease;
+            display: inline-block; /* Ensure consistent spacing */
+        }
     </style>
 </head>
 <body>
@@ -2228,7 +2245,7 @@ export default function Home() {
                     <div class="browser-dropdown">
                         <button class="btn btn-primary btn-with-icon btn-wave" id="browserDropdownBtn">
                             <i class="fab fa-chrome browser-icon" id="rotating-browser-icon"></i>
-                            <span id="browser-prefix">Add to your</span> <span id="rotating-browser">Chrome</span>
+                            <span id="browser-prefix">Add to your</span><span id="rotating-browser">Chrome</span>
                         </button>
                         <div class="browser-options">
                             <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
