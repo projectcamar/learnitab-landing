@@ -2227,53 +2227,84 @@ export default function Home() {
             display: inline-block; /* Ensure consistent spacing */
         }
 
-        /* Enhance Chrome button with multi-color branding */
+        /* Add browser-specific button styling */
         .btn-browser-chrome {
             background: linear-gradient(45deg, #4285F4, #0F9D58);
             border-color: #4285F4;
-            position: relative;
-            overflow: hidden;
         }
 
-        .btn-browser-chrome:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 6px;
-            height: 100%;
-            background: linear-gradient(to bottom, #EA4335, #FBBC05);
-            opacity: 0.9;
+        .btn-browser-firefox {
+            background: linear-gradient(45deg, #FF9400, #FF4B2B);
+            border-color: #FF9400;
         }
 
-        .btn-browser-chrome:hover:before, 
-        .btn-browser-chrome:active:before, 
-        .btn-browser-chrome:focus:before {
-            opacity: 1;
+        .btn-browser-edge {
+            background: linear-gradient(45deg, #0078D7, #41A5EE);
+            border-color: #0078D7;
         }
 
-        /* Also add this to the Chrome browser option in dropdown */
+        .btn-primary.btn-with-icon {
+            min-width: 200px; /* Fixed width for the button */
+            text-align: center;
+            white-space: nowrap;
+            transition: background 0.4s ease, border-color 0.4s ease; /* Add transition for background */
+        }
+
+        /* Add browser-specific styling for dropdown options */
+        .browser-option {
+            transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Chrome styling */
         .browser-option[data-browser="Chrome"] {
+            color:rgb(167, 183, 209);
+        }
+
+        .browser-option[data-browser="Chrome"]:hover,
+        .browser-option[data-browser="Chrome"]:active,
+        .browser-option[data-browser="Chrome"]:focus {
+            background: linear-gradient(45deg, rgba(66, 133, 244, 0.15), rgba(15, 157, 88, 0.15));
             color: #4285F4;
-            position: relative;
-            overflow: hidden;
+            transform: translateY(-2px);
         }
 
-        .browser-option[data-browser="Chrome"]:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(to bottom, #EA4335, #FBBC05);
-            opacity: 0.8;
+        /* Firefox styling */
+        .browser-option[data-browser="Firefox"] {
+            color: #FF9400;
         }
 
-        .browser-option[data-browser="Chrome"]:hover:before,
-        .browser-option[data-browser="Chrome"]:active:before,
-        .browser-option[data-browser="Chrome"]:focus:before {
-            opacity: 1;
+        .browser-option[data-browser="Firefox"]:hover,
+        .browser-option[data-browser="Firefox"]:active,
+        .browser-option[data-browser="Firefox"]:focus {
+            background: linear-gradient(45deg, rgba(255, 148, 0, 0.15), rgba(255, 75, 43, 0.15));
+            color: #FF9400;
+            transform: translateY(-2px);
+        }
+
+        /* Edge styling */
+        .browser-option[data-browser="Edge"] {
+            color: #0078D7;
+        }
+
+        .browser-option[data-browser="Edge"]:hover,
+        .browser-option[data-browser="Edge"]:active,
+        .browser-option[data-browser="Edge"]:focus {
+            background: linear-gradient(45deg, rgba(0, 120, 215, 0.15), rgba(65, 165, 238, 0.15));
+            color: #0078D7;
+            transform: translateY(-2px);
+        }
+
+        /* Ensure browser icon in dropdown matches the text color */
+        .browser-option[data-browser="Chrome"] .browser-icon {
+            color: #4285F4;
+        }
+
+        .browser-option[data-browser="Firefox"] .browser-icon {
+            color: #FF9400;
+        }
+
+        .browser-option[data-browser="Edge"] .browser-icon {
+            color: #0078D7;
         }
     </style>
 </head>
