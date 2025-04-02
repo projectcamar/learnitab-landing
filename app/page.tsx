@@ -2250,57 +2250,61 @@ export default function Home() {
             transition: background 0.4s ease, border-color 0.4s ease; /* Add transition for background */
         }
 
-        /* Add browser-specific button styling with hover and active states */
-        .btn-browser-chrome {
-            background: linear-gradient(45deg, #4285F4, #0F9D58);
-            border-color: #4285F4;
+        /* Add browser-specific styling for dropdown options */
+        .browser-option {
+            transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
         }
 
-        .btn-browser-chrome:hover, 
-        .btn-browser-chrome:active, 
-        .btn-browser-chrome:focus {
-            background: linear-gradient(45deg, #3b78dc, #0e8b4e);
-            border-color: #3b78dc;
+        /* Chrome styling */
+        .browser-option[data-browser="Chrome"] {
+            color: #4285F4;
         }
 
-        .btn-browser-firefox {
-            background: linear-gradient(45deg, #FF9400, #FF4B2B);
-            border-color: #FF9400;
+        .browser-option[data-browser="Chrome"]:hover,
+        .browser-option[data-browser="Chrome"]:active,
+        .browser-option[data-browser="Chrome"]:focus {
+            background: linear-gradient(45deg, rgba(66, 133, 244, 0.15), rgba(15, 157, 88, 0.15));
+            color: #4285F4;
+            transform: translateY(-2px);
         }
 
-        .btn-browser-firefox:hover, 
-        .btn-browser-firefox:active, 
-        .btn-browser-firefox:focus {
-            background: linear-gradient(45deg, #e68600, #e64426);
-            border-color: #e68600;
+        /* Firefox styling */
+        .browser-option[data-browser="Firefox"] {
+            color: #FF9400;
         }
 
-        .btn-browser-edge {
-            background: linear-gradient(45deg, #0078D7, #41A5EE);
-            border-color: #0078D7;
+        .browser-option[data-browser="Firefox"]:hover,
+        .browser-option[data-browser="Firefox"]:active,
+        .browser-option[data-browser="Firefox"]:focus {
+            background: linear-gradient(45deg, rgba(255, 148, 0, 0.15), rgba(255, 75, 43, 0.15));
+            color: #FF9400;
+            transform: translateY(-2px);
         }
 
-        .btn-browser-edge:hover, 
-        .btn-browser-edge:active, 
-        .btn-browser-edge:focus {
-            background: linear-gradient(45deg, #006bbd, #3a94d7);
-            border-color: #006bbd;
+        /* Edge styling */
+        .browser-option[data-browser="Edge"] {
+            color: #0078D7;
         }
 
-        /* Override any default button hover effects */
-        .btn-primary.btn-with-icon:hover,
-        .btn-primary.btn-with-icon:active,
-        .btn-primary.btn-with-icon:focus {
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        .browser-option[data-browser="Edge"]:hover,
+        .browser-option[data-browser="Edge"]:active,
+        .browser-option[data-browser="Edge"]:focus {
+            background: linear-gradient(45deg, rgba(0, 120, 215, 0.15), rgba(65, 165, 238, 0.15));
+            color: #0078D7;
+            transform: translateY(-2px);
         }
 
-        /* Ensure dropdown menu button keeps its color */
-        .browser-dropdown.active .btn-browser-chrome,
-        .browser-dropdown.active .btn-browser-firefox,
-        .browser-dropdown.active .btn-browser-edge {
-            opacity: 0.9;
+        /* Ensure browser icon in dropdown matches the text color */
+        .browser-option[data-browser="Chrome"] .browser-icon {
+            color: #4285F4;
+        }
+
+        .browser-option[data-browser="Firefox"] .browser-icon {
+            color: #FF9400;
+        }
+
+        .browser-option[data-browser="Edge"] .browser-icon {
+            color: #0078D7;
         }
     </style>
 </head>
