@@ -2257,14 +2257,14 @@ export default function Home() {
 
         /* Chrome styling */
         .browser-option[data-browser="Chrome"] {
-            color:rgb(205, 220, 245);
+            color:rgb(167, 183, 209);
         }
 
         .browser-option[data-browser="Chrome"]:hover,
         .browser-option[data-browser="Chrome"]:active,
         .browser-option[data-browser="Chrome"]:focus {
             background: linear-gradient(45deg, rgba(66, 133, 244, 0.15), rgba(15, 157, 88, 0.15));
-            color:rgb(209, 227, 255);
+            color: #4285F4;
             transform: translateY(-2px);
         }
 
@@ -2353,62 +2353,63 @@ export default function Home() {
         <section class="section" id="features">
             <div class="content-section">
                 <h2>Explore the Learnitab Universe</h2>
-                
-                <!-- First Scroll -->
-                <div class="features-page">
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <img src="https://learnitab.com/images/Learnitab_page-0001.jpg" alt="Time Management" class="feature-image">
-                            <div class="feature-content">
-                                <h3>⏰ Time Management</h3>
-                                <p>Stay on top of your tasks with our intelligent Todo List and visualize important dates with Countdown Timers.</p>
+                <div class="features-container">
+                    <!-- First Scroll -->
+                    <div class="features-page">
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0001.jpg" alt="Time Management" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>⏰ Time Management</h3>
+                                    <p>Stay on top of your tasks with our intelligent Todo List and visualize important dates with Countdown Timers.</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="feature-card">
-                            <img src="https://learnitab.com/images/Learnitab_page-0002.jpg" alt="Student Tools" class="feature-image">
-                            <div class="feature-content">
-                                <h3>🎯 Student Tools</h3>
-                                <p>Access KBBI, Gramatika, Wikipedia, Scientific Calculator, and Pomodoro Timer all in one place for seamless studying.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Second Scroll -->
-                <div class="features-page">
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <img src="https://learnitab.com/images/Learnitab_page-0003.jpg" alt="AI Assistance" class="feature-image">
-                            <div class="feature-content">
-                                <h3>🤖 AI Assistance</h3>
-                                <p>Get instant help with research, writing, and problem-solving using integrated ChatGPT and Google Gemini.</p>
-                            </div>
-                        </div>
-                        <div class="feature-card">
-                            <img src="https://learnitab.com/images/Learnitab_page-0004.jpg" alt="Spotify Integration" class="feature-image">
-                            <div class="feature-content">
-                                <h3>🎵 Spotify Integration</h3>
-                                <p>Access your favorite study playlists without leaving your dashboard, creating the perfect ambiance for productive work.</p>
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0002.jpg" alt="Student Tools" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>🎯 Student Tools</h3>
+                                    <p>Access KBBI, Gramatika, Wikipedia, Scientific Calculator, and Pomodoro Timer all in one place for seamless studying.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Third Scroll -->
-                <div class="features-page">
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <img src="https://learnitab.com/images/Learnitab_page-0005.jpg" alt="Personalization" class="feature-image">
-                            <div class="feature-content">
-                                <h3>🎨 Personalization</h3>
-                                <p>Set the perfect mood for your study sessions with customizable backgrounds and choose between Dark/Light Mode for comfort.</p>
+                    
+                    <!-- Second Scroll -->
+                    <div class="features-page">
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0003.jpg" alt="AI Assistance" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>🤖 AI Assistance</h3>
+                                    <p>Get instant help with research, writing, and problem-solving using integrated ChatGPT and Google Gemini.</p>
+                                </div>
+                            </div>
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0004.jpg" alt="Spotify Integration" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>🎵 Spotify Integration</h3>
+                                    <p>Access your favorite study playlists without leaving your dashboard, creating the perfect ambiance for productive work.</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="feature-card">
-                            <img src="https://learnitab.com/images/Learnitab_page-0006.jpg" alt="Dual-Mode Interface" class="feature-image">
-                            <div class="feature-content">
-                                <h3>🔄 Dual-Mode Interface</h3>
-                                <p>Choose between Focus Mode for distraction-free work and Explore Opportunity Mode to discover new possibilities and resources.</p>
+                    </div>
+                    
+                    <!-- Third Scroll -->
+                    <div class="features-page">
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0005.jpg" alt="Personalization" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>🎨 Personalization</h3>
+                                    <p>Set the perfect mood for your study sessions with customizable backgrounds and choose between Dark/Light Mode for comfort.</p>
+                                </div>
+                            </div>
+                            <div class="feature-card">
+                                <img src="https://learnitab.com/images/Learnitab_page-0006.jpg" alt="Dual-Mode Interface" class="feature-image">
+                                <div class="feature-content">
+                                    <h3>🔄 Dual-Mode Interface</h3>
+                                    <p>Choose between Focus Mode for distraction-free work and Explore Opportunity Mode to discover new possibilities and resources.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
