@@ -2648,8 +2648,22 @@ export default function Home() {
                 // Only reverse horizontal rotation for About and Contact sections
                 if (currentScrollSection.closest('#about') || currentScrollSection.closest('#contact')) {
                     city.rotation.y += ((mouse.x * 8) - camera.rotation.y) * uSpeed;
+                    // Add zoom out effect for About section
+                    if (currentScrollSection.closest('#about')) {
+                        TweenMax.to(camera.position, 1, {
+                            z: 16.8, // 20% zoom out from original 14
+                            ease: Power1.easeInOut
+                        });
+                    }
                 } else {
                     city.rotation.y -= ((mouse.x * 8) - camera.rotation.y) * uSpeed;
+                    // Reset zoom when leaving About section
+                    if (!currentScrollSection.closest('#about')) {
+                        TweenMax.to(camera.position, 1, {
+                            z: 14,
+                            ease: Power1.easeInOut
+                        });
+                    }
                 }
                 // Keep vertical rotation consistent across all sections
                 city.rotation.x -= (-(mouse.y * 2) - camera.rotation.x) * uSpeed;
