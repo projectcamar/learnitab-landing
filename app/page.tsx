@@ -2405,42 +2405,30 @@ export default function Home() {
         var intersected;
 
         function onMouseMove(event) {
-            // Only handle mouse events if not in mobile mode
-            if (!isMobile) {
-                event.preventDefault();
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            }
+            event.preventDefault();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         }
 
         function onDocumentTouchStart(event) {
-            // Only handle touch events if not in mobile mode
-            if (!isMobile) {
-                if (event.touches.length == 1) {
-                    event.preventDefault();
-                    mouse.x = event.touches[0].pageX - window.innerWidth / 2;
-                    mouse.y = event.touches[0].pageY - window.innerHeight / 2;
-                }
+            if (event.touches.length == 1) {
+                event.preventDefault();
+                mouse.x = event.touches[0].pageX - window.innerWidth / 2;
+                mouse.y = event.touches[0].pageY - window.innerHeight / 2;
             }
         }
 
         function onDocumentTouchMove(event) {
-            // Only handle touch events if not in mobile mode
-            if (!isMobile) {
-                if (event.touches.length == 1) {
-                    event.preventDefault();
-                    mouse.x = event.touches[0].pageX - window.innerWidth / 2;
-                    mouse.y = event.touches[0].pageY - window.innerHeight / 2;
-                }
+            if (event.touches.length == 1) {
+                event.preventDefault();
+                mouse.x = event.touches[0].pageX - window.innerWidth / 2;
+                mouse.y = event.touches[0].pageY - window.innerHeight / 2;
             }
         }
 
-        // Only add event listeners if not in mobile mode
-        if (!isMobile) {
-            window.addEventListener('mousemove', onMouseMove, false);
-            window.addEventListener('touchstart', onDocumentTouchStart, false);
-            window.addEventListener('touchmove', onDocumentTouchMove, false);
-        }
+        window.addEventListener('mousemove', onMouseMove, false);
+        window.addEventListener('touchstart', onDocumentTouchStart, false);
+        window.addEventListener('touchmove', onDocumentTouchMove, false);
 
         //----------------------------------------------------------------- Lights
         var ambientLight = new THREE.AmbientLight(0xFFFFFF, 4);
@@ -2661,16 +2649,14 @@ export default function Home() {
                 city.rotation.y += 0.001; // Slow continuous rotation
                 city.rotation.x = 0.3; // Fixed slight tilt for better view
                 
-                // Prevent all touch events on the canvas
-                const canvas = renderer.domElement;
-                canvas.style.touchAction = 'none';
-                canvas.style.pointerEvents = 'none';
+                // Prevent touch events on the background
+                document.body.style.touchAction = 'none';
+                document.body.style.pointerEvents = 'none';
                 
                 // Make sure the content sections remain touchable
                 const sections = document.querySelectorAll('.section');
                 sections.forEach(section => {
                     section.style.pointerEvents = 'auto';
-                    section.style.touchAction = 'pan-y'; // Allow vertical scrolling
                 });
             } else {
                 // Restore normal touch behavior when not in mobile
@@ -2728,7 +2714,9 @@ export default function Home() {
             const navDots = document.querySelectorAll('.nav-dot');
             const featuresSection = document.getElementById('features');
             const featuresContainer = document.querySelector('.features-container');
+            const aboutContainer = document.querySelector('.about-container');
             let isScrolling = false;
+            let scrollTimeout;
 
             // Function to determine which section is most visible in the viewport
             function getCurrentSection() {
@@ -2772,9 +2760,12 @@ export default function Home() {
                         snapToNearestSection();
                     }
                 }
-            }, 1000); // Check every second
+            }, 1000);
 
-            window.addEventListener('wheel', function(e) {
+            // Function to handle scroll events
+            function handleScroll(e) {
+                if (isScrolling) return;
+                
                 const currentSection = getCurrentSection();
                 const isInFeatures = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2).closest('#features');
                 const isInAbout = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2).closest('#about');
@@ -2782,41 +2773,64 @@ export default function Home() {
                 if (isInFeatures || isInAbout) {
                     e.preventDefault();
                     
-                    const container = isInFeatures ? featuresContainer : document.querySelector('.about-container');
+                    const container = isInFeatures ? featuresContainer : aboutContainer;
                     const pages = container.querySelectorAll(isInFeatures ? '.features-page' : '.about-page');
                     const scrollAmount = container.scrollTop;
                     const pageHeight = container.clientHeight;
                     const totalHeight = pageHeight * (pages.length - 1);
                     
+                    // Prevent overscrolling
                     if (e.deltaY > 0 && scrollAmount >= totalHeight) {
-                        // Move to next main section
-                        sections[currentSection + 1].scrollIntoView({ behavior: 'smooth' });
-                        updateNavDots(currentSection + 1);
+                        // Move to next main section if not at the end
+                        if (currentSection < sections.length - 1) {
+                            isScrolling = true;
+                            sections[currentSection + 1].scrollIntoView({ behavior: 'smooth' });
+                            updateNavDots(currentSection + 1);
+                            setTimeout(() => isScrolling = false, 1000);
+                        }
                     } else if (e.deltaY < 0 && scrollAmount <= 0) {
-                        // Move to previous main section
-                        sections[currentSection - 1].scrollIntoView({ behavior: 'smooth' });
-                        updateNavDots(currentSection - 1);
+                        // Move to previous main section if not at the start
+                        if (currentSection > 0) {
+                            isScrolling = true;
+                            sections[currentSection - 1].scrollIntoView({ behavior: 'smooth' });
+                            updateNavDots(currentSection - 1);
+                            setTimeout(() => isScrolling = false, 1000);
+                        }
                     } else {
-                        container.scrollBy({
-                            top: e.deltaY > 0 ? pageHeight : -pageHeight,
+                        // Scroll within the container
+                        const scrollDirection = e.deltaY > 0 ? 1 : -1;
+                        const targetScroll = Math.max(0, Math.min(totalHeight, scrollAmount + (pageHeight * scrollDirection)));
+                        
+                        container.scrollTo({
+                            top: targetScroll,
                             behavior: 'smooth'
                         });
                     }
                 } else {
                     // Normal section scrolling
-                    if (isScrolling) return;
-                    
                     isScrolling = true;
-                    setTimeout(() => isScrolling = false, 1000);
+                    
+                    // Clear any existing timeout
+                    if (scrollTimeout) clearTimeout(scrollTimeout);
+                    
+                    // Set new timeout
+                    scrollTimeout = setTimeout(() => {
+                        isScrolling = false;
+                    }, 1000);
 
                     const nextSection = e.deltaY > 0 ? currentSection + 1 : currentSection - 1;
                     
+                    // Only scroll if we're not at the boundaries
                     if (nextSection >= 0 && nextSection < sections.length) {
                         sections[nextSection].scrollIntoView({ behavior: 'smooth' });
                         updateNavDots(nextSection);
                     }
                 }
-            }, { passive: false });
+            }
+
+            // Add scroll event listeners
+            window.addEventListener('wheel', handleScroll, { passive: false });
+            window.addEventListener('touchmove', handleScroll, { passive: false });
 
             // Update click handlers for nav dots
             navDots.forEach((dot, index) => {
@@ -2825,6 +2839,10 @@ export default function Home() {
                     updateNavDots(index);
                 });
             });
+
+            // Prevent overscroll bounce on mobile
+            document.body.style.overscrollBehavior = 'none';
+            document.documentElement.style.overscrollBehavior = 'none';
         });
 
         // Add this function to handle window resize
