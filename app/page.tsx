@@ -1786,525 +1786,78 @@ export default function Home() {
 
         /* Footer styles for centered content */
         .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .footer-center-content {
-            margin: 2rem auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            max-width: 600px;
-        }
-
-        .trusted-footer {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            padding: 0.75rem 1.5rem;
-            background: rgba(147, 51, 234, 0.1);
-            border-radius: 100px;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.9);
-            display: inline-flex;
-        }
-
-        .support-text {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 0.75rem;
-            font-weight: 500;
-        }
-
-        .footer-donation-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        .footer-donation-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            background: rgba(147, 51, 234, 0.1);
-            border-radius: 0.75rem;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            min-width: 90px;
-        }
-
-        @media (max-width: 768px) {
-            .footer-donation-links {
-                flex-wrap: wrap;
-            }
-            
-            .footer-donation-link {
-                width: auto;
-                min-width: 80px;
-            }
-        }
-
-        /* Restructured footer layout styles */
-        .footer-content {
-            text-align: center;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .footer-wrapper {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 70vh;
-            padding-bottom: 5rem; /* Extra padding at bottom to account for cinematic bar */
-        }
-
-        .footer-title-section {
-            margin-top: 2rem;
-        }
-
-        .footer-title-section h4 {
-            margin-bottom: 0.5rem;
-            font-size: 1.8rem;
-        }
-
-        .footer-center-content {
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            max-width: 600px;
-        }
-
-        .trusted-footer {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            padding: 0.75rem 1.5rem;
-            background: rgba(147, 51, 234, 0.1);
-            border-radius: 100px;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.9);
-            display: inline-flex;
-        }
-
-        .support-text {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 0.75rem;
-            font-weight: 500;
-        }
-
-        .footer-donation-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        .footer-donation-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            background: rgba(147, 51, 234, 0.1);
-            border-radius: 0.75rem;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            min-width: 90px;
-        }
-
-        .privacy-policy-link {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.85rem;
-        }
-
-        .privacy-policy-link a {
-            color: rgba(255, 255, 255, 0.6);
-            transition: color 0.2s ease;
-        }
-
-        .privacy-policy-link a:hover {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .footer-wrapper {
-                padding-bottom: 6rem; /* Even more padding on mobile */
-            }
-            
-            .footer-donation-links {
-                flex-wrap: wrap;
-            }
-            
-            .footer-donation-link {
-                width: auto;
-                min-width: 80px;
-            }
-        }
-
-        /* Restructured footer layout styles */
-        .footer-content {
-            text-align: center;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .footer-wrapper {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 70vh;
-            padding-bottom: 5rem; /* Extra padding at bottom to account for cinematic bar */
-        }
-
-        .trusted-banner-container {
-            margin-top: 2rem;
-            display: flex;
-            justify-content: center;
-        }
-
-        .trusted-footer {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: rgba(147, 51, 234, 0.1);
-            border-radius: 100px;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.9);
-            display: inline-flex;
-        }
-
-        .footer-center-content {
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            max-width: 600px;
-        }
-
-        .footer-title-section {
-            margin-bottom: 1.5rem;
-        }
-
-        .footer-title-section h4 {
-            margin-bottom: 0.5rem;
-            font-size: 1.8rem;
-        }
-
-        .support-text {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 0.75rem;
-            font-weight: 500;
-        }
-
-        .footer-donation-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        .footer-donation-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            background: rgba(147, 51, 234, 0.1);
-            border-radius: 0.75rem;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            min-width: 90px;
-        }
-
-        .privacy-policy-link {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.85rem;
-        }
-
-        .privacy-policy-link a {
-            color: rgba(255, 255, 255, 0.6);
-            transition: color 0.2s ease;
-        }
-
-        .privacy-policy-link a:hover {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .footer-wrapper {
-                padding-bottom: 6rem; /* Even more padding on mobile */
-            }
-            
-            .footer-donation-links {
-                flex-wrap: wrap;
-            }
-            
-            .footer-donation-link {
-                width: auto;
-                min-width: 80px;
-            }
-        }
-
-        /* Apply consistent container styling to main section containers */
-        .enhanced-benefits,
-        .about-text,
-        .features-page,
-        .contact-form-container {
-            position: relative;
-            background: rgba(20, 20, 40, 0.7) !important;
-            border-radius: 1.5rem !important;
-            border: 1px solid rgba(147, 51, 234, 0.3) !important;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
-            overflow: hidden;
-            padding: 2rem !important;
-            max-width: 90%;
-            margin: 0 auto;
-        }
-
-        /* Add floating shapes to each container for visual interest */
-        .enhanced-benefits::before,
-        .about-text::before,
-        .features-page::before,
-        .contact-form-container::before {
-            content: '';
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(45deg, rgba(147, 51, 234, 0.15), rgba(79, 70, 229, 0.15));
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            right: -40px;
-            bottom: -40px;
-            z-index: 1;
-        }
-
-        .enhanced-benefits::after,
-        .about-text::after,
-        .features-page::after,
-        .contact-form-container::after {
-            content: '';
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(45deg, rgba(79, 70, 229, 0.15), rgba(147, 51, 234, 0.15));
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            left: -20px;
-            top: -20px;
-            z-index: 1;
-        }
-
-        /* Make sure content is above the decorative elements */
-        .about-text .section-divider,
-        .about-text h3,
-        .about-text p,
-        .benefits-grid,
-        .features-page > *,
-        .contact-form-container > * {
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Enhanced styling for footer section */
-        .footer-content {
-            position: relative;
-            background: rgba(20, 20, 40, 0.7);
-            border-radius: 1.5rem;
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-            max-width: 90%;
-            margin: 2rem auto;
             padding: 2rem;
-            overflow: hidden;
+            max-width: 90%;
+            margin: 0 auto;
         }
 
         .footer-wrapper {
-            position: relative;
-            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh;
+            padding-bottom: 5rem;
         }
 
-        /* Add decorative elements to footer */
-        .footer-bg-element {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.15;
-            background: linear-gradient(45deg, #9333EA, #4F46E5);
+        .footer-title-section {
+            margin-top: 2rem;
+            text-align: center;
         }
 
-        .footer-bg-element.elem-1 {
-            width: 200px;
-            height: 200px;
-            top: -100px;
-            right: -50px;
+        .footer-donation-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
-        .footer-bg-element.elem-2 {
-            width: 150px;
-            height: 150px;
-            bottom: -50px;
-            left: -50px;
-        }
-
-        .footer-bg-element.elem-3 {
-            width: 100px;
-            height: 100px;
-            top: 30%;
-            right: 10%;
-        }
-
-        /* Consistent hover effects across all interactive elements */
-        .benefit-item:hover,
-        .footer-donation-link:hover,
-        .about-text a:hover,
-        .features-page a:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(147, 51, 234, 0.3);
+        .footer-donation-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
             background: rgba(147, 51, 234, 0.1);
+            border-radius: 0.75rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
         }
 
-        /* Apply for mobile */
-        @media (max-width: 768px) {
-            .enhanced-benefits,
-            .about-text,
-            .features-page,
-            .contact-form-container,
-            .footer-content {
-                max-width: 95%;
-                padding: 1.5rem !important;
-            }
-            
-            .enhanced-benefits::before,
-            .about-text::before,
-            .features-page::before,
-            .contact-form-container::before,
-            .footer-bg-element {
-                transform: scale(0.7);
-            }
+        .trusted-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 100px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            display: inline-flex;
         }
 
-        /* Add these styles to fix the button size and spacing issues */
-        .btn-primary.btn-with-icon {
-            min-width: 200px; /* Fixed width for the button */
+        .support-text {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .privacy-policy-link {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
             text-align: center;
-            white-space: nowrap;
-        }
-
-        #browser-prefix {
-            margin-right: -4px; /* Remove the gap between "Add to your" and browser name */
-        }
-
-        #rotating-browser {
-            font-weight: 700;
-            transition: opacity 0.4s ease;
-            display: inline-block; /* Ensure consistent spacing */
-        }
-
-        /* Add browser-specific button styling */
-        .btn-browser-chrome {
-            background: linear-gradient(45deg, #4285F4, #0F9D58);
-            border-color: #4285F4;
-        }
-
-        .btn-browser-firefox {
-            background: linear-gradient(45deg, #FF9400, #FF4B2B);
-            border-color: #FF9400;
-        }
-
-        .btn-browser-edge {
-            background: linear-gradient(45deg, #0078D7, #41A5EE);
-            border-color: #0078D7;
-        }
-
-        .btn-primary.btn-with-icon {
-            min-width: 200px; /* Fixed width for the button */
-            text-align: center;
-            white-space: nowrap;
-            transition: background 0.4s ease, border-color 0.4s ease; /* Add transition for background */
-        }
-
-        /* Add browser-specific styling for dropdown options */
-        .browser-option {
-            transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
-        }
-
-        /* Chrome styling */
-        .browser-option[data-browser="Chrome"] {
-            color:rgb(167, 183, 209);
-        }
-
-        .browser-option[data-browser="Chrome"]:hover,
-        .browser-option[data-browser="Chrome"]:active,
-        .browser-option[data-browser="Chrome"]:focus {
-            background: linear-gradient(45deg, rgba(66, 133, 244, 0.15), rgba(15, 157, 88, 0.15));
-            color: #4285F4;
-            transform: translateY(-2px);
-        }
-
-        /* Firefox styling */
-        .browser-option[data-browser="Firefox"] {
-            color: #FF9400;
-        }
-
-        .browser-option[data-browser="Firefox"]:hover,
-        .browser-option[data-browser="Firefox"]:active,
-        .browser-option[data-browser="Firefox"]:focus {
-            background: linear-gradient(45deg, rgba(255, 148, 0, 0.15), rgba(255, 75, 43, 0.15));
-            color: #FF9400;
-            transform: translateY(-2px);
-        }
-
-        /* Edge styling */
-        .browser-option[data-browser="Edge"] {
-            color: #0078D7;
-        }
-
-        .browser-option[data-browser="Edge"]:hover,
-        .browser-option[data-browser="Edge"]:active,
-        .browser-option[data-browser="Edge"]:focus {
-            background: linear-gradient(45deg, rgba(0, 120, 215, 0.15), rgba(65, 165, 238, 0.15));
-            color: #0078D7;
-            transform: translateY(-2px);
-        }
-
-        /* Ensure browser icon in dropdown matches the text color */
-        .browser-option[data-browser="Chrome"] .browser-icon {
-            color: #4285F4;
-        }
-
-        .browser-option[data-browser="Firefox"] .browser-icon {
-            color: #FF9400;
-        }
-
-        .browser-option[data-browser="Edge"] .browser-icon {
-            color: #0078D7;
         }
     </style>
 </head>
