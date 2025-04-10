@@ -2655,10 +2655,17 @@ export default function Home() {
                             ease: Power1.easeInOut
                         });
                     }
+                    // Add zoom in effect for Contact section
+                    if (currentScrollSection.closest('#contact')) {
+                        TweenMax.to(camera.position, 1, {
+                            z: 7, // 100% zoom in (half the original distance)
+                            ease: Power1.easeInOut
+                        });
+                    }
                 } else {
                     city.rotation.y -= ((mouse.x * 8) - camera.rotation.y) * uSpeed;
-                    // Reset zoom when leaving About section
-                    if (!currentScrollSection.closest('#about')) {
+                    // Reset zoom when leaving About or Contact sections
+                    if (!currentScrollSection.closest('#about') && !currentScrollSection.closest('#contact')) {
                         TweenMax.to(camera.position, 1, {
                             z: 14,
                             ease: Power1.easeInOut
