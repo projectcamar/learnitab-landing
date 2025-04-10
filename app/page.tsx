@@ -1877,11 +1877,11 @@ export default function Home() {
         }
 
         .btn-browser-firefox {
-            background: linear-gradient(90deg, #e66000 0%, #ff9500 20%, #ffcb00 40%, #00539f 60%, #0095dd 80%, #331e54 100%);
+            background: linear-gradient(90deg, #FF7139 0%, #FFB74D 50%, #1E90FF 100%);
         }
 
         .btn-browser-firefox:hover {
-            background: linear-gradient(90deg, #331e54 0%, #0095dd 20%, #00539f 40%, #ffcb00 60%, #ff9500 80%, #e66000 100%);
+            background: linear-gradient(90deg, #1E90FF 0%, #FFB74D 50%, #FF7139 100%);
         }
 
         .browser-icon {
@@ -1917,6 +1917,25 @@ export default function Home() {
         }
         .browser-option.edge:hover {
             background: #0078D7 !important;
+        }
+
+        @keyframes shine {
+            0% {
+                color: rgba(255, 255, 255, 0.8);
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                color: rgba(255, 255, 255, 1);
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            }
+            100% {
+                color: rgba(255, 255, 255, 0.8);
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        .shining-text {
+            animation: shine 2s infinite;
         }
     </style>
 </head>
@@ -1956,7 +1975,7 @@ export default function Home() {
                     </div>
                     <a href="https://learnitab.com/app" 
                        class="btn btn-secondary">
-                        Learnitab Opportunity Portal #KaburAjaDulu
+                        Learnitab Opportunity Portal <span class="shining-text">#KaburAjaDulu</span>
                     </a>
                 </div>
             </div>
