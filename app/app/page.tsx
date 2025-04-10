@@ -739,6 +739,7 @@ export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [salaryRange, setSalaryRange] = useState({ min: 0, max: Infinity });
   const [isRemoteOnly, setIsRemoteOnly] = useState(false);
+  const [hasVisaSponsorship, setHasVisaSponsorship] = useState(false);
 
   // Add mentor-specific filter options
   const filterOptions = {
@@ -833,16 +834,28 @@ export default function Home() {
         </select>
 
         {currentCategory === 'jobs' && (
-          <button
-            onClick={() => setIsRemoteOnly(!isRemoteOnly)}
-            className={`flex items-center px-2 py-1.5 rounded-lg transition-colors text-sm ${
-              isRemoteOnly 
-                ? 'bg-blue-50 text-blue-600 border border-blue-200' 
-                : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
-            }`}
-          >
-            <span>🌍</span>
-          </button>
+          <>
+            <button
+              onClick={() => setIsRemoteOnly(!isRemoteOnly)}
+              className={`flex items-center px-2 py-1.5 rounded-lg transition-colors text-sm ${
+                isRemoteOnly 
+                  ? 'bg-blue-50 text-blue-600 border border-blue-200' 
+                  : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
+              }`}
+            >
+              <span>🌍</span>
+            </button>
+            <button
+              onClick={() => setHasVisaSponsorship(!hasVisaSponsorship)}
+              className={`flex items-center px-2 py-1.5 rounded-lg transition-colors text-sm ${
+                hasVisaSponsorship 
+                  ? 'bg-green-50 text-green-600 border border-green-200' 
+                  : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
+              }`}
+            >
+              <span>✈️</span>
+            </button>
+          </>
         )}
       </div>
     </div>
@@ -876,6 +889,16 @@ export default function Home() {
         
         // Remote filter
         if (isRemoteOnly && !post.remote) return false;
+
+        // Visa sponsorship filter
+        if (hasVisaSponsorship) {
+          const description = post.body?.toString().toLowerCase() || '';
+          const hasVisaKeywords = description.includes('visa sponsorship') || 
+                                description.includes('relocation support') ||
+                                description.includes('work visa') ||
+                                description.includes('sponsor visa');
+          if (!hasVisaKeywords) return false;
+        }
       }
       
       return true;
