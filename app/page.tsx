@@ -2932,6 +2932,55 @@ export default function Home() {
                 }
             });
         });
+
+        // Add reflective material for the freeze state
+        var reflectiveMaterial = new THREE.MeshStandardMaterial({
+            color: footerBuildingColor,
+            metalness: 0.8,
+            roughness: 0.2,
+            envMap: scene.background
+        });
+
+        function applyReflectionEffect() {
+            town.children.forEach(building => {
+                if (building.material) {
+                    building.material = reflectiveMaterial;
+                }
+            });
+        }
+
+        function removeReflectionEffect() {
+            town.children.forEach(building => {
+                if (building.material) {
+                    building.material = new THREE.MeshStandardMaterial({
+                        color: normalBuildingColor,
+                        metalness: 0.6,
+                        roughness: 0.4
+                    });
+                }
+            });
+        }
+
+        // Modify the animate function to apply the reflection effect
+        function animate() {
+            var time = Date.now() * 0.00005;
+            requestAnimationFrame(animate);
+            
+            const currentScrollSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+            const isInFooter = currentScrollSection.closest('#footer');
+            
+            if (isInFooter && !isTransitioning) {
+                isTransitioning = true;
+                applyReflectionEffect();
+                // ... existing code ...
+            } else if (!isInFooter && isTransitioning) {
+                isTransitioning = false;
+                removeReflectionEffect();
+                // ... existing code ...
+            }
+
+            // ... existing code ...
+        }
     </script>
 </body>
 </html>
