@@ -739,7 +739,6 @@ export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [salaryRange, setSalaryRange] = useState({ min: 0, max: Infinity });
   const [isRemoteOnly, setIsRemoteOnly] = useState(false);
-  const [hasVisaSponsorship, setHasVisaSponsorship] = useState(false);
 
   // Add mentor-specific filter options
   const filterOptions = {
@@ -834,28 +833,16 @@ export default function Home() {
         </select>
 
         {currentCategory === 'jobs' && (
-          <>
-            <button
-              onClick={() => setIsRemoteOnly(!isRemoteOnly)}
-              className={`flex items-center px-2 py-1.5 rounded-lg transition-colors text-sm ${
-                isRemoteOnly 
-                  ? 'bg-blue-50 text-blue-600 border border-blue-200' 
-                  : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
-              }`}
-            >
-              <span>🌍</span>
-            </button>
-            <button
-              onClick={() => setHasVisaSponsorship(!hasVisaSponsorship)}
-              className={`flex items-center px-2 py-1.5 rounded-lg transition-colors text-sm ${
-                hasVisaSponsorship 
-                  ? 'bg-green-50 text-green-600 border border-green-200' 
-                  : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
-              }`}
-            >
-              <span>✈️</span>
-            </button>
-          </>
+          <button
+            onClick={() => setIsRemoteOnly(!isRemoteOnly)}
+            className={`flex items-center px-2 py-1.5 rounded-lg transition-colors text-sm ${
+              isRemoteOnly 
+                ? 'bg-blue-50 text-blue-600 border border-blue-200' 
+                : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
+            }`}
+          >
+            <span>🌍</span>
+          </button>
         )}
       </div>
     </div>
@@ -889,16 +876,6 @@ export default function Home() {
         
         // Remote filter
         if (isRemoteOnly && !post.remote) return false;
-
-        // Visa sponsorship filter
-        if (hasVisaSponsorship) {
-          const description = post.body?.toString().toLowerCase() || '';
-          const hasVisaKeywords = description.includes('visa sponsorship') || 
-                                description.includes('relocation support') ||
-                                description.includes('work visa') ||
-                                description.includes('sponsor visa');
-          if (!hasVisaKeywords) return false;
-        }
       }
       
       return true;
@@ -1227,7 +1204,7 @@ export default function Home() {
         </h2>
         
         <p className="text-gray-600 mb-4 max-w-lg mt-1">
-          Your gateway to discovering amazing opportunities in internships, competitions, scholarships, and mentorship. Select an opportunity from the left to get started~!
+          Your gateway to discovering amazing opportunities in jobs and mentorship. Select an opportunity from the left to get started~!
         </p>
 
         <div className="flex items-center gap-6">
@@ -1592,6 +1569,62 @@ export default function Home() {
           .custom-scrollbar::-webkit-scrollbar-thumb {
             background-color: rgba(156, 163, 175, 0.5);
             border-radius: 3px;
+          }
+        `}</style>
+
+        <style jsx>{`
+          .onboarding-button {
+            background: linear-gradient(45deg, #0066ff, #2e89ff);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+        `}</style>
+
+        <style jsx>{`
+          .glitch-text {
+            font-size: 48px;
+            color: white;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: glitch 5s infinite;
+          }
+        `}</style>
+
+        <style jsx>{`
+          .glowing-rings {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+          }
+
+          .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            animation: expand 10s infinite ease-out;
+          }
+        `}</style>
+
+        <style jsx>{`
+          .circle.c1 {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+          }
+          .circle.c2 {
+            background: linear-gradient(135deg, #3b82f6, #2dd4bf);
+          }
+          .circle.c3 {
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+          }
+          .circle.c4 {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+          }
+          .circle.c5 {
+            background: linear-gradient(135deg, #f97316, #eab308);
           }
         `}</style>
       </div>
