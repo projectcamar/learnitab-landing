@@ -1861,11 +1861,13 @@ export default function Home() {
         }
 
         .btn-browser-chrome {
-            background: linear-gradient(90deg, #4285F4 0%, #4285F4 25%, #EA4335 25%, #EA4335 50%, #FBBC05 50%, #FBBC05 75%, #34A853 75%, #34A853 100%);
+            background: linear-gradient(15deg, #4285F4 0%, #4285F4 25%, #EA4335 25%, #EA4335 50%, #FBBC05 50%, #FBBC05 75%, #34A853 75%, #34A853 100%);
+            transition: none; /* Remove transition effect */
         }
 
         .btn-browser-chrome:hover {
-            background: linear-gradient(90deg, #34A853 0%, #34A853 25%, #FBBC05 25%, #FBBC05 50%, #EA4335 50%, #EA4335 75%, #4285F4 75%, #4285F4 100%);
+            background: linear-gradient(15deg, #34A853 0%, #34A853 25%, #FBBC05 25%, #FBBC05 50%, #EA4335 50%, #EA4335 75%, #4285F4 75%, #4285F4 100%);
+            transition: none; /* Remove transition effect */
         }
 
         .btn-browser-edge {
