@@ -1859,6 +1859,60 @@ export default function Home() {
             font-size: 0.85rem;
             text-align: center;
         }
+
+        .btn-browser-chrome {
+            background: #4285F4 !important;
+        }
+        .btn-browser-chrome:hover {
+            background: #3367D6 !important;
+        }
+        .btn-browser-firefox {
+            background: #FF9500 !important;
+        }
+        .btn-browser-firefox:hover {
+            background: #E68600 !important;
+        }
+        .btn-browser-edge {
+            background: #0078D7 !important;
+        }
+        .btn-browser-edge:hover {
+            background: #0066B4 !important;
+        }
+
+        .browser-icon {
+            color: white;
+            transition: color 0.3s ease;
+        }
+
+        .browser-option {
+            background: rgba(0, 0, 0, 0.8) !important;
+            transition: all 0.3s ease;
+        }
+
+        .browser-option.chrome {
+            background: rgba(66, 133, 244, 0.8) !important;
+        }
+        .browser-option.firefox {
+            background: rgba(255, 149, 0, 0.8) !important;
+        }
+        .browser-option.edge {
+            background: rgba(0, 120, 215, 0.8) !important;
+        }
+
+        .browser-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .browser-option.chrome:hover {
+            background: #4285F4 !important;
+        }
+        .browser-option.firefox:hover {
+            background: #FF9500 !important;
+        }
+        .browser-option.edge:hover {
+            background: #0078D7 !important;
+        }
     </style>
 </head>
 <body>
@@ -1882,15 +1936,15 @@ export default function Home() {
                         </button>
                         <div class="browser-options">
                             <a href="https://chromewebstore.google.com/detail/learnitab-your-all-in-one/gpfbhkcbpgghppecgkdnipkmnojaeblj" 
-                               class="browser-option" data-browser="Chrome">
+                               class="browser-option chrome" data-browser="Chrome">
                                 <i class="fab fa-chrome browser-icon"></i>
                             </a>
                             <a href="https://microsoftedge.microsoft.com/addons/detail/learnitab-study-with-kp/hgmcgdhikmfcnkngnfenmcppmbbhdaaf" 
-                               class="browser-option" data-browser="Edge">
+                               class="browser-option edge" data-browser="Edge">
                                 <i class="fab fa-edge browser-icon"></i>
                             </a>
                             <a href="https://addons.mozilla.org/en-US/firefox/addon/learnitab-study-dashboard/" 
-                               class="browser-option" data-browser="Firefox">
+                               class="browser-option firefox" data-browser="Firefox">
                                 <i class="fab fa-firefox browser-icon"></i>
                             </a>
                         </div>
