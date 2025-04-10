@@ -382,12 +382,13 @@ export default function Home() {
             border: none;
             position: relative;
             z-index: 1;
+            transition: none; /* Remove transition effect */
         }
 
         .btn-primary:hover {
             background: #7928CA;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(147, 51, 234, 0.3);
+            transform: none; /* Remove transform effect */
+            box-shadow: none; /* Remove box-shadow effect if needed */
         }
 
         .btn-secondary {
@@ -1938,6 +1939,10 @@ export default function Home() {
 
         .shining-text {
             animation: shine 2s infinite;
+        }
+
+        .btn-wave::before {
+            animation: none; /* Remove wave animation */
         }
     </style>
 </head>
