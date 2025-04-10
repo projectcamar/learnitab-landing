@@ -1861,22 +1861,27 @@ export default function Home() {
         }
 
         .btn-browser-chrome {
-            background: #4285F4 !important;
+            background: linear-gradient(45deg, #1DA462, #DD5144, #FFCD46, #4C8BF5);
         }
+
         .btn-browser-chrome:hover {
-            background: #3367D6 !important;
+            background: linear-gradient(45deg, #4C8BF5, #FFCD46, #DD5144, #1DA462);
         }
-        .btn-browser-firefox {
-            background: #FF9500 !important;
-        }
-        .btn-browser-firefox:hover {
-            background: #E68600 !important;
-        }
+
         .btn-browser-edge {
-            background: #0078D7 !important;
+            background: linear-gradient(45deg, #55d555, #2bc3d2, #40bfff, #057fd7, #104e92);
         }
+
         .btn-browser-edge:hover {
-            background: #0066B4 !important;
+            background: linear-gradient(45deg, #104e92, #057fd7, #40bfff, #2bc3d2, #55d555);
+        }
+
+        .btn-browser-firefox {
+            background: linear-gradient(45deg, #e66000, #ff9500, #ffcb00, #00539f, #0095dd, #331e54);
+        }
+
+        .btn-browser-firefox:hover {
+            background: linear-gradient(45deg, #331e54, #0095dd, #00539f, #ffcb00, #ff9500, #e66000);
         }
 
         .browser-icon {
@@ -2932,55 +2937,6 @@ export default function Home() {
                 }
             });
         });
-
-        // Add reflective material for the freeze state
-        var reflectiveMaterial = new THREE.MeshStandardMaterial({
-            color: footerBuildingColor,
-            metalness: 0.8,
-            roughness: 0.2,
-            envMap: scene.background
-        });
-
-        function applyReflectionEffect() {
-            town.children.forEach(building => {
-                if (building.material) {
-                    building.material = reflectiveMaterial;
-                }
-            });
-        }
-
-        function removeReflectionEffect() {
-            town.children.forEach(building => {
-                if (building.material) {
-                    building.material = new THREE.MeshStandardMaterial({
-                        color: normalBuildingColor,
-                        metalness: 0.6,
-                        roughness: 0.4
-                    });
-                }
-            });
-        }
-
-        // Modify the animate function to apply the reflection effect
-        function animate() {
-            var time = Date.now() * 0.00005;
-            requestAnimationFrame(animate);
-            
-            const currentScrollSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
-            const isInFooter = currentScrollSection.closest('#footer');
-            
-            if (isInFooter && !isTransitioning) {
-                isTransitioning = true;
-                applyReflectionEffect();
-                // ... existing code ...
-            } else if (!isInFooter && isTransitioning) {
-                isTransitioning = false;
-                removeReflectionEffect();
-                // ... existing code ...
-            }
-
-            // ... existing code ...
-        }
     </script>
 </body>
 </html>
