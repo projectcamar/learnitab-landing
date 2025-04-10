@@ -2315,6 +2315,57 @@ export default function Home() {
         scene.background = new THREE.Color(normalFogColor);
         scene.fog = new THREE.Fog(normalFogColor, 10, 16);
 
+        // Initialize scene for mobile
+        if (isMobile) {
+            // Adjust camera for mobile view
+            camera.position.set(0, 3, 16);
+            camera.fov = 25; // Slightly wider field of view for mobile
+            
+            // Adjust fog for mobile
+            scene.fog = new THREE.Fog(normalFogColor, 8, 20);
+            
+            // Adjust lighting for mobile
+            lightFront.intensity = 25;
+            lightBack.intensity = 0.8;
+            ambientLight.intensity = 5;
+            
+            // Initialize city rotation
+            city.rotation.x = 0.3;
+            city.rotation.y = 0;
+        }
+
+        //----------------------------------------------------------------- Lights
+        var ambientLight = new THREE.AmbientLight(0xFFFFFF, 4);
+        var lightFront = new THREE.SpotLight(0xFFFFFF, 20, 50);
+        var lightBack = new THREE.PointLight(0xFFFFFF, 0.5, 50);
+
+        lightFront.rotation.x = 45 * Math.PI / 180;
+        lightFront.rotation.z = -45 * Math.PI / 180;
+        lightFront.position.set(5, 5, 5);
+        lightFront.castShadow = true;
+        lightFront.shadow.mapSize.width = 6000;
+        lightFront.shadow.mapSize.height = lightFront.shadow.mapSize.width;
+        lightFront.penumbra = 0.1;
+        lightBack.position.set(0,6,0);
+
+        smoke.position.y = 2;
+
+        scene.add(ambientLight);
+        city.add(lightFront);
+        scene.add(lightBack);
+        scene.add(city);
+        city.add(smoke);
+        city.add(town);
+
+        //----------------------------------------------------------------- GRID Helper
+        var gridHelper = new THREE.GridHelper(60, 120, 0xFF0000, 0x000000);
+        city.add(gridHelper);
+
+        // Initialize the scene
+        init();
+        generateLines();
+        animate();
+
         //----------------------------------------------------------------- RANDOM Function
         function mathRandom(num = 8) {
             return -Math.random() * num + Math.random() * num;
@@ -2441,29 +2492,6 @@ export default function Home() {
             window.addEventListener('touchstart', onDocumentTouchStart, false);
             window.addEventListener('touchmove', onDocumentTouchMove, false);
         }
-
-        //----------------------------------------------------------------- Lights
-        var ambientLight = new THREE.AmbientLight(0xFFFFFF, 4);
-        var lightFront = new THREE.SpotLight(0xFFFFFF, 20, 50);  // Increased distance from 10 to 50
-        var lightBack = new THREE.PointLight(0xFFFFFF, 0.5, 50);  // Added distance parameter
-
-        lightFront.rotation.x = 45 * Math.PI / 180;
-        lightFront.rotation.z = -45 * Math.PI / 180;
-        lightFront.position.set(5, 5, 5);
-        lightFront.castShadow = true;
-        lightFront.shadow.mapSize.width = 6000;
-        lightFront.shadow.mapSize.height = lightFront.shadow.mapSize.width;
-        lightFront.penumbra = 0.1;
-        lightBack.position.set(0,6,0);
-
-        smoke.position.y = 2;
-
-        scene.add(ambientLight);
-        city.add(lightFront);
-        scene.add(lightBack);
-        scene.add(city);
-        city.add(smoke);
-        city.add(town);
 
         //----------------------------------------------------------------- GRID Helper
         var gridHelper = new THREE.GridHelper(60, 120, 0xFF0000, 0x000000);
@@ -2717,11 +2745,6 @@ export default function Home() {
             camera.lookAt(city.position);
             renderer.render(scene, camera);
         }
-
-        //----------------------------------------------------------------- START functions
-        generateLines();
-        init();
-        animate();
 
         document.addEventListener('DOMContentLoaded', function() {
             const sections = document.querySelectorAll('.section');
