@@ -1861,27 +1861,27 @@ export default function Home() {
         }
 
         .btn-browser-chrome {
-            background: linear-gradient(45deg, #1DA462, #DD5144, #FFCD46, #4C8BF5);
+            background: linear-gradient(90deg, #1DA462 0%, #DD5144 25%, #FFCD46 50%, #4C8BF5 100%);
         }
 
         .btn-browser-chrome:hover {
-            background: linear-gradient(45deg, #4C8BF5, #FFCD46, #DD5144, #1DA462);
+            background: linear-gradient(90deg, #4C8BF5 0%, #FFCD46 25%, #DD5144 50%, #1DA462 100%);
         }
 
         .btn-browser-edge {
-            background: linear-gradient(45deg, #55d555, #2bc3d2, #40bfff, #057fd7, #104e92);
+            background: linear-gradient(90deg, #55d555 0%, #2bc3d2 25%, #40bfff 50%, #057fd7 75%, #104e92 100%);
         }
 
         .btn-browser-edge:hover {
-            background: linear-gradient(45deg, #104e92, #057fd7, #40bfff, #2bc3d2, #55d555);
+            background: linear-gradient(90deg, #104e92 0%, #057fd7 25%, #40bfff 50%, #2bc3d2 75%, #55d555 100%);
         }
 
         .btn-browser-firefox {
-            background: linear-gradient(45deg, #e66000, #ff9500, #ffcb00, #00539f, #0095dd, #331e54);
+            background: linear-gradient(90deg, #e66000 0%, #ff9500 20%, #ffcb00 40%, #00539f 60%, #0095dd 80%, #331e54 100%);
         }
 
         .btn-browser-firefox:hover {
-            background: linear-gradient(45deg, #331e54, #0095dd, #00539f, #ffcb00, #ff9500, #e66000);
+            background: linear-gradient(90deg, #331e54 0%, #0095dd 20%, #00539f 40%, #ffcb00 60%, #ff9500 80%, #e66000 100%);
         }
 
         .browser-icon {
