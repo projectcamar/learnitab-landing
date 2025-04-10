@@ -2643,7 +2643,28 @@ export default function Home() {
                 });
             }
             
-            // Only apply rotation on non-mobile devices
+            // Auto-rotation for mobile
+            if (isMobile) {
+                // Add auto-rotation when in mobile mode
+                city.rotation.y += 0.001; // Slow continuous rotation
+                city.rotation.x = 0.3; // Fixed slight tilt for better view
+                
+                // Prevent touch events on the background
+                document.body.style.touchAction = 'none';
+                document.body.style.pointerEvents = 'none';
+                
+                // Make sure the content sections remain touchable
+                const sections = document.querySelectorAll('.section');
+                sections.forEach(section => {
+                    section.style.pointerEvents = 'auto';
+                });
+            } else {
+                // Restore normal touch behavior when not in mobile
+                document.body.style.touchAction = 'auto';
+                document.body.style.pointerEvents = 'auto';
+            }
+
+            // Only apply manual rotation on non-mobile devices
             if (!isMobile && !isInFooter) {
                 // Only reverse horizontal rotation for About and Contact sections
                 if (currentScrollSection.closest('#about') || currentScrollSection.closest('#contact')) {
