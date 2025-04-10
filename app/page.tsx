@@ -2315,57 +2315,6 @@ export default function Home() {
         scene.background = new THREE.Color(normalFogColor);
         scene.fog = new THREE.Fog(normalFogColor, 10, 16);
 
-        // Initialize scene for mobile
-        if (isMobile) {
-            // Adjust camera for mobile view
-            camera.position.set(0, 3, 16);
-            camera.fov = 25; // Slightly wider field of view for mobile
-            
-            // Adjust fog for mobile
-            scene.fog = new THREE.Fog(normalFogColor, 8, 20);
-            
-            // Adjust lighting for mobile
-            lightFront.intensity = 25;
-            lightBack.intensity = 0.8;
-            ambientLight.intensity = 5;
-            
-            // Initialize city rotation
-            city.rotation.x = 0.3;
-            city.rotation.y = 0;
-        }
-
-        //----------------------------------------------------------------- Lights
-        var ambientLight = new THREE.AmbientLight(0xFFFFFF, 4);
-        var lightFront = new THREE.SpotLight(0xFFFFFF, 20, 50);
-        var lightBack = new THREE.PointLight(0xFFFFFF, 0.5, 50);
-
-        lightFront.rotation.x = 45 * Math.PI / 180;
-        lightFront.rotation.z = -45 * Math.PI / 180;
-        lightFront.position.set(5, 5, 5);
-        lightFront.castShadow = true;
-        lightFront.shadow.mapSize.width = 6000;
-        lightFront.shadow.mapSize.height = lightFront.shadow.mapSize.width;
-        lightFront.penumbra = 0.1;
-        lightBack.position.set(0,6,0);
-
-        smoke.position.y = 2;
-
-        scene.add(ambientLight);
-        city.add(lightFront);
-        scene.add(lightBack);
-        scene.add(city);
-        city.add(smoke);
-        city.add(town);
-
-        //----------------------------------------------------------------- GRID Helper
-        var gridHelper = new THREE.GridHelper(60, 120, 0xFF0000, 0x000000);
-        city.add(gridHelper);
-
-        // Initialize the scene
-        init();
-        generateLines();
-        animate();
-
         //----------------------------------------------------------------- RANDOM Function
         function mathRandom(num = 8) {
             return -Math.random() * num + Math.random() * num;
@@ -2492,6 +2441,29 @@ export default function Home() {
             window.addEventListener('touchstart', onDocumentTouchStart, false);
             window.addEventListener('touchmove', onDocumentTouchMove, false);
         }
+
+        //----------------------------------------------------------------- Lights
+        var ambientLight = new THREE.AmbientLight(0xFFFFFF, 4);
+        var lightFront = new THREE.SpotLight(0xFFFFFF, 20, 50);  // Increased distance from 10 to 50
+        var lightBack = new THREE.PointLight(0xFFFFFF, 0.5, 50);  // Added distance parameter
+
+        lightFront.rotation.x = 45 * Math.PI / 180;
+        lightFront.rotation.z = -45 * Math.PI / 180;
+        lightFront.position.set(5, 5, 5);
+        lightFront.castShadow = true;
+        lightFront.shadow.mapSize.width = 6000;
+        lightFront.shadow.mapSize.height = lightFront.shadow.mapSize.width;
+        lightFront.penumbra = 0.1;
+        lightBack.position.set(0,6,0);
+
+        smoke.position.y = 2;
+
+        scene.add(ambientLight);
+        city.add(lightFront);
+        scene.add(lightBack);
+        scene.add(city);
+        city.add(smoke);
+        city.add(town);
 
         //----------------------------------------------------------------- GRID Helper
         var gridHelper = new THREE.GridHelper(60, 120, 0xFF0000, 0x000000);
@@ -2746,17 +2718,17 @@ export default function Home() {
             renderer.render(scene, camera);
         }
 
+        //----------------------------------------------------------------- START functions
+        generateLines();
+        init();
+        animate();
+
         document.addEventListener('DOMContentLoaded', function() {
             const sections = document.querySelectorAll('.section');
             const navDots = document.querySelectorAll('.nav-dot');
             const featuresSection = document.getElementById('features');
             const featuresContainer = document.querySelector('.features-container');
-            const aboutContainer = document.querySelector('.about-container');
             let isScrolling = false;
-            let scrollTimeout;
-            let lastScrollTime = 0;
-            const SCROLL_THRESHOLD = 100; // Minimum time between scrolls (ms)
-            const SCROLL_DURATION = 1000; // Duration of smooth scroll (ms)
 
             // Function to determine which section is most visible in the viewport
             function getCurrentSection() {
@@ -2782,96 +2754,12 @@ export default function Home() {
                 navDots[index].classList.add('active');
             }
 
-            // Function to handle smooth scrolling to a section
-            function scrollToSection(section, behavior = 'smooth') {
-                if (isScrolling) return;
-                isScrolling = true;
-
-                section.scrollIntoView({ behavior });
-                
-                // Reset scrolling state after animation
-                setTimeout(() => {
-                    isScrolling = false;
-                }, SCROLL_DURATION);
+            // Function to force scroll to nearest section
+            function snapToNearestSection() {
+                const currentSection = getCurrentSection();
+                sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+                updateNavDots(currentSection);
             }
-
-            // Function to handle sub-section scrolling
-            function handleSubSectionScroll(container, direction) {
-                if (isScrolling) return;
-                
-                const pages = container.querySelectorAll('.features-page, .about-page');
-                const currentPage = Array.from(pages).findIndex(page => {
-                    const rect = page.getBoundingClientRect();
-                    return rect.top >= 0 && rect.top < window.innerHeight;
-                });
-
-                if (currentPage === -1) return;
-
-                const nextPage = direction > 0 ? currentPage + 1 : currentPage - 1;
-                if (nextPage >= 0 && nextPage < pages.length) {
-                    isScrolling = true;
-                    pages[nextPage].scrollIntoView({ behavior: 'smooth' });
-                    
-                    setTimeout(() => {
-                        isScrolling = false;
-                    }, SCROLL_DURATION);
-                } else if (nextPage < 0) {
-                    // Scroll to previous main section
-                    const currentSection = getCurrentSection();
-                    if (currentSection > 0) {
-                        scrollToSection(sections[currentSection - 1]);
-                    }
-                } else if (nextPage >= pages.length) {
-                    // Scroll to next main section
-                    const currentSection = getCurrentSection();
-                    if (currentSection < sections.length - 1) {
-                        scrollToSection(sections[currentSection + 1]);
-                    }
-                }
-            }
-
-            // Add touch event handling for mobile
-            let touchStartY = 0;
-            let touchEndY = 0;
-
-            document.addEventListener('touchstart', function(e) {
-                touchStartY = e.touches[0].clientY;
-            }, { passive: true });
-
-            document.addEventListener('touchend', function(e) {
-                touchEndY = e.changedTouches[0].clientY;
-                const touchDiff = touchStartY - touchEndY;
-                const currentTime = Date.now();
-
-                // Prevent rapid scrolling
-                if (currentTime - lastScrollTime < SCROLL_THRESHOLD) return;
-                lastScrollTime = currentTime;
-
-                const currentSection = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
-                const isInFeatures = currentSection.closest('#features');
-                const isInAbout = currentSection.closest('#about');
-
-                if (isInFeatures) {
-                    handleSubSectionScroll(featuresContainer, touchDiff > 0 ? 1 : -1);
-                } else if (isInAbout) {
-                    handleSubSectionScroll(aboutContainer, touchDiff > 0 ? 1 : -1);
-                } else {
-                    const currentSectionIndex = getCurrentSection();
-                    const nextSection = touchDiff > 0 ? currentSectionIndex + 1 : currentSectionIndex - 1;
-                    
-                    if (nextSection >= 0 && nextSection < sections.length) {
-                        scrollToSection(sections[nextSection]);
-                    }
-                }
-            }, { passive: true });
-
-            // Update click handlers for nav dots
-            navDots.forEach((dot, index) => {
-                dot.addEventListener('click', () => {
-                    scrollToSection(sections[index]);
-                    updateNavDots(index);
-                });
-            });
 
             // Add periodic check for section alignment
             setInterval(() => {
@@ -2881,9 +2769,62 @@ export default function Home() {
                     
                     if (activeNavIndex !== currentSection) {
                         updateNavDots(currentSection);
+                        snapToNearestSection();
                     }
                 }
-            }, 1000);
+            }, 1000); // Check every second
+
+            window.addEventListener('wheel', function(e) {
+                const currentSection = getCurrentSection();
+                const isInFeatures = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2).closest('#features');
+                const isInAbout = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2).closest('#about');
+                
+                if (isInFeatures || isInAbout) {
+                    e.preventDefault();
+                    
+                    const container = isInFeatures ? featuresContainer : document.querySelector('.about-container');
+                    const pages = container.querySelectorAll(isInFeatures ? '.features-page' : '.about-page');
+                    const scrollAmount = container.scrollTop;
+                    const pageHeight = container.clientHeight;
+                    const totalHeight = pageHeight * (pages.length - 1);
+                    
+                    if (e.deltaY > 0 && scrollAmount >= totalHeight) {
+                        // Move to next main section
+                        sections[currentSection + 1].scrollIntoView({ behavior: 'smooth' });
+                        updateNavDots(currentSection + 1);
+                    } else if (e.deltaY < 0 && scrollAmount <= 0) {
+                        // Move to previous main section
+                        sections[currentSection - 1].scrollIntoView({ behavior: 'smooth' });
+                        updateNavDots(currentSection - 1);
+                    } else {
+                        container.scrollBy({
+                            top: e.deltaY > 0 ? pageHeight : -pageHeight,
+                            behavior: 'smooth'
+                        });
+                    }
+                } else {
+                    // Normal section scrolling
+                    if (isScrolling) return;
+                    
+                    isScrolling = true;
+                    setTimeout(() => isScrolling = false, 1000);
+
+                    const nextSection = e.deltaY > 0 ? currentSection + 1 : currentSection - 1;
+                    
+                    if (nextSection >= 0 && nextSection < sections.length) {
+                        sections[nextSection].scrollIntoView({ behavior: 'smooth' });
+                        updateNavDots(nextSection);
+                    }
+                }
+            }, { passive: false });
+
+            // Update click handlers for nav dots
+            navDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    sections[index].scrollIntoView({ behavior: 'smooth' });
+                    updateNavDots(index);
+                });
+            });
         });
 
         // Add this function to handle window resize
