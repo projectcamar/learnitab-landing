@@ -938,17 +938,14 @@ export default function Home() {
                     </a>
                   )}
                 </div>
-                {post.labels?.link && (
-                  <a
-                    href={post.labels.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
-                  >
-                    {post.category.toLowerCase() === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
-                    {post.category.toLowerCase() !== 'mentors' && <FiLink size={16} />}
-                  </a>
-                )}
+                <a
+                  href={post.labels?.link || "https://forms.gle/B6EnLxDxo7kiqbDv7"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
+                >
+                  Schedule Mentoring
+                </a>
               </div>
             </div>
           </div>
