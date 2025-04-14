@@ -943,9 +943,10 @@ export default function Home() {
                     href={post.labels.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
                   >
-                    Schedule Mentoring
+                    {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
+                    {post.category !== 'mentors' && <FiLink size={16} />}
                   </a>
                 )}
               </div>
@@ -965,9 +966,9 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-500">Mentoring Topics:</span>
               <span className="text-sm text-gray-900">
-                {Array.isArray(post.labels?.['Mentoring Topic']) 
-                  ? post.labels['Mentoring Topic'].join(', ')
-                  : post.labels?.['Mentoring Topics'] || post.labels?.['Mentoring Topic'] || 'Not specified'}
+                {Array.isArray(post.labels?.['Mentoring Topics']) 
+                  ? post.labels?.['Mentoring Topics'].join(', ') 
+                  : (post.labels?.['Mentoring Topics'] || post.labels?.['Mentoring Topic'] || 'Not specified')}
               </span>
             </div>
           </div>
@@ -979,17 +980,19 @@ export default function Home() {
                 <FiBriefcase /> Experience
               </h2>
               <div className="space-y-4">
-                {Array.isArray(post.experience) ? post.experience.map((exp, index) => (
+                {post.experience.map((exp: any, index: number) => (
                   <div key={index} className="border-l-2 border-blue-500 pl-4">
                     <h3 className="font-medium text-gray-900">
-                      {exp}
+                      {typeof exp === 'string' ? exp : (exp.role || '')}
                     </h3>
+                    {typeof exp !== 'string' && exp.company && (
+                      <>
+                        <p className="text-gray-600">{exp.company}</p>
+                        {exp.duration && <p className="text-sm text-gray-500">{exp.duration}</p>}
+                      </>
+                    )}
                   </div>
-                )) : (
-                  <div className="border-l-2 border-blue-500 pl-4">
-                    <h3 className="font-medium text-gray-900">{post.experience}</h3>
-                  </div>
-                )}
+                ))}
               </div>
             </div>
           )}
@@ -1001,15 +1004,13 @@ export default function Home() {
                 <FiBookOpen /> Education
               </h2>
               <div className="space-y-4">
-                {Array.isArray(post.education) ? post.education.map((edu, index) => (
+                {(Array.isArray(post.education) ? post.education : []).map((edu: any, index) => (
                   <div key={index} className="border-l-2 border-indigo-500 pl-4">
-                    <h3 className="font-medium text-gray-900">{edu}</h3>
+                    <h3 className="font-medium text-gray-900">{typeof edu === 'string' ? edu : (edu.degree || '')}</h3>
+                    {typeof edu !== 'string' && edu.school && <p className="text-gray-600">{edu.school}</p>}
+                    {typeof edu !== 'string' && edu.year && <p className="text-sm text-gray-500">{edu.year}</p>}
                   </div>
-                )) : (
-                  <div className="border-l-2 border-indigo-500 pl-4">
-                    <h3 className="font-medium text-gray-900">{post.education}</h3>
-                  </div>
-                )}
+                ))}
               </div>
             </div>
           )}
@@ -1089,9 +1090,10 @@ export default function Home() {
               href={post.labels.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
             >
-              Schedule Mentoring
+              {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
+              {post.category !== 'mentors' && <FiLink size={16} />}
             </a>
           )}
         </div>
