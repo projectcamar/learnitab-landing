@@ -942,7 +942,7 @@ export default function Home() {
                   href={post.labels?.link || "https://forms.gle/B6EnLxDxo7kiqbDv7"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
                 >
                   Schedule Mentoring
                 </a>
@@ -1083,12 +1083,12 @@ export default function Home() {
           </div>
 
           <a
-            href={post.url || post.apply_url || post.link || "#"}
+            href={post.labels?.link || "https://forms.gle/B6EnLxDxo7kiqbDv7"}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
           >
-            Apply Now <FiLink size={16} />
+            Schedule Mentoring
           </a>
         </div>
 
