@@ -939,7 +939,12 @@ export default function Home() {
                   )}
                 </div>
                 <a
-                  href={post.labels?.link || "#"}
+                  href={
+                    post.source === 'remotive' || post.source === 'jobicy' || post.source === 'remoteok' ? post.link || "#" :
+                    post.source === 'web3' ? post.apply_url || "#" :
+                    post.source === 'arbeitnow' ? post.url || "#" :
+                    post.labels?.link || "#"
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
@@ -1084,7 +1089,12 @@ export default function Home() {
           </div>
 
           <a
-            href={post.labels?.link || "#"}
+            href={
+              post.source === 'remotive' || post.source === 'jobicy' || post.source === 'remoteok' ? post.link || "#" :
+              post.source === 'web3' ? post.apply_url || "#" :
+              post.source === 'arbeitnow' ? post.url || "#" :
+              post.labels?.link || "#"
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
