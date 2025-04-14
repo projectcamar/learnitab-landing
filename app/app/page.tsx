@@ -478,23 +478,31 @@ export default function Home() {
             title: mentor.title,
             category: 'mentors',
             image: mentor.image,
-            linkedin: mentor.labels?.linkedin,
-            instagram: mentor.labels?.instagram,
-            link: mentor.labels?.link,
+            linkedin: mentor.linkedin,
+            instagram: mentor.instagram,
             experience: Array.isArray(mentor.experience) 
-              ? mentor.experience 
-              : [],
+              ? mentor.experience.map((exp: string | Experience) => ({
+                  role: typeof exp === 'string' ? exp : exp.role || 'Experience',
+                  company: '',
+                  duration: ''
+                }))
+              : [{ role: mentor.experience, company: '', duration: '' }],
             education: Array.isArray(mentor.education)
-              ? mentor.education
-              : [],
-            body: mentor.body,
+              ? mentor.education.map((edu: string | Education) => ({
+                  degree: typeof edu === 'string' ? edu : edu.degree || 'Education',
+                  school: '',
+                  year: ''
+                }))
+              : [{ degree: mentor.education, school: '', year: '' }],
+            body: mentor.company || mentor.labels?.Organization,
             labels: {
               Field: mentor.labels?.Field || 'Not specified',
-              Organization: mentor.labels?.Organization || '',
+              Organization: mentor.labels?.Organization || mentor.company || '',
               'Mentoring Topics': Array.isArray(mentor.labels?.['Mentoring Topic']) 
                 ? mentor.labels['Mentoring Topic'].join(', ')
                 : mentor.labels?.['Mentoring Topic'] || ''
             },
+            link: mentor.link,
             source: 'learnitab',
             created_at: new Date().getTime(),
             expired: false,
@@ -930,15 +938,14 @@ export default function Home() {
                     </a>
                   )}
                 </div>
-                {post.link && (
+                {post.labels?.link && (
                   <a
-                    href={post.link}
+                    href={post.labels.link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
                   >
-                    {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
-                    {post.category !== 'mentors' && <FiLink size={16} />}
+                    Schedule Mentoring
                   </a>
                 )}
               </div>
@@ -957,7 +964,11 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-500">Mentoring Topics:</span>
-              <span className="text-sm text-gray-900">{post.labels?.['Mentoring Topics'] || 'Not specified'}</span>
+              <span className="text-sm text-gray-900">
+                {Array.isArray(post.labels?.['Mentoring Topic']) 
+                  ? post.labels['Mentoring Topic'].join(', ')
+                  : post.labels?.['Mentoring Topics'] || post.labels?.['Mentoring Topic'] || 'Not specified'}
+              </span>
             </div>
           </div>
 
@@ -968,13 +979,17 @@ export default function Home() {
                 <FiBriefcase /> Experience
               </h2>
               <div className="space-y-4">
-                {post.experience.map((exp, index) => (
+                {Array.isArray(post.experience) ? post.experience.map((exp, index) => (
                   <div key={index} className="border-l-2 border-blue-500 pl-4">
                     <h3 className="font-medium text-gray-900">
-                      {typeof exp === 'string' ? exp : exp.role}
+                      {exp}
                     </h3>
                   </div>
-                ))}
+                )) : (
+                  <div className="border-l-2 border-blue-500 pl-4">
+                    <h3 className="font-medium text-gray-900">{post.experience}</h3>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -986,13 +1001,15 @@ export default function Home() {
                 <FiBookOpen /> Education
               </h2>
               <div className="space-y-4">
-                {(Array.isArray(post.education) ? post.education : []).map((edu: any, index) => (
+                {Array.isArray(post.education) ? post.education.map((edu, index) => (
                   <div key={index} className="border-l-2 border-indigo-500 pl-4">
-                    <h3 className="font-medium text-gray-900">{typeof edu === 'string' ? edu : edu.degree}</h3>
-                    <p className="text-gray-600">{typeof edu === 'string' ? '' : edu.school}</p>
-                    <p className="text-sm text-gray-500">{typeof edu === 'string' ? '' : edu.year}</p>
+                    <h3 className="font-medium text-gray-900">{edu}</h3>
                   </div>
-                ))}
+                )) : (
+                  <div className="border-l-2 border-indigo-500 pl-4">
+                    <h3 className="font-medium text-gray-900">{post.education}</h3>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1067,15 +1084,14 @@ export default function Home() {
             </button>
           </div>
 
-          {post.link && (
+          {post.labels?.link && (
             <a
-              href={post.link}
+              href={post.labels.link}
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
             >
-              {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
-              {post.category !== 'mentors' && <FiLink size={16} />}
+              Schedule Mentoring
             </a>
           )}
         </div>
