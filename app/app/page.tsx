@@ -1082,17 +1082,14 @@ export default function Home() {
             </button>
           </div>
 
-          {post.labels?.link && (
-            <a
-              href={post.labels.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
-            >
-              {post.category.toLowerCase() === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
-              {post.category.toLowerCase() !== 'mentors' && <FiLink size={16} />}
-            </a>
-          )}
+          <a
+            href={post.url || post.apply_url || post.link || "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
+          >
+            Apply Now <FiLink size={16} />
+          </a>
         </div>
 
         {/* Job Description */}
