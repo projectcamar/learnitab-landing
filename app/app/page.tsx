@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc, FiDownload } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload, FiBookmark } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
 import { Post } from '../models/Post';
@@ -754,9 +754,71 @@ export default function Home() {
     }
   };
 
-  // Update renderSearchBar function
+  // Replace calendar states with bookmark-related states
+  const [showBookmarkManager, setShowBookmarkManager] = useState(false);
+  const [bookmarkFolders, setBookmarkFolders] = useState([
+    { id: '1', name: 'Interested', posts: [] },
+    { id: '2', name: 'Applied', posts: [] },
+    { id: '3', name: 'Interview', posts: [] }
+  ]);
+  const [selectedPost, setSelectedPost] = useState(null);
+
+  // Replace calendar button with bookmark manager button
+  const renderBookmarkButton = () => (
+    <button
+      onClick={() => {
+        setShowBookmarkManager(true);
+        setIsOverlayVisible(true);
+      }}
+      className="flex items-center space-x-2 px-4 py-2 rounded-md bg-white hover:bg-gray-50 border border-gray-200"
+    >
+      <FiBookmark className="w-5 h-5 text-gray-400" />
+      <span className="text-sm font-['Plus_Jakarta_Sans']">
+        {typeof window !== 'undefined' ? 
+          bookmarkFolders.reduce((total, folder) => total + folder.posts.length, 0) : 0}
+      </span>
+    </button>
+  );
+
+  // Add function to add post to bookmark folder
+  const addToBookmarkFolder = (post, folderId) => {
+    setBookmarkFolders(prev => {
+      const newFolders = [...prev];
+      const folderIndex = newFolders.findIndex(f => f.id === folderId);
+      
+      if (folderIndex !== -1) {
+        // Avoid duplicates
+        if (!newFolders[folderIndex].posts.some(p => p._id === post._id)) {
+          newFolders[folderIndex].posts.push(post);
+        }
+      }
+      
+      localStorage.setItem('bookmarkFolders', JSON.stringify(newFolders));
+      return newFolders;
+    });
+    
+    setShowBookmarkManager(false);
+    setIsOverlayVisible(false);
+  };
+
+  // Function to remove from bookmark folder
+  const removeFromBookmark = (postId, folderId) => {
+    setBookmarkFolders(prev => {
+      const newFolders = [...prev];
+      const folderIndex = newFolders.findIndex(f => f.id === folderId);
+      
+      if (folderIndex !== -1) {
+        newFolders[folderIndex].posts = newFolders[folderIndex].posts.filter(p => p._id !== postId);
+      }
+      
+      localStorage.setItem('bookmarkFolders', JSON.stringify(newFolders));
+      return newFolders;
+    });
+  };
+
+  // Update the search bar to include bookmark button instead of calendar
   const renderSearchBar = () => (
-    <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg">
+    <div className="flex flex-col space-y-4 bg-gradient-to-r from-white to-blue-50 p-4 rounded-lg border border-blue-100">
       {/* Top row: Search input and action buttons */}
       <div className="flex items-center gap-4">
         {/* Search input */}
@@ -771,7 +833,7 @@ export default function Home() {
           />
         </div>
         
-        {/* Favorites and Calendar counts */}
+        {/* Favorites and Bookmark counts */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowSaved(!showSaved)}
@@ -786,13 +848,15 @@ export default function Home() {
           </button>
           <button
             onClick={() => {
-              setShowCalendarManagement(true);
+              setShowBookmarkManager(true);
               setIsOverlayVisible(true);
             }}
             className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200"
           >
-            <FiCalendar className="text-gray-400" />
-            <span className="font-medium">{calendarEvents.length}</span>
+            <FiBookmark className="text-gray-400" />
+            <span className="font-medium">
+              {bookmarkFolders.reduce((total, folder) => total + folder.posts.length, 0)}
+            </span>
           </button>
         </div>
       </div>
@@ -909,7 +973,7 @@ export default function Home() {
       return (
         <div className="space-y-6">
           {/* Header with image, title, and Apply Now button */}
-          <div className="flex items-start gap-6">
+          <div className="flex items-start gap-6 bg-white rounded-lg p-6 shadow-sm border border-blue-50">
             <Image
               src={post.image || DEFAULT_COMPANY_LOGO}
               alt={post.title}
@@ -943,7 +1007,7 @@ export default function Home() {
                     href={post.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                    className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-md transition-all font-medium flex items-center gap-2"
                   >
                     {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
                     {post.category !== 'mentors' && <FiLink size={16} />}
@@ -954,7 +1018,7 @@ export default function Home() {
           </div>
 
           {/* Labels Section - Now under Apply Now button */}
-          <div className="mt-6 space-y-4 bg-gray-50 rounded-lg p-6">
+          <div className="mt-6 space-y-4 bg-white rounded-lg p-6 shadow-sm border border-blue-50">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-500">Field:</span>
               <span className="text-sm text-gray-900">{post.labels?.Field || 'Not specified'}</span>
@@ -971,7 +1035,7 @@ export default function Home() {
 
           {/* Experience Section */}
           {post.experience && post.experience.length > 0 && (
-            <div className="bg-gray-50 rounded-lg p-6">
+            <div className="bg-white rounded-lg p-6 shadow-sm border border-blue-50">
               <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FiBriefcase /> Experience
               </h2>
@@ -995,7 +1059,7 @@ export default function Home() {
 
           {/* Education Section */}
           {post.education && post.education.length > 0 && (
-            <div className="bg-gray-50 rounded-lg p-6">
+            <div className="bg-white rounded-lg p-6 shadow-sm border border-blue-50">
               <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FiBookOpen /> Education
               </h2>
@@ -1014,11 +1078,11 @@ export default function Home() {
       );
     }
 
-    // Return existing job post display for non-mentor posts
+    // Return enhanced job post display for non-mentor posts
     return (
       <div className="post-full space-y-8 font-['Plus_Jakarta_Sans'] max-w-3xl mx-auto">
         {/* Header Section */}
-        <div className="flex items-start gap-6 border-b pb-6">
+        <div className="flex items-start gap-6 border-b pb-6 bg-white p-6 rounded-lg shadow-sm border border-blue-50">
           <Image
             src={post.image || DEFAULT_COMPANY_LOGO}
             alt={post.title}
@@ -1060,7 +1124,7 @@ export default function Home() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between gap-4 border-b pb-6">
+        <div className="flex items-center justify-between gap-4 p-4 bg-white rounded-lg shadow-sm border border-blue-50">
           <div className="flex items-center gap-4">
             <button
               onClick={() => toggleFavorite(post.title)}
@@ -1079,6 +1143,17 @@ export default function Home() {
             >
               <FiLink size={20} />
             </button>
+            
+            <button
+              onClick={() => {
+                setSelectedPost(post);
+                setShowBookmarkManager(true);
+                setIsOverlayVisible(true);
+              }}
+              className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
+            >
+              <FiBookmark size={20} />
+            </button>
           </div>
 
           {post.link && (
@@ -1086,16 +1161,15 @@ export default function Home() {
               href={post.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+              className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-md transition-all font-medium flex items-center gap-2"
             >
-              {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
-              {post.category !== 'mentors' && <FiLink size={16} />}
+              Apply Now <FiLink size={16} />
             </a>
           )}
         </div>
 
         {/* Job Description */}
-        <div className="prose max-w-none">
+        <div className="prose max-w-none bg-white p-6 rounded-lg shadow-sm border border-blue-50">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Job Description</h2>
           <div 
             className="text-gray-700 space-y-4"
@@ -1104,7 +1178,7 @@ export default function Home() {
         </div>
 
         {/* Additional Information */}
-        <div className="bg-gray-50 rounded-lg p-6 mt-8">
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-blue-50 mt-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
           <dl className="grid grid-cols-1 gap-4">
             {post.created_at && (
@@ -1141,7 +1215,7 @@ export default function Home() {
         </div>
 
         {/* Updated Attribution */}
-        <div className="text-center text-sm text-gray-500 mt-8">
+        <div className="text-center text-sm text-gray-500 mt-8 p-4 bg-white rounded-lg shadow-sm border border-blue-50">
           This job listing is sourced from {(post.source || 'unknown').charAt(0).toUpperCase() + (post.source || 'unknown').slice(1)}
         </div>
       </div>
@@ -1190,56 +1264,61 @@ export default function Home() {
 
   const renderWelcomeScreen = () => {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center px-8 relative">
-        <Image
-          src="https://od.lk/s/OTZfOTUyNTU0MTlf/Grand_Design_Learnitab_Page_1-min.png"
-          alt="Welcome to Learnitab"
-          width={600}
-          height={400}
-          className="rounded-lg shadow-lg mb-4"
-        />
+      <div className="flex flex-col items-center justify-center h-full text-center px-8 relative bg-white p-8 rounded-lg shadow-md border border-blue-50">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 opacity-50 rounded-lg"></div>
         
-        <h2 className="text-2xl font-bold text-gray-800 mb-1 mt-2">
-          Welcome to Learnitab
-        </h2>
-        
-        <p className="text-gray-600 mb-4 max-w-lg mt-1">
-          Your gateway to discovering amazing opportunities in jobs and mentorship. Select an opportunity from the left to get started~!
-        </p>
+        <div className="relative z-10">
+          <Image
+            src="https://od.lk/s/OTZfOTUyNTU0MTlf/Grand_Design_Learnitab_Page_1-min.png"
+            alt="Welcome to Learnitab"
+            width={600}
+            height={400}
+            className="rounded-lg shadow-lg mb-4"
+          />
+          
+          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-1 mt-2">
+            Welcome to Learnitab
+          </h2>
+          
+          <p className="text-gray-600 mb-6 max-w-lg mt-1">
+            Your gateway to discovering amazing opportunities in jobs and mentorship. 
+            Select an opportunity from the left to get started!
+          </p>
 
-        <div className="flex items-center gap-6">
-          <a
-            href="https://discord.gg/rXRza3Wn"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-full hover:bg-gray-100 text-indigo-600 hover:text-indigo-700 transition-all"
-          >
-            <FiDisc size={24} />
-          </a>
-          <a
-            href="https://instagram.com/learnitab"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-full hover:bg-gray-100 text-pink-600 hover:text-pink-700 transition-all"
-          >
-            <FiInstagram size={24} />
-          </a>
-          <a
-            href="https://www.linkedin.com/company/learnitab"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-full hover:bg-gray-100 text-blue-600 hover:text-blue-700 transition-all"
-          >
-            <FiLinkedin size={24} />
-          </a>
-          <a
-            href="https://www.producthunt.com/products/learnitab"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-full hover:bg-gray-100 text-orange-600 hover:text-orange-700 transition-all"
-          >
-            <SiProducthunt size={24} />
-          </a>
+          <div className="flex items-center justify-center gap-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full shadow-inner">
+            <a
+              href="https://discord.gg/rXRza3Wn"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-full hover:bg-white text-indigo-600 hover:text-indigo-700 transition-all hover:shadow-md"
+            >
+              <FiDisc size={24} />
+            </a>
+            <a
+              href="https://instagram.com/learnitab"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-full hover:bg-white text-pink-600 hover:text-pink-700 transition-all hover:shadow-md"
+            >
+              <FiInstagram size={24} />
+            </a>
+            <a
+              href="https://www.linkedin.com/company/learnitab"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-full hover:bg-white text-blue-600 hover:text-blue-700 transition-all hover:shadow-md"
+            >
+              <FiLinkedin size={24} />
+            </a>
+            <a
+              href="https://www.producthunt.com/products/learnitab"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-full hover:bg-white text-orange-600 hover:text-orange-700 transition-all hover:shadow-md"
+            >
+              <SiProducthunt size={24} />
+            </a>
+          </div>
         </div>
       </div>
     );
@@ -1380,7 +1459,7 @@ export default function Home() {
           {/* Detail View - update background */}
           <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar detail-view-container font-['Plus_Jakarta_Sans'] bg-transparent 
             ${showMobileDetail ? 'fixed inset-0 z-50 bg-transparent' : 'hidden md:block'}`}>
-            <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-lg p-6 border border-blue-100">
               {selectedPostTitle ? (
                 posts.filter(post => post.title === selectedPostTitle)
                   .map(post => displayFullPost(post))[0]
@@ -1424,47 +1503,73 @@ export default function Home() {
           </div>
         )}
 
-        {showCalendarManagement && (
-          <div className="fixed inset-y-0 right-0 w-80 bg-white shadow-lg p-6 transform transition-transform duration-300 ease-in-out z-50">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Calendar Management</h2>
-              <button onClick={() => {
-                setShowCalendarManagement(false);
-                setIsOverlayVisible(false);
-              }} className="text-gray-500 hover:text-gray-700">
-                <IoMdClose size={24} />
-              </button>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Filter by days:</label>
-              <select
-                value={filterDays || ''}
-                onChange={(e) => setFilterDays(e.target.value ? Number(e.target.value) : null)}
-                className="w-full border border-gray-300 rounded-md py-2 px-3"
-              >
-                <option value="">All events</option>
-                <option value="7">Next 7 days</option>
-                <option value="30">Next 30 days</option>
-                <option value="90">Next 90 days</option>
-              </select>
-            </div>
-            <div className="space-y-4">
-              {calendarEvents
-                .filter(event => !filterDays || isAfter(parseISO(event.deadline), new Date()) && isBefore(parseISO(event.deadline), addDays(new Date(), filterDays)))
-                .map(event => (
-                  <div key={event.id} className="flex justify-between items-center p-3 bg-gray-100 rounded-md">
-                    <div>
-                      <h3 className="font-semibold">{event.title}</h3>
-                      <p className="text-sm text-gray-600">{format(parseISO(event.deadline), 'MMM dd, yyyy')}</p>
+        {showBookmarkManager && (
+          <div className="fixed inset-0 bg-gray-600/50 backdrop-blur-sm z-50">
+            <div className="fixed inset-y-0 right-0 w-full md:w-80 bg-gradient-to-b from-white to-blue-50 shadow-lg p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Application Tracker</h2>
+                <button onClick={() => {
+                  setShowBookmarkManager(false);
+                  setIsOverlayVisible(false);
+                }} className="text-gray-500 hover:text-gray-700">
+                  <IoMdClose size={24} />
+                </button>
+              </div>
+              
+              {selectedPost && (
+                <div className="mb-6 p-4 bg-white rounded-lg shadow-sm">
+                  <h3 className="font-medium text-lg mb-2">{selectedPost.title}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{selectedPost.company || selectedPost.labels?.Company}</p>
+                  
+                  <div className="space-y-2">
+                    {bookmarkFolders.map(folder => (
+                      <button
+                        key={folder.id}
+                        onClick={() => addToBookmarkFolder(selectedPost, folder.id)}
+                        className="w-full text-left px-4 py-2 rounded-md bg-blue-50 hover:bg-blue-100 transition-colors"
+                      >
+                        Add to: {folder.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-4">
+                {bookmarkFolders.map(folder => (
+                  <div key={folder.id} className="border border-blue-100 rounded-lg overflow-hidden">
+                    <div className="bg-blue-50 px-4 py-2 flex justify-between items-center">
+                      <h3 className="font-medium">{folder.name}</h3>
+                      <span className="text-sm bg-blue-100 px-2 py-0.5 rounded-full">{folder.posts.length}</span>
                     </div>
-                    <button
-                      onClick={() => removeFromCalendar(event.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <FiTrash2 size={18} />
-                    </button>
+                    
+                    <div className="max-h-60 overflow-y-auto p-2 bg-white space-y-2">
+                      {folder.posts.length === 0 ? (
+                        <p className="text-sm text-gray-500 text-center py-2">No items yet</p>
+                      ) : (
+                        folder.posts.map(post => (
+                          <div key={post._id} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                            <div className="truncate flex-1">
+                              <p className="font-medium text-sm truncate">{post.title}</p>
+                              <p className="text-xs text-gray-500 truncate">{post.company || post.labels?.Company}</p>
+                            </div>
+                            <button
+                              onClick={() => removeFromBookmark(post._id, folder.id)}
+                              className="text-red-400 hover:text-red-600 p-1"
+                            >
+                              <FiTrash2 size={16} />
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
                 ))}
+              </div>
+              
+              <p className="text-sm text-gray-500 mt-4 text-center">
+                Track your application status with these folders
+              </p>
             </div>
           </div>
         )}
