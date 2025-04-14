@@ -350,10 +350,10 @@ export default function Home() {
   const postsPerPage = 15;
 
   // Initialize with empty arrays for SSR
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [visiblePosts, setVisiblePosts] = useState<Post[]>([]);
+  const [favorites, setFavorites] = useState([]);
+  const [calendarEvents, setCalendarEvents] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [visiblePosts, setVisiblePosts] = useState([]);
   const [currentCategory, setCurrentCategory] = useState('jobs');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -361,7 +361,7 @@ export default function Home() {
   const [showSaved, setShowSaved] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPostTitle, setSelectedPostTitle] = useState<string | null>(null);
+  const [selectedPostTitle, setSelectedPostTitle] = useState(null);
 
   // 2. Move all localStorage operations to a single useEffect
   useEffect(() => {
@@ -426,16 +426,16 @@ export default function Home() {
   );
 
   const categories = ['jobs', 'mentors'];
-  const listRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef(null);
   const [showCalendarPanel, setShowCalendarPanel] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Post | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [showCalendarManagement, setShowCalendarManagement] = useState(false);
-  const [sortOrder, setSortOrder] = useState<'default' | 'days-left'>('default');
-  const [filterDays, setFilterDays] = useState<number | null>(null);
+  const [sortOrder, setSortOrder] = useState('default');
+  const [filterDays, setFilterDays] = useState(null);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
-  const [copiedLink, setCopiedLink] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(null);
   const [showBanner, setShowBanner] = useState(true);
-  const [recommendations, setRecommendations] = useState<Post[]>([]);
+  const [recommendations, setRecommendations] = useState([]);
 
   // Add new state for mobile view control
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -805,7 +805,7 @@ export default function Home() {
           className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Sources</option>
-          {filterOptions[currentCategory as keyof typeof filterOptions].sources.map(source => (
+          {filterOptions[currentCategory].sources.map(source => (
             source !== 'all' && <option key={source} value={source}>{source.charAt(0).toUpperCase() + source.slice(1)}</option>
           ))}
         </select>
@@ -816,7 +816,7 @@ export default function Home() {
           className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Types</option>
-          {filterOptions[currentCategory as keyof typeof filterOptions].types.map(type => (
+          {filterOptions[currentCategory].types.map(type => (
             type !== 'all' && <option key={type} value={type}>{type}</option>
           ))}
         </select>
@@ -827,7 +827,7 @@ export default function Home() {
           className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Locations</option>
-          {filterOptions[currentCategory as keyof typeof filterOptions].locations.map(location => (
+          {filterOptions[currentCategory].locations.map(location => (
             location !== 'all' && <option key={location} value={location}>{location}</option>
           ))}
         </select>
@@ -904,7 +904,7 @@ export default function Home() {
     return [...activePosts, ...expiredPosts];
   };
 
-  const displayFullPost = (post: Post) => {
+  const displayFullPost = (post) => {
     if (post.category === 'mentors') {
       return (
         <div className="space-y-6">
@@ -916,7 +916,7 @@ export default function Home() {
               width={120}
               height={120}
               className="rounded-lg object-cover"
-              onError={(e: any) => { e.target.src = DEFAULT_COMPANY_LOGO }}
+              onError={(e) => { e.target.src = DEFAULT_COMPANY_LOGO }}
             />
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900">{post.title}</h1>
@@ -925,35 +925,35 @@ export default function Home() {
               {/* Action Buttons Row */}
               <div className="flex items-center gap-4 mt-4">
                 <div className="flex items-center gap-4 flex-1">
-                  {post.linkedin && (
-                    <a href={post.linkedin} target="_blank" rel="noopener noreferrer" 
+                  {post.labels?.linkedin && (
+                    <a href={post.labels.linkedin} target="_blank" rel="noopener noreferrer" 
                        className="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                       <FiLinkedin size={20} /> LinkedIn
                     </a>
                   )}
-                  {post.instagram && post.instagram !== '-' && (
-                    <a href={post.instagram} target="_blank" rel="noopener noreferrer"
+                  {post.labels?.instagram && post.labels.instagram !== '-' && (
+                    <a href={post.labels.instagram} target="_blank" rel="noopener noreferrer"
                        className="text-pink-600 hover:text-pink-800 flex items-center gap-2">
                       <FiInstagram size={20} /> Instagram
                     </a>
                   )}
                 </div>
-                {post.link && (
+                {post.labels?.link && (
                   <a
-                    href={post.link}
+                    href={post.labels.link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
                   >
-                    {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
-                    {post.category !== 'mentors' && <FiLink size={16} />}
+                    Schedule Mentoring
+                    <FiLink size={16} />
                   </a>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Labels Section - Now under Apply Now buttoon */}
+          {/* Labels Section - Now under Apply Now button */}
           <div className="mt-6 space-y-4 bg-gray-50 rounded-lg p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-500">Field:</span>
@@ -1063,7 +1063,10 @@ export default function Home() {
         <div className="flex items-center justify-between gap-4 border-b pb-6">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => toggleFavorite(post.title)}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFavorite(post.title);
+              }}
               className={`p-2.5 rounded-lg ${
                 favorites.includes(post.title)
                   ? 'bg-pink-50 text-pink-500 border border-pink-200'
@@ -1074,7 +1077,10 @@ export default function Home() {
             </button>
             
             <button
-              onClick={() => copyPostLink(post)}
+              onClick={(e) => {
+                e.stopPropagation();
+                copyPostLink(post);
+              }}
               className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
             >
               <FiLink size={20} />
