@@ -350,10 +350,10 @@ export default function Home() {
   const postsPerPage = 15;
 
   // Initialize with empty arrays for SSR
-  const [favorites, setFavorites] = useState([]);
-  const [calendarEvents, setCalendarEvents] = useState([]);
-  const [posts, setPosts] = useState([]);
-  const [visiblePosts, setVisiblePosts] = useState([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [visiblePosts, setVisiblePosts] = useState<Post[]>([]);
   const [currentCategory, setCurrentCategory] = useState('jobs');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -361,7 +361,7 @@ export default function Home() {
   const [showSaved, setShowSaved] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPostTitle, setSelectedPostTitle] = useState(null);
+  const [selectedPostTitle, setSelectedPostTitle] = useState<string | null>(null);
 
   // 2. Move all localStorage operations to a single useEffect
   useEffect(() => {
@@ -426,16 +426,16 @@ export default function Home() {
   );
 
   const categories = ['jobs', 'mentors'];
-  const listRef = useRef(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const [showCalendarPanel, setShowCalendarPanel] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState<Post | null>(null);
   const [showCalendarManagement, setShowCalendarManagement] = useState(false);
-  const [sortOrder, setSortOrder] = useState('default');
-  const [filterDays, setFilterDays] = useState(null);
+  const [sortOrder, setSortOrder] = useState<'default' | 'days-left'>('default');
+  const [filterDays, setFilterDays] = useState<number | null>(null);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(null);
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [showBanner, setShowBanner] = useState(true);
-  const [recommendations, setRecommendations] = useState([]);
+  const [recommendations, setRecommendations] = useState<Post[]>([]);
 
   // Add new state for mobile view control
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -478,31 +478,23 @@ export default function Home() {
             title: mentor.title,
             category: 'mentors',
             image: mentor.image,
-            linkedin: mentor.linkedin,
-            instagram: mentor.instagram,
+            linkedin: mentor.labels?.linkedin,
+            instagram: mentor.labels?.instagram,
+            link: mentor.labels?.link,
             experience: Array.isArray(mentor.experience) 
-              ? mentor.experience.map((exp: string | Experience) => ({
-                  role: typeof exp === 'string' ? exp : exp.role || 'Experience',
-                  company: '',
-                  duration: ''
-                }))
-              : [{ role: mentor.experience, company: '', duration: '' }],
+              ? mentor.experience 
+              : [],
             education: Array.isArray(mentor.education)
-              ? mentor.education.map((edu: string | Education) => ({
-                  degree: typeof edu === 'string' ? edu : edu.degree || 'Education',
-                  school: '',
-                  year: ''
-                }))
-              : [{ degree: mentor.education, school: '', year: '' }],
-            body: mentor.company || mentor.labels?.Organization,
+              ? mentor.education
+              : [],
+            body: mentor.body,
             labels: {
               Field: mentor.labels?.Field || 'Not specified',
-              Organization: mentor.labels?.Organization || mentor.company || '',
+              Organization: mentor.labels?.Organization || '',
               'Mentoring Topics': Array.isArray(mentor.labels?.['Mentoring Topic']) 
                 ? mentor.labels['Mentoring Topic'].join(', ')
                 : mentor.labels?.['Mentoring Topic'] || ''
             },
-            link: mentor.link,
             source: 'learnitab',
             created_at: new Date().getTime(),
             expired: false,
@@ -805,7 +797,7 @@ export default function Home() {
           className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Sources</option>
-          {filterOptions[currentCategory].sources.map(source => (
+          {filterOptions[currentCategory as keyof typeof filterOptions].sources.map(source => (
             source !== 'all' && <option key={source} value={source}>{source.charAt(0).toUpperCase() + source.slice(1)}</option>
           ))}
         </select>
@@ -816,7 +808,7 @@ export default function Home() {
           className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Types</option>
-          {filterOptions[currentCategory].types.map(type => (
+          {filterOptions[currentCategory as keyof typeof filterOptions].types.map(type => (
             type !== 'all' && <option key={type} value={type}>{type}</option>
           ))}
         </select>
@@ -827,7 +819,7 @@ export default function Home() {
           className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Locations</option>
-          {filterOptions[currentCategory].locations.map(location => (
+          {filterOptions[currentCategory as keyof typeof filterOptions].locations.map(location => (
             location !== 'all' && <option key={location} value={location}>{location}</option>
           ))}
         </select>
@@ -904,7 +896,7 @@ export default function Home() {
     return [...activePosts, ...expiredPosts];
   };
 
-  const displayFullPost = (post) => {
+  const displayFullPost = (post: Post) => {
     if (post.category === 'mentors') {
       return (
         <div className="space-y-6">
@@ -916,7 +908,7 @@ export default function Home() {
               width={120}
               height={120}
               className="rounded-lg object-cover"
-              onError={(e) => { e.target.src = DEFAULT_COMPANY_LOGO }}
+              onError={(e: any) => { e.target.src = DEFAULT_COMPANY_LOGO }}
             />
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900">{post.title}</h1>
@@ -925,28 +917,28 @@ export default function Home() {
               {/* Action Buttons Row */}
               <div className="flex items-center gap-4 mt-4">
                 <div className="flex items-center gap-4 flex-1">
-                  {post.labels?.linkedin && (
-                    <a href={post.labels.linkedin} target="_blank" rel="noopener noreferrer" 
+                  {post.linkedin && (
+                    <a href={post.linkedin} target="_blank" rel="noopener noreferrer" 
                        className="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                       <FiLinkedin size={20} /> LinkedIn
                     </a>
                   )}
-                  {post.labels?.instagram && post.labels.instagram !== '-' && (
-                    <a href={post.labels.instagram} target="_blank" rel="noopener noreferrer"
+                  {post.instagram && post.instagram !== '-' && (
+                    <a href={post.instagram} target="_blank" rel="noopener noreferrer"
                        className="text-pink-600 hover:text-pink-800 flex items-center gap-2">
                       <FiInstagram size={20} /> Instagram
                     </a>
                   )}
                 </div>
-                {post.labels?.link && (
+                {post.link && (
                   <a
-                    href={post.labels.link}
+                    href={post.link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
                   >
-                    Schedule Mentoring
-                    <FiLink size={16} />
+                    {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
+                    {post.category !== 'mentors' && <FiLink size={16} />}
                   </a>
                 )}
               </div>
@@ -976,17 +968,11 @@ export default function Home() {
                 <FiBriefcase /> Experience
               </h2>
               <div className="space-y-4">
-                {post.experience.map((exp: Experience | string, index: number) => (
+                {post.experience.map((exp, index) => (
                   <div key={index} className="border-l-2 border-blue-500 pl-4">
                     <h3 className="font-medium text-gray-900">
                       {typeof exp === 'string' ? exp : exp.role}
                     </h3>
-                    {typeof exp !== 'string' && (
-                      <>
-                        <p className="text-gray-600">{exp.company}</p>
-                        <p className="text-sm text-gray-500">{exp.duration}</p>
-                      </>
-                    )}
                   </div>
                 ))}
               </div>
@@ -1063,10 +1049,7 @@ export default function Home() {
         <div className="flex items-center justify-between gap-4 border-b pb-6">
           <div className="flex items-center gap-4">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFavorite(post.title);
-              }}
+              onClick={() => toggleFavorite(post.title)}
               className={`p-2.5 rounded-lg ${
                 favorites.includes(post.title)
                   ? 'bg-pink-50 text-pink-500 border border-pink-200'
@@ -1077,10 +1060,7 @@ export default function Home() {
             </button>
             
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                copyPostLink(post);
-              }}
+              onClick={() => copyPostLink(post)}
               className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
             >
               <FiLink size={20} />
