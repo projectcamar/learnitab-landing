@@ -584,14 +584,14 @@ export default function Home() {
                     <h3 className="font-semibold text-gray-900 truncate">{post.title}</h3>
                     {post.category === 'mentors' ? (
                       <div className="flex items-center gap-2 mt-1">
-                        {post.labels?.linkedin && (
-                          <a href={post.labels.linkedin} target="_blank" rel="noopener noreferrer" 
+                        {post.linkedin && (
+                          <a href={post.linkedin} target="_blank" rel="noopener noreferrer" 
                              className="text-blue-600 hover:text-blue-800">
                             <FiLinkedin />
                           </a>
                         )}
-                        {post.labels?.instagram && post.labels.instagram !== '-' && (
-                          <a href={post.labels.instagram} target="_blank" rel="noopener noreferrer"
+                        {post.instagram && (
+                          <a href={post.instagram} target="_blank" rel="noopener noreferrer"
                              className="text-pink-600 hover:text-pink-800">
                             <FiInstagram />
                           </a>
@@ -925,33 +925,30 @@ export default function Home() {
               {/* Action Buttons Row */}
               <div className="flex items-center gap-4 mt-4">
                 <div className="flex items-center gap-4 flex-1">
-                  {post.labels?.linkedin && (
-                    <a href={post.labels.linkedin} target="_blank" rel="noopener noreferrer" 
+                  {post.linkedin && (
+                    <a href={post.linkedin} target="_blank" rel="noopener noreferrer" 
                        className="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                       <FiLinkedin size={20} /> LinkedIn
                     </a>
                   )}
-                  {post.labels?.instagram && post.labels.instagram !== '-' && (
-                    <a href={post.labels.instagram} target="_blank" rel="noopener noreferrer"
+                  {post.instagram && post.instagram !== '-' && (
+                    <a href={post.instagram} target="_blank" rel="noopener noreferrer"
                        className="text-pink-600 hover:text-pink-800 flex items-center gap-2">
                       <FiInstagram size={20} /> Instagram
                     </a>
                   )}
                 </div>
-                <a
-                  href={
-                    post.source === 'remotive' || post.source === 'jobicy' || post.source === 'remoteok' ? post.link || "#" :
-                    post.source === 'web3' ? post.apply_url || "#" :
-                    post.source === 'arbeitnow' ? post.url || "#" :
-                    post.labels?.link || "#"
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
-                >
-                  {post.category.toLowerCase() === 'jobs' ? 'Apply Now' : 'Schedule Mentoring'}
-                  {post.category.toLowerCase() === 'jobs' && <FiLink size={16} />}
-                </a>
+                {post.link && (
+                  <a
+                    href={post.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                  >
+                    {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
+                    {post.category !== 'mentors' && <FiLink size={16} />}
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -968,11 +965,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-500">Mentoring Topics:</span>
-              <span className="text-sm text-gray-900">
-                {Array.isArray(post.labels?.['Mentoring Topics']) 
-                  ? post.labels?.['Mentoring Topics'].join(', ') 
-                  : (post.labels?.['Mentoring Topics'] || post.labels?.['Mentoring Topic'] || 'Not specified')}
-              </span>
+              <span className="text-sm text-gray-900">{post.labels?.['Mentoring Topics'] || 'Not specified'}</span>
             </div>
           </div>
 
@@ -983,15 +976,15 @@ export default function Home() {
                 <FiBriefcase /> Experience
               </h2>
               <div className="space-y-4">
-                {post.experience.map((exp: any, index: number) => (
+                {post.experience.map((exp: Experience | string, index: number) => (
                   <div key={index} className="border-l-2 border-blue-500 pl-4">
                     <h3 className="font-medium text-gray-900">
-                      {typeof exp === 'string' ? exp : (exp.role || '')}
+                      {typeof exp === 'string' ? exp : exp.role}
                     </h3>
-                    {typeof exp !== 'string' && exp.company && (
+                    {typeof exp !== 'string' && (
                       <>
                         <p className="text-gray-600">{exp.company}</p>
-                        {exp.duration && <p className="text-sm text-gray-500">{exp.duration}</p>}
+                        <p className="text-sm text-gray-500">{exp.duration}</p>
                       </>
                     )}
                   </div>
@@ -1009,9 +1002,9 @@ export default function Home() {
               <div className="space-y-4">
                 {(Array.isArray(post.education) ? post.education : []).map((edu: any, index) => (
                   <div key={index} className="border-l-2 border-indigo-500 pl-4">
-                    <h3 className="font-medium text-gray-900">{typeof edu === 'string' ? edu : (edu.degree || '')}</h3>
-                    {typeof edu !== 'string' && edu.school && <p className="text-gray-600">{edu.school}</p>}
-                    {typeof edu !== 'string' && edu.year && <p className="text-sm text-gray-500">{edu.year}</p>}
+                    <h3 className="font-medium text-gray-900">{typeof edu === 'string' ? edu : edu.degree}</h3>
+                    <p className="text-gray-600">{typeof edu === 'string' ? '' : edu.school}</p>
+                    <p className="text-sm text-gray-500">{typeof edu === 'string' ? '' : edu.year}</p>
                   </div>
                 ))}
               </div>
@@ -1088,20 +1081,17 @@ export default function Home() {
             </button>
           </div>
 
-          <a
-            href={
-              post.source === 'remotive' || post.source === 'jobicy' || post.source === 'remoteok' ? post.link || "#" :
-              post.source === 'web3' ? post.apply_url || "#" :
-              post.source === 'arbeitnow' ? post.url || "#" :
-              post.labels?.link || "#"
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
-          >
-            {post.category.toLowerCase() === 'jobs' ? 'Apply Now' : 'Schedule Mentoring'}
-            {post.category.toLowerCase() === 'jobs' && <FiLink size={16} />}
-          </a>
+          {post.link && (
+            <a
+              href={post.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+            >
+              {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
+              {post.category !== 'mentors' && <FiLink size={16} />}
+            </a>
+          )}
         </div>
 
         {/* Job Description */}
@@ -1214,7 +1204,7 @@ export default function Home() {
         </h2>
         
         <p className="text-gray-600 mb-4 max-w-lg mt-1">
-          Your gateway to discovering amazing opportunities in jobs and mentorship. Select an opportunity from the left to get started~!
+          Your gateway to discovering amazing opportunities in internships, competitions, scholarships, and mentorship. Select an opportunity from the left to get started~!
         </p>
 
         <div className="flex items-center gap-6">
@@ -1579,62 +1569,6 @@ export default function Home() {
           .custom-scrollbar::-webkit-scrollbar-thumb {
             background-color: rgba(156, 163, 175, 0.5);
             border-radius: 3px;
-          }
-        `}</style>
-
-        <style jsx>{`
-          .onboarding-button {
-            background: linear-gradient(45deg, #0066ff, #2e89ff);
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-          }
-        `}</style>
-
-        <style jsx>{`
-          .glitch-text {
-            font-size: 48px;
-            color: white;
-            position: relative;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            animation: glitch 5s infinite;
-          }
-        `}</style>
-
-        <style jsx>{`
-          .glowing-rings {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-          }
-
-          .ring {
-            position: absolute;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            animation: expand 10s infinite ease-out;
-          }
-        `}</style>
-
-        <style jsx>{`
-          .circle.c1 {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-          }
-          .circle.c2 {
-            background: linear-gradient(135deg, #3b82f6, #2dd4bf);
-          }
-          .circle.c3 {
-            background: linear-gradient(135deg, #ec4899, #f43f5e);
-          }
-          .circle.c4 {
-            background: linear-gradient(135deg, #8b5cf6, #6366f1);
-          }
-          .circle.c5 {
-            background: linear-gradient(135deg, #f97316, #eab308);
           }
         `}</style>
       </div>
