@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc, FiDownload, FiBookmark } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
 import { Post } from '../models/Post';
@@ -754,68 +754,6 @@ export default function Home() {
     }
   };
 
-  // Replace calendar states with bookmark-related states
-  const [showBookmarkManager, setShowBookmarkManager] = useState(false);
-  const [bookmarkFolders, setBookmarkFolders] = useState([
-    { id: '1', name: 'Interested', posts: [] },
-    { id: '2', name: 'Applied', posts: [] },
-    { id: '3', name: 'Interview', posts: [] }
-  ]);
-  const [selectedPost, setSelectedPost] = useState(null);
-
-  // Replace calendar button with bookmark manager button
-  const renderBookmarkButton = () => (
-    <button
-      onClick={() => {
-        setShowBookmarkManager(true);
-        setIsOverlayVisible(true);
-      }}
-      className="flex items-center space-x-2 px-4 py-2 rounded-md bg-white hover:bg-gray-50 border border-gray-200"
-    >
-      <FiBookmark className="w-5 h-5 text-gray-400" />
-      <span className="text-sm font-['Plus_Jakarta_Sans']">
-        {typeof window !== 'undefined' ? 
-          bookmarkFolders.reduce((total, folder) => total + folder.posts.length, 0) : 0}
-      </span>
-    </button>
-  );
-
-  // Add function to add post to bookmark folder
-  const addToBookmarkFolder = (post, folderId) => {
-    setBookmarkFolders(prev => {
-      const newFolders = [...prev];
-      const folderIndex = newFolders.findIndex(f => f.id === folderId);
-      
-      if (folderIndex !== -1) {
-        // Avoid duplicates
-        if (!newFolders[folderIndex].posts.some(p => p._id === post._id)) {
-          newFolders[folderIndex].posts.push(post);
-        }
-      }
-      
-      localStorage.setItem('bookmarkFolders', JSON.stringify(newFolders));
-      return newFolders;
-    });
-    
-    setShowBookmarkManager(false);
-    setIsOverlayVisible(false);
-  };
-
-  // Function to remove from bookmark folder
-  const removeFromBookmark = (postId, folderId) => {
-    setBookmarkFolders(prev => {
-      const newFolders = [...prev];
-      const folderIndex = newFolders.findIndex(f => f.id === folderId);
-      
-      if (folderIndex !== -1) {
-        newFolders[folderIndex].posts = newFolders[folderIndex].posts.filter(p => p._id !== postId);
-      }
-      
-      localStorage.setItem('bookmarkFolders', JSON.stringify(newFolders));
-      return newFolders;
-    });
-  };
-
   // Update the search bar to include bookmark button instead of calendar
   const renderSearchBar = () => (
     <div className="flex flex-col space-y-4 bg-gradient-to-r from-white to-blue-50 p-4 rounded-lg border border-blue-100">
@@ -833,7 +771,7 @@ export default function Home() {
           />
         </div>
         
-        {/* Favorites and Bookmark counts */}
+        {/* Favorites count */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowSaved(!showSaved)}
@@ -846,18 +784,6 @@ export default function Home() {
             <FiHeart className={showSaved ? 'text-pink-500' : 'text-gray-400'} />
             <span className="font-medium">{favorites.length}</span>
           </button>
-          <button
-            onClick={() => {
-              setShowBookmarkManager(true);
-              setIsOverlayVisible(true);
-            }}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200"
-          >
-            <FiBookmark className="text-gray-400" />
-            <span className="font-medium">
-              {bookmarkFolders.reduce((total, folder) => total + folder.posts.length, 0)}
-            </span>
-          </button>
         </div>
       </div>
 
@@ -869,7 +795,7 @@ export default function Home() {
           className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Sources</option>
-          {filterOptions[currentCategory as keyof typeof filterOptions].sources.map(source => (
+          {filterOptions[currentCategory].sources.map(source => (
             source !== 'all' && <option key={source} value={source}>{source.charAt(0).toUpperCase() + source.slice(1)}</option>
           ))}
         </select>
@@ -880,7 +806,7 @@ export default function Home() {
           className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Types</option>
-          {filterOptions[currentCategory as keyof typeof filterOptions].types.map(type => (
+          {filterOptions[currentCategory].types.map(type => (
             type !== 'all' && <option key={type} value={type}>{type}</option>
           ))}
         </select>
@@ -891,7 +817,7 @@ export default function Home() {
           className="flex-1 py-1.5 px-2 text-sm rounded-lg border border-gray-200 bg-white hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Locations</option>
-          {filterOptions[currentCategory as keyof typeof filterOptions].locations.map(location => (
+          {filterOptions[currentCategory].locations.map(location => (
             location !== 'all' && <option key={location} value={location}>{location}</option>
           ))}
         </select>
@@ -1142,17 +1068,6 @@ export default function Home() {
               className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
             >
               <FiLink size={20} />
-            </button>
-            
-            <button
-              onClick={() => {
-                setSelectedPost(post);
-                setShowBookmarkManager(true);
-                setIsOverlayVisible(true);
-              }}
-              className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
-            >
-              <FiBookmark size={20} />
             </button>
           </div>
 
@@ -1499,77 +1414,6 @@ export default function Home() {
               >
                 Add to Calendar
               </button>
-            </div>
-          </div>
-        )}
-
-        {showBookmarkManager && (
-          <div className="fixed inset-0 bg-gray-600/50 backdrop-blur-sm z-50">
-            <div className="fixed inset-y-0 right-0 w-full md:w-80 bg-gradient-to-b from-white to-blue-50 shadow-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Application Tracker</h2>
-                <button onClick={() => {
-                  setShowBookmarkManager(false);
-                  setIsOverlayVisible(false);
-                }} className="text-gray-500 hover:text-gray-700">
-                  <IoMdClose size={24} />
-                </button>
-              </div>
-              
-              {selectedPost && (
-                <div className="mb-6 p-4 bg-white rounded-lg shadow-sm">
-                  <h3 className="font-medium text-lg mb-2">{selectedPost.title}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{selectedPost.company || selectedPost.labels?.Company}</p>
-                  
-                  <div className="space-y-2">
-                    {bookmarkFolders.map(folder => (
-                      <button
-                        key={folder.id}
-                        onClick={() => addToBookmarkFolder(selectedPost, folder.id)}
-                        className="w-full text-left px-4 py-2 rounded-md bg-blue-50 hover:bg-blue-100 transition-colors"
-                      >
-                        Add to: {folder.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              <div className="space-y-4">
-                {bookmarkFolders.map(folder => (
-                  <div key={folder.id} className="border border-blue-100 rounded-lg overflow-hidden">
-                    <div className="bg-blue-50 px-4 py-2 flex justify-between items-center">
-                      <h3 className="font-medium">{folder.name}</h3>
-                      <span className="text-sm bg-blue-100 px-2 py-0.5 rounded-full">{folder.posts.length}</span>
-                    </div>
-                    
-                    <div className="max-h-60 overflow-y-auto p-2 bg-white space-y-2">
-                      {folder.posts.length === 0 ? (
-                        <p className="text-sm text-gray-500 text-center py-2">No items yet</p>
-                      ) : (
-                        folder.posts.map(post => (
-                          <div key={post._id} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                            <div className="truncate flex-1">
-                              <p className="font-medium text-sm truncate">{post.title}</p>
-                              <p className="text-xs text-gray-500 truncate">{post.company || post.labels?.Company}</p>
-                            </div>
-                            <button
-                              onClick={() => removeFromBookmark(post._id, folder.id)}
-                              className="text-red-400 hover:text-red-600 p-1"
-                            >
-                              <FiTrash2 size={16} />
-                            </button>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <p className="text-sm text-gray-500 mt-4 text-center">
-                Track your application status with these folders
-              </p>
             </div>
           </div>
         )}
