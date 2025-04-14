@@ -584,14 +584,14 @@ export default function Home() {
                     <h3 className="font-semibold text-gray-900 truncate">{post.title}</h3>
                     {post.category === 'mentors' ? (
                       <div className="flex items-center gap-2 mt-1">
-                        {post.linkedin && (
-                          <a href={post.linkedin} target="_blank" rel="noopener noreferrer" 
+                        {post.labels?.linkedin && (
+                          <a href={post.labels.linkedin} target="_blank" rel="noopener noreferrer" 
                              className="text-blue-600 hover:text-blue-800">
                             <FiLinkedin />
                           </a>
                         )}
-                        {post.instagram && (
-                          <a href={post.instagram} target="_blank" rel="noopener noreferrer"
+                        {post.labels?.instagram && post.labels.instagram !== '-' && (
+                          <a href={post.labels.instagram} target="_blank" rel="noopener noreferrer"
                              className="text-pink-600 hover:text-pink-800">
                             <FiInstagram />
                           </a>
@@ -925,14 +925,14 @@ export default function Home() {
               {/* Action Buttons Row */}
               <div className="flex items-center gap-4 mt-4">
                 <div className="flex items-center gap-4 flex-1">
-                  {post.linkedin && (
-                    <a href={post.linkedin} target="_blank" rel="noopener noreferrer" 
+                  {post.labels?.linkedin && (
+                    <a href={post.labels.linkedin} target="_blank" rel="noopener noreferrer" 
                        className="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                       <FiLinkedin size={20} /> LinkedIn
                     </a>
                   )}
-                  {post.instagram && post.instagram !== '-' && (
-                    <a href={post.instagram} target="_blank" rel="noopener noreferrer"
+                  {post.labels?.instagram && post.labels.instagram !== '-' && (
+                    <a href={post.labels.instagram} target="_blank" rel="noopener noreferrer"
                        className="text-pink-600 hover:text-pink-800 flex items-center gap-2">
                       <FiInstagram size={20} /> Instagram
                     </a>
@@ -945,8 +945,8 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
                   >
-                    {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
-                    {post.category !== 'mentors' && <FiLink size={16} />}
+                    {post.category.toLowerCase() === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
+                    {post.category.toLowerCase() !== 'mentors' && <FiLink size={16} />}
                   </a>
                 )}
               </div>
@@ -1092,8 +1092,8 @@ export default function Home() {
               rel="noopener noreferrer"
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors"
             >
-              {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
-              {post.category !== 'mentors' && <FiLink size={16} />}
+              {post.category.toLowerCase() === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
+              {post.category.toLowerCase() !== 'mentors' && <FiLink size={16} />}
             </a>
           )}
         </div>
