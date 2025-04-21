@@ -908,8 +908,8 @@ export default function Home() {
     if (post.category === 'mentors') {
       return (
         <div className="space-y-6">
-          {/* Header with image, title, and Apply Now button */}
-          <div className="flex items-start gap-6">
+          {/* Header with image, title, and company info */}
+          <div className="flex items-start gap-6 border-b pb-6">
             <Image
               src={post.image || DEFAULT_COMPANY_LOGO}
               alt={post.title}
@@ -922,35 +922,57 @@ export default function Home() {
               <h1 className="text-2xl font-bold text-gray-900">{post.title}</h1>
               <p className="text-gray-600 mt-2">{post.body}</p>
 
-              {/* Action Buttons Row */}
+              {/* Social Links */}
               <div className="flex items-center gap-4 mt-4">
-                <div className="flex items-center gap-4 flex-1">
-                  {post.linkedin && (
-                    <a href={post.linkedin} target="_blank" rel="noopener noreferrer" 
-                       className="text-blue-600 hover:text-blue-800 flex items-center gap-2">
-                      <FiLinkedin size={20} /> LinkedIn
-                    </a>
-                  )}
-                  {post.instagram && post.instagram !== '-' && (
-                    <a href={post.instagram} target="_blank" rel="noopener noreferrer"
-                       className="text-pink-600 hover:text-pink-800 flex items-center gap-2">
-                      <FiInstagram size={20} /> Instagram
-                    </a>
-                  )}
-                </div>
-                <a
-                  href="https://forms.gle/TTzj45XHARhDuGKU9"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
-                >
-                  Schedule Mentoring
-                </a>
+                {post.linkedin && (
+                  <a href={post.linkedin} target="_blank" rel="noopener noreferrer" 
+                     className="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                    <FiLinkedin size={20} /> LinkedIn
+                  </a>
+                )}
+                {post.instagram && post.instagram !== '-' && (
+                  <a href={post.instagram} target="_blank" rel="noopener noreferrer"
+                     className="text-pink-600 hover:text-pink-800 flex items-center gap-2">
+                    <FiInstagram size={20} /> Instagram
+                  </a>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Labels Section - Now under Apply Now button */}
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between gap-4 border-b pb-6">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => toggleFavorite(post.title)}
+                className={`p-2.5 rounded-lg ${
+                  favorites.includes(post.title)
+                    ? 'bg-pink-50 text-pink-500 border border-pink-200'
+                    : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
+                }`}
+              >
+                <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
+              </button>
+              
+              <button
+                onClick={() => copyPostLink(post)}
+                className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
+              >
+                <FiLink size={20} />
+              </button>
+            </div>
+
+            <a
+              href="https://forms.gle/TTzj45XHARhDuGKU9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+            >
+              Schedule Mentoring
+            </a>
+          </div>
+
+          {/* Labels Section - Now under Action Buttons */}
           <div className="mt-6 space-y-4 bg-gray-50 rounded-lg p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-500">Field:</span>
