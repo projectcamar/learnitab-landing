@@ -1337,13 +1337,6 @@ export default function Home() {
                 >
                   Learnitab
                 </h1>
-                <button 
-                  onClick={() => window.open('https://learnitab.com/download', '_blank')}
-                  className="ml-2 flex items-center px-3 py-1 text-sm font-bold rounded-md bg-white hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
-                >
-                  <FiDownload className="mr-2" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Download Learnitab Opportunity Desktop App</span>
-                </button>
               </div>
               <nav className="hidden md:flex space-x-4">
                 {categories.map((category) => (
