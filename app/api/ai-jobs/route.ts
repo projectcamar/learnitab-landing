@@ -162,6 +162,66 @@ async function getAllJobs() {
   return allJobs;
 }
 
+// RAG: Filter and rank jobs based on relevance to user query
+function filterRelevantJobs(jobs: any[], userQuery: string, limit: number = 30): any[] {
+  // Extract keywords from user query
+  const queryLower = userQuery.toLowerCase();
+  const keywords = queryLower
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length > 2 && !['the', 'and', 'for', 'are', 'with', 'looking', 'need', 'want', 'show', 'find', 'get'].includes(word));
+  
+  console.log(`Filtering jobs with keywords: ${keywords.join(', ')}`);
+  
+  // Score each job based on relevance
+  const scoredJobs = jobs.map(job => {
+    let score = 0;
+    const titleLower = (job.title || '').toLowerCase();
+    const descLower = (job.description || '').toLowerCase().substring(0, 500);
+    const companyLower = (job.company || '').toLowerCase();
+    const tagsLower = (job.tags || []).join(' ').toLowerCase();
+    
+    // Higher weight for title matches
+    keywords.forEach(keyword => {
+      if (titleLower.includes(keyword)) score += 10;
+      if (companyLower.includes(keyword)) score += 5;
+      if (descLower.includes(keyword)) score += 3;
+      if (tagsLower.includes(keyword)) score += 4;
+    });
+    
+    // Bonus for common tech keywords
+    const techKeywords = ['senior', 'junior', 'lead', 'principal', 'staff', 'developer', 'engineer', 'designer', 'manager', 'remote', 'full-time', 'part-time'];
+    techKeywords.forEach(tech => {
+      if (queryLower.includes(tech) && titleLower.includes(tech)) score += 8;
+    });
+    
+    // Boost recent jobs slightly
+    const daysSincePosted = job.date ? (Date.now() - new Date(job.date).getTime()) / (1000 * 60 * 60 * 24) : 30;
+    if (daysSincePosted < 7) score += 2;
+    else if (daysSincePosted < 14) score += 1;
+    
+    return { ...job, relevanceScore: score };
+  });
+  
+  // Sort by score and return top results
+  const topJobs = scoredJobs
+    .filter(job => job.relevanceScore > 0)
+    .sort((a, b) => b.relevanceScore - a.relevanceScore)
+    .slice(0, limit);
+  
+  console.log(`Filtered to ${topJobs.length} most relevant jobs (scores: ${topJobs.slice(0, 5).map(j => j.relevanceScore).join(', ')})`);
+  
+  // If we don't have enough relevant jobs, add some random jobs to reach a minimum
+  if (topJobs.length < 10) {
+    const remainingJobs = scoredJobs
+      .filter(job => !topJobs.includes(job))
+      .slice(0, Math.min(20, jobs.length - topJobs.length));
+    return [...topJobs, ...remainingJobs];
+  }
+  
+  return topJobs;
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Parse request with error handling for large payloads
@@ -230,8 +290,13 @@ export async function POST(request: NextRequest) {
       allJobs = [];
     }
     
-    // Create a detailed summary of available jobs for the AI
-    const jobsSummary = allJobs.slice(0, 150).map((job: any, index: number) => ({
+    // RAG APPROACH: Filter jobs based on user query to reduce payload size
+    // Instead of sending 150 jobs, we now filter to only the most relevant 30 jobs
+    const relevantJobs = filterRelevantJobs(allJobs, message, 30);
+    console.log(`RAG: Reduced from ${allJobs.length} to ${relevantJobs.length} relevant jobs`);
+    
+    // Create a detailed summary of relevant jobs for the AI (now much smaller payload)
+    const jobsSummary = relevantJobs.map((job: any, index: number) => ({
       id: index,
       title: job.title,
       company: job.company,
@@ -240,7 +305,7 @@ export async function POST(request: NextRequest) {
       source: job.source,
       salary: job.salary,
       url: job.url,
-      description: job.description ? job.description.substring(0, 300) + '...' : 'No description',
+      description: job.description ? job.description.substring(0, 400) + '...' : 'No description',
       tags: job.tags || []
     }));
 
@@ -250,9 +315,11 @@ export async function POST(request: NextRequest) {
         role: 'system',
         content: `You are an AI job search assistant helping users find their perfect remote job opportunity. You have access to job listings from multiple sources: Remotive, Jobicy, Arbeitnow, RemoteOK, and Web3.career.
 
+**IMPORTANT: The jobs shown below have been pre-filtered using RAG (Retrieval Augmented Generation) based on the user's query. These are the MOST RELEVANT jobs from thousands of listings. You're seeing only the top matches.**
+
 Your capabilities:
 1. Analyze user preferences and requirements
-2. Search and filter through available job listings
+2. Search and filter through the pre-filtered relevant job listings
 3. Provide personalized job recommendations with FULL details
 4. Answer questions about job opportunities
 5. Help users understand job market trends
@@ -396,8 +463,8 @@ Be conversational, friendly, and helpful with **proper markdown formatting**!`
         const title = titleMatch[1].trim();
         const company = companyMatch[1].trim();
         
-        // Find the actual job from database
-        const actualJob = allJobs.find((job: any) => 
+        // Find the actual job from the relevant jobs (RAG filtered list)
+        const actualJob = relevantJobs.find((job: any) => 
           job.title.toLowerCase().includes(title.toLowerCase()) &&
           job.company.toLowerCase().includes(company.toLowerCase())
         );
@@ -411,7 +478,8 @@ Be conversational, friendly, and helpful with **proper markdown formatting**!`
     return NextResponse.json({
       message: aiResponse,
       jobCards: jobCards,
-      totalJobsAvailable: allJobs.length
+      totalJobsAvailable: allJobs.length,
+      relevantJobsCount: relevantJobs.length
     });
 
   } catch (error: any) {
