@@ -1020,12 +1020,12 @@ export default function Home() {
               <button
                 onClick={() => toggleFavorite(post.title)}
                 className={`p-2.5 rounded-lg ${
-                  favorites.includes(post.title)
+                  isFavorited(post.title)
                     ? 'bg-pink-50 text-pink-500 border border-pink-200'
                     : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
                 }`}
               >
-                <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
+                <FiHeart size={20} className={isFavorited(post.title) ? 'fill-current' : ''} />
               </button>
               
               <button
