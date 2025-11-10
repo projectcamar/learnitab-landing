@@ -163,7 +163,8 @@ async function getAllJobs() {
 }
 
 // RAG: Filter and rank jobs based on relevance to user query
-function filterRelevantJobs(jobs: any[], userQuery: string, limit: number = 30): any[] {
+// Returns top N most relevant jobs to minimize payload size
+function filterRelevantJobs(jobs: any[], userQuery: string, limit: number = 20): any[] {
   // Extract keywords from user query
   const queryLower = userQuery.toLowerCase();
   const keywords = queryLower
@@ -291,11 +292,11 @@ export async function POST(request: NextRequest) {
     }
     
     // RAG APPROACH: Filter jobs based on user query to reduce payload size
-    // Instead of sending 150 jobs, we now filter to only the most relevant 30 jobs
-    const relevantJobs = filterRelevantJobs(allJobs, message, 30);
+    // Instead of sending 150 jobs, we now filter to only the most relevant 20 jobs
+    const relevantJobs = filterRelevantJobs(allJobs, message, 20);
     console.log(`RAG: Reduced from ${allJobs.length} to ${relevantJobs.length} relevant jobs`);
     
-    // Create a detailed summary of relevant jobs for the AI (now much smaller payload)
+    // Create a compact summary of relevant jobs for the AI (optimized for minimal payload size)
     const jobsSummary = relevantJobs.map((job: any, index: number) => ({
       id: index,
       title: job.title,
@@ -305,8 +306,10 @@ export async function POST(request: NextRequest) {
       source: job.source,
       salary: job.salary,
       url: job.url,
-      description: job.description ? job.description.substring(0, 400) + '...' : 'No description',
-      tags: job.tags || []
+      // Reduced description length from 400 to 200 chars to minimize payload
+      description: job.description ? job.description.substring(0, 200) + '...' : 'No description',
+      // Only include tags if they exist and limit to first 3
+      tags: job.tags ? job.tags.slice(0, 3) : []
     }));
 
     // Prepare messages for OpenAI

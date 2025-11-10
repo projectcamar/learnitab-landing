@@ -885,6 +885,15 @@ export default function Home() {
     setIsChatLoading(true);
 
     try {
+      // IMPORTANT: Limit conversation history to prevent request payload from being too large
+      // Only send the last 6 messages (3 user + 3 assistant exchanges) to keep request size manageable
+      const recentHistory = chatMessages
+        .slice(-6)  // Only keep last 6 messages
+        .map(msg => ({ 
+          role: msg.role, 
+          content: msg.content.substring(0, 2000)  // Truncate very long messages to 2000 chars
+        }));
+      
       // Don't send all jobs in the request body to avoid payload size issues
       // The backend will fetch jobs from APIs if needed
       const response = await fetch('/api/ai-jobs', {
@@ -894,7 +903,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           message: userMessage,
-          conversationHistory: chatMessages.map(msg => ({ role: msg.role, content: msg.content })),
+          conversationHistory: recentHistory,
           // allJobs removed to prevent payload size errors - backend will fetch jobs
         }),
       });
@@ -996,7 +1005,7 @@ export default function Home() {
               break;
             case 'payload_too_large':
               errorMessage = '📦 **Request Too Large**\n\n' + 
-                (data.message || 'Your request is too large. Try:\n\n• Using a shorter message\n• Starting a new conversation (refresh the page)\n• Being more specific in your query');
+                (data.message || 'The request was too large. This might be due to too many jobs being sent to the AI. Please try refreshing the page and try again.');
               break;
             case 'timeout':
               errorMessage = '⏱️ **Request Timed Out**\n\n' + 
