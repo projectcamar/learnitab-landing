@@ -32,17 +32,49 @@ type CalendarEvent = {
   deadline: string;
 };
 
-// 1. Add proper error handling for localStorage
+// 1. Add proper error handling for localStorage with timestamp support
+type FavoriteItem = {
+  title: string;
+  lovedAt: number;
+  unlovedAt?: number;
+};
+
 const getInitialState = () => {
   try {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('favorites');
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Handle legacy format (array of strings) and convert to new format
+        if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
+          const converted: FavoriteItem[] = parsed.map((title: string) => ({
+            title,
+            lovedAt: Date.now()
+          }));
+          localStorage.setItem('favorites', JSON.stringify(converted));
+          return converted;
+        }
+        return parsed;
+      }
+      return [];
     }
     return [];
   } catch (e) {
     return [];
   }
+};
+
+// Function to cleanup old unloved favorites
+const cleanupOldFavorites = (favorites: FavoriteItem[]): FavoriteItem[] => {
+  const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  
+  return favorites.filter(fav => {
+    // Keep if still loved (no unlovedAt)
+    if (!fav.unlovedAt) return true;
+    // Keep if unloved less than 3 days ago
+    return (now - fav.unlovedAt) < threeDaysInMs;
+  });
 };
 
 // Add this type definition at the top with other types
@@ -350,7 +382,7 @@ export default function Home() {
   const postsPerPage = 15;
 
   // Initialize with empty arrays for SSR
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [visiblePosts, setVisiblePosts] = useState<Post[]>([]);
@@ -369,7 +401,14 @@ export default function Home() {
     try {
       const savedFavorites = localStorage.getItem('favorites');
       if (savedFavorites) {
-        setFavorites(JSON.parse(savedFavorites));
+        const parsed = JSON.parse(savedFavorites);
+        // Clean up old unloved favorites
+        const cleaned = cleanupOldFavorites(parsed);
+        setFavorites(cleaned);
+        // Save cleaned list back
+        if (cleaned.length !== parsed.length) {
+          localStorage.setItem('favorites', JSON.stringify(cleaned));
+        }
       }
 
       const savedEvents = localStorage.getItem('calendarEvents');
@@ -383,14 +422,34 @@ export default function Home() {
     }
   }, []);
 
+  // Add periodic cleanup effect (runs every hour)
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      setFavorites(prev => {
+        const cleaned = cleanupOldFavorites(prev);
+        if (cleaned.length !== prev.length) {
+          localStorage.setItem('favorites', JSON.stringify(cleaned));
+        }
+        return cleaned;
+      });
+    }, 60 * 60 * 1000); // Run every hour
+
+    return () => clearInterval(cleanupInterval);
+  }, []);
+
+  // Helper function to check if a post is favorited
+  const isFavorited = (postTitle: string): boolean => {
+    return favorites.some(fav => fav.title === postTitle && !fav.unlovedAt);
+  };
+
   // 3. Modify the favorites counter display to handle SSR
   const getPostsCount = useCallback(() => {
     if (typeof window === 'undefined') return 0;
     if (showSaved) {
-      return favorites.length;
+      return favorites.filter(fav => !fav.unlovedAt).length;
     }
     return posts.filter(post => post.category === currentCategory).length;
-  }, [showSaved, favorites.length, posts, currentCategory]);
+  }, [showSaved, favorites, posts, currentCategory]);
 
   // 4. Update the favorites button display
   const renderFavoritesButton = () => (
@@ -404,7 +463,7 @@ export default function Home() {
     >
       <FiHeart className={`w-5 h-5 ${showSaved ? 'text-pink-500' : 'text-gray-400'}`} />
       <span className="text-sm font-['Plus_Jakarta_Sans']">
-        {typeof window !== 'undefined' ? favorites.length : 0}
+        {typeof window !== 'undefined' ? favorites.filter(fav => !fav.unlovedAt).length : 0}
       </span>
     </button>
   );
@@ -622,12 +681,12 @@ export default function Home() {
                       toggleFavorite(post.title);
                     }}
                     className={`flex-shrink-0 p-2 rounded-full transition-colors ${
-                      favorites.includes(post.title)
+                      isFavorited(post.title)
                         ? 'text-pink-500 bg-pink-50'
                         : 'text-gray-400 hover:text-pink-500 hover:bg-pink-50'
                     }`}
                   >
-                    <FiHeart className={favorites.includes(post.title) ? 'fill-current' : ''} />
+                    <FiHeart className={isFavorited(post.title) ? 'fill-current' : ''} />
                   </button>
                 </div>
               </div>
@@ -705,9 +764,24 @@ export default function Home() {
 
   const toggleFavorite = (postTitle: string) => {
     setFavorites(prevFavorites => {
-      const newFavorites = prevFavorites.includes(postTitle)
-        ? prevFavorites.filter((title: string) => title !== postTitle)
-        : [...prevFavorites, postTitle];
+      const existingIndex = prevFavorites.findIndex(fav => fav.title === postTitle);
+      let newFavorites: FavoriteItem[];
+      
+      if (existingIndex !== -1) {
+        const existing = prevFavorites[existingIndex];
+        if (existing.unlovedAt) {
+          // Re-love it (remove unlovedAt)
+          newFavorites = [...prevFavorites];
+          newFavorites[existingIndex] = { title: postTitle, lovedAt: Date.now() };
+        } else {
+          // Unlove it (set unlovedAt)
+          newFavorites = [...prevFavorites];
+          newFavorites[existingIndex] = { ...existing, unlovedAt: Date.now() };
+        }
+      } else {
+        // Add as new favorite
+        newFavorites = [...prevFavorites, { title: postTitle, lovedAt: Date.now() }];
+      }
       
       localStorage.setItem('favorites', JSON.stringify(newFavorites));
       return newFavorites;
@@ -1035,68 +1109,71 @@ export default function Home() {
 
     // Return existing job post display for non-mentor posts
     return (
-      <div className="post-full space-y-8 font-['Plus_Jakarta_Sans'] max-w-3xl mx-auto">
-        {/* Header Section */}
-        <div className="flex items-start gap-6 border-b pb-6">
+      <div className="post-full space-y-4 font-['Plus_Jakarta_Sans']">
+        {/* Compact Header Section */}
+        <div className="flex items-start gap-4 pb-4 border-b">
           <Image
             src={post.image || DEFAULT_COMPANY_LOGO}
             alt={post.title}
-            width={80}
-            height={80}
+            width={64}
+            height={64}
             className="rounded-lg object-cover flex-shrink-0"
             onError={(e: any) => {
               e.target.src = DEFAULT_COMPANY_LOGO;
             }}
           />
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
-            <p className="text-lg text-gray-600">{post.labels['Company']}</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-bold text-gray-900 mb-1 leading-tight">{post.title}</h1>
+            <p className="text-base text-gray-600 font-medium">{post.labels['Company']}</p>
             
-            {/* Added Posted Date */}
-            <p className="text-sm text-gray-500 mt-2">
-              Posted {format(new Date(post.created_at || Date.now()), 'MMM dd, yyyy')}
-            </p>
-            
-            {/* Key Information Pills */}
-            <div className="flex flex-wrap gap-2 mt-3">
+            {/* Compact Info Pills */}
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
+                📅 {format(new Date(post.created_at || Date.now()), 'MMM dd, yyyy')}
+              </span>
               {post.workLocation && (
-                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+                <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
                   📍 {post.workLocation}
                 </span>
               )}
               {post.workType && (
-                <span className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
+                <span className="px-2 py-0.5 bg-green-50 text-green-700 rounded text-xs">
                   💼 {post.workType}
                 </span>
               )}
               {post.stipend && (
-                <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-sm">
+                <span className="px-2 py-0.5 bg-yellow-50 text-yellow-700 rounded text-xs">
                   💰 {post.stipend}
                 </span>
               )}
+              <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-xs">
+                🔗 {post.source}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between gap-4 border-b pb-6">
-          <div className="flex items-center gap-4">
+        {/* Compact Action Buttons */}
+        <div className="flex items-center justify-between gap-3 pb-4 border-b">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => toggleFavorite(post.title)}
-              className={`p-2.5 rounded-lg ${
-                favorites.includes(post.title)
+              className={`p-2 rounded-lg transition-all ${
+                isFavorited(post.title)
                   ? 'bg-pink-50 text-pink-500 border border-pink-200'
-                  : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-400'
+                  : 'bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-400'
               }`}
+              title={isFavorited(post.title) ? 'Remove from favorites' : 'Add to favorites'}
             >
-              <FiHeart size={20} className={favorites.includes(post.title) ? 'fill-current' : ''} />
+              <FiHeart size={18} className={isFavorited(post.title) ? 'fill-current' : ''} />
             </button>
             
             <button
               onClick={() => copyPostLink(post)}
-              className="p-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-200 text-gray-400"
+              className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-400"
+              title="Copy link"
             >
-              <FiLink size={20} />
+              <FiLink size={18} />
             </button>
           </div>
 
@@ -1105,63 +1182,68 @@ export default function Home() {
               href={post.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+              className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium flex items-center gap-2 text-sm shadow-md hover:shadow-lg"
             >
-              {post.category === 'mentors' ? 'Schedule Mentoring' : 'Apply Now'} 
-              {post.category !== 'mentors' && <FiLink size={16} />}
+              Apply Now <FiLink size={14} />
             </a>
           )}
         </div>
 
-        {/* Job Description */}
-        <div className="prose max-w-none">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Job Description</h2>
+        {/* Compact Job Description */}
+        <div className="prose prose-sm max-w-none">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <FiBriefcase className="text-blue-600" /> Job Description
+          </h2>
           <div 
-            className="text-gray-700 space-y-4"
+            className="text-gray-700 text-sm leading-relaxed space-y-2 job-description-content"
             dangerouslySetInnerHTML={{ __html: post.body?.toString() || '' }}
           />
         </div>
 
-        {/* Additional Information */}
-        <div className="bg-gray-50 rounded-lg p-6 mt-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
-          <dl className="grid grid-cols-1 gap-4">
-            {post.created_at && (
-              <>
-                <dt className="text-sm font-medium text-gray-500">Posted Date</dt>
-                <dd className="text-sm text-gray-900">
-                  {new Date(post.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </dd>
-              </>
-            )}
-            {post.workLocation && (
-              <>
-                <dt className="text-sm font-medium text-gray-500">Location</dt>
-                <dd className="text-sm text-gray-900">{post.workLocation}</dd>
-              </>
-            )}
-            {post.workType && (
-              <>
-                <dt className="text-sm font-medium text-gray-500">Job Type</dt>
-                <dd className="text-sm text-gray-900">{post.workType}</dd>
-              </>
-            )}
-            {post.stipend && (
-              <>
-                <dt className="text-sm font-medium text-gray-500">Salary</dt>
-                <dd className="text-sm text-gray-900">{post.stipend}</dd>
-              </>
-            )}
-          </dl>
-        </div>
+        {/* Compact Additional Information */}
+        {(post.location || post.salary || post.tags) && (
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 mt-4">
+            <h2 className="text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <FiAward className="text-indigo-600" /> Additional Details
+            </h2>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              {post.location && (
+                <div className="bg-white rounded p-2">
+                  <span className="font-medium text-gray-500">Location</span>
+                  <p className="text-gray-900 mt-0.5">{post.location}</p>
+                </div>
+              )}
+              {post.salary && (
+                <div className="bg-white rounded p-2">
+                  <span className="font-medium text-gray-500">Salary</span>
+                  <p className="text-gray-900 mt-0.5">{post.salary}</p>
+                </div>
+              )}
+              {post.remote !== undefined && (
+                <div className="bg-white rounded p-2">
+                  <span className="font-medium text-gray-500">Work Mode</span>
+                  <p className="text-gray-900 mt-0.5">{post.remote ? '🌍 Remote' : '🏢 On-site'}</p>
+                </div>
+              )}
+              {post.tags && post.tags.length > 0 && (
+                <div className="bg-white rounded p-2 col-span-2">
+                  <span className="font-medium text-gray-500">Tags</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {post.tags.slice(0, 8).map((tag: string, idx: number) => (
+                      <span key={idx} className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-xs">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
-        {/* Updated Attribution */}
-        <div className="text-center text-sm text-gray-500 mt-8">
-          This job listing is sourced from {(post.source || 'unknown').charAt(0).toUpperCase() + (post.source || 'unknown').slice(1)}
+        {/* Compact Source Attribution */}
+        <div className="text-center text-xs text-gray-500 pt-2 border-t">
+          Sourced from <span className="font-medium text-gray-700">{(post.source || 'unknown').charAt(0).toUpperCase() + (post.source || 'unknown').slice(1)}</span>
         </div>
       </div>
     );
@@ -1382,7 +1464,7 @@ export default function Home() {
             >
               <div className="p-4 space-y-4">
                 {showSaved ? 
-                  renderPosts(posts.filter(post => favorites.includes(post.title))) :
+                  renderPosts(posts.filter(post => isFavorited(post.title))) :
                   renderPosts(getSortedPosts(getFilteredPosts()))
                 }
               </div>
