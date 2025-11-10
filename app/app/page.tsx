@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc, FiDownload } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload, FiSend, FiCpu } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
 import { Post } from '../models/Post';
@@ -484,7 +484,7 @@ export default function Home() {
     </button>
   );
 
-  const categories = ['jobs', 'mentors'];
+  const categories = ['jobs', 'ai-jobs', 'mentors'];
   const listRef = useRef<HTMLDivElement>(null);
   const [showCalendarPanel, setShowCalendarPanel] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Post | null>(null);
@@ -499,6 +499,13 @@ export default function Home() {
   // Add new state for mobile view control
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMobileDetail, setShowMobileDetail] = useState(false);
+
+  // AI Jobs chatbot states
+  const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [aiRecommendedJobs, setAiRecommendedJobs] = useState<any[]>([]);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -827,6 +834,199 @@ export default function Home() {
       locations: ['all', 'Indonesia', 'Remote']
     }
   };
+
+  // AI Chatbot handler
+  const handleSendMessage = async () => {
+    if (!chatInput.trim() || isChatLoading) return;
+
+    const userMessage = chatInput.trim();
+    setChatInput('');
+    
+    // Add user message to chat
+    const newMessages = [...chatMessages, { role: 'user' as const, content: userMessage }];
+    setChatMessages(newMessages);
+    setIsChatLoading(true);
+
+    try {
+      const response = await fetch('/api/ai-jobs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          conversationHistory: chatMessages,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setChatMessages([...newMessages, { 
+          role: 'assistant' as const, 
+          content: data.message 
+        }]);
+        
+        if (data.recommendedJobs && data.recommendedJobs.length > 0) {
+          setAiRecommendedJobs(data.recommendedJobs);
+        }
+      } else {
+        setChatMessages([...newMessages, { 
+          role: 'assistant' as const, 
+          content: 'Sorry, I encountered an error. Please try again.' 
+        }]);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setChatMessages([...newMessages, { 
+        role: 'assistant' as const, 
+        content: 'Sorry, I couldn\'t connect to the server. Please try again.' 
+      }]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
+  // Scroll to bottom of chat
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  // Initialize AI chat with welcome message
+  useEffect(() => {
+    if (currentCategory === 'ai-jobs' && chatMessages.length === 0) {
+      setChatMessages([{
+        role: 'assistant',
+        content: '👋 Hi! I\'m your AI job search assistant. I can help you find the perfect remote job from thousands of listings across Remotive, Jobicy, Arbeitnow, RemoteOK, and Web3.career.\n\nTell me about your skills, experience, and what kind of role you\'re looking for, and I\'ll recommend the best matches for you!\n\nFor example, you could say:\n• "I\'m looking for senior React developer positions"\n• "Show me entry-level data science jobs"\n• "I need remote marketing roles with good salary"'
+      }]);
+    }
+  }, [currentCategory]);
+
+  // Render AI Jobs Chatbot Interface
+  const renderAIJobsChatbot = () => (
+    <div className="flex flex-col h-full bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg">
+      {/* Chat Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-t-lg text-white">
+        <div className="flex items-center gap-3">
+          <div className="bg-white/20 p-2 rounded-lg">
+            <FiCpu size={24} />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold">AI Jobs Assistant</h2>
+            <p className="text-sm text-blue-100">Powered by OpenAI • {aiRecommendedJobs.length} jobs recommended</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Chat Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+        {chatMessages.map((msg, idx) => (
+          <div
+            key={idx}
+            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-[80%] p-4 rounded-2xl shadow-md ${
+                msg.role === 'user'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-sm'
+                  : 'bg-white text-gray-800 rounded-bl-sm border border-gray-200'
+              }`}
+            >
+              <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                {msg.content}
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        {isChatLoading && (
+          <div className="flex justify-start">
+            <div className="bg-white p-4 rounded-2xl rounded-bl-sm shadow-md border border-gray-200">
+              <div className="flex gap-2">
+                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div ref={chatEndRef} />
+      </div>
+
+      {/* Recommended Jobs Section */}
+      {aiRecommendedJobs.length > 0 && (
+        <div className="border-t border-gray-200 bg-white p-4 max-h-60 overflow-y-auto custom-scrollbar">
+          <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+            <FiBriefcase className="text-blue-600" />
+            Recommended Jobs ({aiRecommendedJobs.length})
+          </h3>
+          <div className="space-y-2">
+            {aiRecommendedJobs.slice(0, 5).map((job, idx) => (
+              <div
+                key={idx}
+                className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100 hover:shadow-md transition-all cursor-pointer"
+                onClick={() => window.open(job.url, '_blank')}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm text-gray-900 truncate">
+                      {job.title}
+                    </h4>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {job.company} • {job.location}
+                    </p>
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                      <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                        {job.type}
+                      </span>
+                      <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
+                        {job.source}
+                      </span>
+                    </div>
+                  </div>
+                  {job.logo && (
+                    <img
+                      src={job.logo}
+                      alt={job.company}
+                      className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Chat Input */}
+      <div className="bg-white border-t border-gray-200 p-4 rounded-b-lg">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            placeholder="Ask me about jobs... (e.g., 'Show me React developer positions')"
+            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            disabled={isChatLoading}
+          />
+          <button
+            onClick={handleSendMessage}
+            disabled={isChatLoading || !chatInput.trim()}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg flex items-center gap-2"
+          >
+            <FiSend size={18} />
+            Send
+          </button>
+        </div>
+        <p className="text-xs text-gray-500 mt-2 text-center">
+          💡 Tip: Be specific about your skills and preferences for better recommendations
+        </p>
+      </div>
+    </div>
+  );
 
   // Update renderSearchBar function
   const renderSearchBar = () => (
@@ -1424,15 +1624,19 @@ export default function Home() {
                 {categories.map((category) => (
                   <button
                     key={category}
-                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                       currentCategory === category
                         ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md transform scale-105'
                         : 'bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                     onClick={() => setCurrentCategory(category)}
                   >
+                    {category === 'ai-jobs' && <FiCpu size={16} />}
                     <span>
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                      {category === 'ai-jobs' 
+                        ? 'AI Jobs' 
+                        : category.charAt(0).toUpperCase() + category.slice(1)
+                      }
                     </span>
                   </button>
                 ))}
@@ -1449,40 +1653,51 @@ export default function Home() {
 
         {/* Main content */}
         <main className="flex flex-col md:flex-row -mx-2 relative z-20 h-[calc(100vh-80px)]">
-          {/* List View - update background */}
-          <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden bg-transparent ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
-            {/* Search bar container - keep white background */}
-            <div className="bg-white rounded-lg shadow-lg transition-all duration-300">
-              {renderSearchBar()}
-            </div>
-
-            {/* List container - keep white background */}
-            <div 
-              ref={listRef}
-              className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white rounded-lg shadow-lg"
-              style={{ height: 'calc(100vh - 224px)' }}
-            >
-              <div className="p-4 space-y-4">
-                {showSaved ? 
-                  renderPosts(posts.filter(post => isFavorited(post.title))) :
-                  renderPosts(getSortedPosts(getFilteredPosts()))
-                }
+          {currentCategory === 'ai-jobs' ? (
+            /* AI Jobs Chatbot Full Screen */
+            <div className="w-full p-4 h-full">
+              <div className="h-full shadow-xl rounded-lg overflow-hidden">
+                {renderAIJobsChatbot()}
               </div>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* List View - update background */}
+              <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden bg-transparent ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
+                {/* Search bar container - keep white background */}
+                <div className="bg-white rounded-lg shadow-lg transition-all duration-300">
+                  {renderSearchBar()}
+                </div>
 
-          {/* Detail View - update background */}
-          <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar detail-view-container font-['Plus_Jakarta_Sans'] bg-transparent 
-            ${showMobileDetail ? 'fixed inset-0 z-50 bg-transparent' : 'hidden md:block'}`}>
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              {selectedPostTitle ? (
-                posts.filter(post => post.title === selectedPostTitle)
-                  .map(post => displayFullPost(post))[0]
-              ) : (
-                renderWelcomeScreen()
-              )}
-            </div>
-          </div>
+                {/* List container - keep white background */}
+                <div 
+                  ref={listRef}
+                  className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white rounded-lg shadow-lg"
+                  style={{ height: 'calc(100vh - 224px)' }}
+                >
+                  <div className="p-4 space-y-4">
+                    {showSaved ? 
+                      renderPosts(posts.filter(post => isFavorited(post.title))) :
+                      renderPosts(getSortedPosts(getFilteredPosts()))
+                    }
+                  </div>
+                </div>
+              </div>
+
+              {/* Detail View - update background */}
+              <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar detail-view-container font-['Plus_Jakarta_Sans'] bg-transparent 
+                ${showMobileDetail ? 'fixed inset-0 z-50 bg-transparent' : 'hidden md:block'}`}>
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  {selectedPostTitle ? (
+                    posts.filter(post => post.title === selectedPostTitle)
+                      .map(post => displayFullPost(post))[0]
+                  ) : (
+                    renderWelcomeScreen()
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </main>
 
         {/* Mobile-friendly modals */}
