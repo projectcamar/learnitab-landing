@@ -872,7 +872,113 @@ export default function Home() {
     return savedAIJobs.some(savedJob => savedJob.id === job.id || savedJob.url === job.url);
   };
 
-  // AI Chatbot handler
+  // ==================== TIMEOUT & RETRY UTILITIES ====================
+  // Helper function to add timeout to fetch with AbortController
+  const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeoutMs: number = 60000) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        throw new Error('Request timed out');
+      }
+      throw error;
+    }
+  };
+
+  // Retry logic with exponential backoff and user feedback
+  const fetchWithRetry = async (
+    url: string, 
+    options: RequestInit = {}, 
+    maxRetries: number = 2,
+    timeoutMs: number = 60000
+  ) => {
+    let lastError: Error | null = null;
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`\ud83d\udd04 Fetch attempt ${attempt + 1}/${maxRetries + 1}`);
+        
+        // Show retry message to user if this is a retry attempt
+        if (attempt > 0) {
+          setChatMessages(prev => {
+            const lastMsg = prev[prev.length - 1];
+            if (lastMsg && lastMsg.role === 'assistant' && lastMsg.content.includes('Retrying')) {
+              // Update existing retry message
+              return [...prev.slice(0, -1), {
+                role: 'assistant' as const,
+                content: `\ud83d\udd04 Connection issue detected. Retrying (attempt ${attempt + 1}/${maxRetries + 1})...`
+              }];
+            } else {
+              // Add new retry message
+              return [...prev, {
+                role: 'assistant' as const,
+                content: `\ud83d\udd04 Connection issue detected. Retrying (attempt ${attempt + 1}/${maxRetries + 1})...`
+              }];
+            }
+          });
+        }
+        
+        const response = await fetchWithTimeout(url, options, timeoutMs);
+        
+        // Remove retry message if it exists (on success)
+        if (attempt > 0) {
+          setChatMessages(prev => {
+            const lastMsg = prev[prev.length - 1];
+            if (lastMsg && lastMsg.role === 'assistant' && lastMsg.content.includes('Retrying')) {
+              return prev.slice(0, -1);
+            }
+            return prev;
+          });
+        }
+        
+        // Don't retry on client errors (4xx) except 408, 429
+        if (response.status >= 400 && response.status < 500 && 
+            response.status !== 408 && response.status !== 429) {
+          return response;
+        }
+        
+        // Retry on 5xx errors and specific 4xx errors
+        if (response.status >= 500 || response.status === 408 || response.status === 429) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+        
+        return response;
+      } catch (error: any) {
+        lastError = error;
+        console.error(`\u274c Attempt ${attempt + 1} failed:`, error.message);
+        
+        // Don't retry if it's the last attempt
+        if (attempt < maxRetries) {
+          // Exponential backoff: 1s, 2s, 4s, etc.
+          const delayMs = Math.min(1000 * Math.pow(2, attempt), 5000);
+          console.log(`\u23f3 Retrying in ${delayMs}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+      }
+    }
+    
+    // Remove retry message on final failure
+    setChatMessages(prev => {
+      const lastMsg = prev[prev.length - 1];
+      if (lastMsg && lastMsg.role === 'assistant' && lastMsg.content.includes('Retrying')) {
+        return prev.slice(0, -1);
+      }
+      return prev;
+    });
+    
+    throw lastError || new Error('All retry attempts failed');
+  };
+
+  // AI Chatbot handler with timeout and retry
   const handleSendMessage = async () => {
     if (!chatInput.trim() || isChatLoading) return;
 
@@ -896,7 +1002,8 @@ export default function Home() {
       
       // Don't send all jobs in the request body to avoid payload size issues
       // The backend will fetch jobs from APIs if needed
-      const response = await fetch('/api/ai-jobs', {
+      // Use fetchWithRetry for automatic retry with exponential backoff
+      const response = await fetchWithRetry('/api/ai-jobs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -906,7 +1013,7 @@ export default function Home() {
           conversationHistory: recentHistory,
           // allJobs removed to prevent payload size errors - backend will fetch jobs
         }),
-      });
+      }, 2, 60000); // Max 2 retries, 60 second timeout per attempt
 
       // Check if response is JSON before parsing
       let data;
