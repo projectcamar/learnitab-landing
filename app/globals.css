@@ -861,3 +861,92 @@ a:focus, button:focus, input:focus, select:focus, textarea:focus {
   animation: gradient 3s ease infinite;
   background-size: 300% 100%;
 }
+
+/* Enhanced Job Description Styling */
+.job-description-content {
+  @apply text-sm leading-relaxed;
+}
+
+.job-description-content h1,
+.job-description-content h2,
+.job-description-content h3,
+.job-description-content h4 {
+  @apply font-semibold text-gray-900 mt-3 mb-2;
+}
+
+.job-description-content h1 {
+  @apply text-lg;
+}
+
+.job-description-content h2 {
+  @apply text-base;
+}
+
+.job-description-content h3,
+.job-description-content h4 {
+  @apply text-sm;
+}
+
+.job-description-content p {
+  @apply mb-2 text-gray-700;
+}
+
+.job-description-content ul,
+.job-description-content ol {
+  @apply ml-4 mb-2 space-y-1;
+}
+
+.job-description-content ul {
+  @apply list-disc;
+}
+
+.job-description-content ol {
+  @apply list-decimal;
+}
+
+.job-description-content li {
+  @apply text-gray-700 pl-1;
+}
+
+.job-description-content strong,
+.job-description-content b {
+  @apply font-semibold text-gray-900;
+}
+
+.job-description-content a {
+  @apply text-blue-600 hover:text-blue-800 underline;
+}
+
+.job-description-content blockquote {
+  @apply border-l-4 border-blue-500 pl-3 italic text-gray-600 my-2;
+}
+
+.job-description-content code {
+  @apply bg-gray-100 px-1 py-0.5 rounded text-xs font-mono;
+}
+
+.job-description-content pre {
+  @apply bg-gray-100 p-2 rounded text-xs overflow-x-auto my-2;
+}
+
+.job-description-content hr {
+  @apply my-3 border-gray-200;
+}
+
+/* Compact prose styling */
+.prose-sm {
+  @apply text-sm;
+}
+
+.prose-sm h2 {
+  @apply text-lg mb-2;
+}
+
+.prose-sm p {
+  @apply mb-2;
+}
+
+.prose-sm ul,
+.prose-sm ol {
+  @apply my-2;
+}

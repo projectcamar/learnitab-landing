@@ -31,6 +31,7 @@ export interface Post {
   startDate?: string;
   duration?: string;
   stipend?: string;
+  salary?: string;
   workLocation?: string;
   workType?: string;
   expired: boolean;
@@ -41,6 +42,10 @@ export interface Post {
   source?: string;
   remote?: boolean;
   tags?: string[];
+  company?: string;
+  company_name?: string;
+  job_types?: string[];
+  url?: string;
 }
   
  
