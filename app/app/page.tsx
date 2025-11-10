@@ -928,16 +928,67 @@ export default function Home() {
           jobCards: jobCards
         }]);
       } else {
+        // Handle specific error types from the API
+        let errorMessage = 'Sorry, I encountered an error. Please try again.';
+        
+        if (data.errorType) {
+          switch (data.errorType) {
+            case 'missing_api_key':
+            case 'invalid_api_key':
+              errorMessage = '🔑 **AI Service Configuration Error**\n\n' + 
+                (data.message || 'The AI assistant is not configured properly. Please make sure the OpenAI API key is set correctly in your Vercel environment variables.');
+              break;
+            case 'rate_limit':
+              errorMessage = '⏱️ **Rate Limit Reached**\n\n' + 
+                (data.message || 'Too many requests. Please wait a moment before trying again.');
+              break;
+            case 'no_jobs':
+              errorMessage = '📋 **No Jobs Available**\n\n' + 
+                (data.message || 'Unable to fetch job listings from our sources. The job APIs might be temporarily unavailable. Please try again in a few minutes.');
+              break;
+            case 'network_error':
+              errorMessage = '🌐 **Network Connection Error**\n\n' + 
+                (data.message || 'Unable to connect to the required services. Please check your internet connection and try again.');
+              break;
+            case 'openai_error':
+              errorMessage = '🤖 **AI Service Error**\n\n' + 
+                (data.message || 'The AI assistant encountered an error while processing your request. Please try again.');
+              break;
+            default:
+              errorMessage = '❌ **Error**\n\n' + (data.message || data.error || errorMessage);
+          }
+        } else if (data.error) {
+          errorMessage = `❌ **Error**\n\n${data.error}`;
+        }
+        
         setChatMessages([...newMessages, { 
           role: 'assistant' as const, 
-          content: 'Sorry, I encountered an error. Please try again.' 
+          content: errorMessage 
         }]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error);
+      
+      // Determine the type of network error
+      let errorMessage = '🌐 **Connection Error**\n\n';
+      
+      if (error.name === 'TypeError' && error.message?.includes('fetch')) {
+        errorMessage += 'Unable to connect to the server. This could be due to:\n\n' +
+          '• **Network connectivity issues** - Check your internet connection\n' +
+          '• **Server unavailability** - The server might be temporarily down\n' +
+          '• **CORS or firewall issues** - Network restrictions might be blocking the request\n\n' +
+          'Please try again in a few moments.';
+      } else if (error.name === 'AbortError') {
+        errorMessage += 'The request timed out. The server took too long to respond.\n\n' +
+          'Please try again with a simpler query.';
+      } else {
+        errorMessage += `An unexpected error occurred: ${error.message || 'Unknown error'}\n\n` +
+          'Please try again or contact support if the issue persists.';
+      }
+      
       setChatMessages([...newMessages, { 
         role: 'assistant' as const, 
-        content: 'Sorry, I couldn\'t connect to the server. Please try again.' 
+        content: errorMessage
       }]);
     } finally {
       setIsChatLoading(false);

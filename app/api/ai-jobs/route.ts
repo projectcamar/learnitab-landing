@@ -140,6 +140,8 @@ async function fetchWeb3Jobs() {
 }
 
 async function getAllJobs() {
+  console.log('Fetching jobs from all sources...');
+  
   const [remotive, jobicy, arbeitnow, remoteok, web3] = await Promise.all([
     fetchRemotiveJobs(),
     fetchJobicyJobs(),
@@ -148,22 +150,57 @@ async function getAllJobs() {
     fetchWeb3Jobs()
   ]);
   
-  return [...remotive, ...jobicy, ...arbeitnow, ...remoteok, ...web3];
+  const allJobs = [...remotive, ...jobicy, ...arbeitnow, ...remoteok, ...web3];
+  
+  console.log(`Fetched ${allJobs.length} jobs total:`);
+  console.log(`- Remotive: ${remotive.length}`);
+  console.log(`- Jobicy: ${jobicy.length}`);
+  console.log(`- Arbeitnow: ${arbeitnow.length}`);
+  console.log(`- RemoteOK: ${remoteok.length}`);
+  console.log(`- Web3: ${web3.length}`);
+  
+  return allJobs;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const { message, conversationHistory, allJobs: providedJobs } = await request.json();
 
+    // Check if OpenAI API key is configured
     if (!process.env.OPENAI_API_KEY || !openai) {
+      console.error('OpenAI API key is not configured');
       return NextResponse.json(
-        { error: 'OpenAI API key not configured. Please set OPENAI_API_KEY in your environment variables.' },
+        { 
+          error: 'OpenAI API key not configured', 
+          errorType: 'missing_api_key',
+          message: 'The AI assistant is not configured properly. Please contact support or try again later.' 
+        },
         { status: 500 }
       );
     }
 
     // Use provided jobs from client if available, otherwise fetch from APIs
-    const allJobs = providedJobs && providedJobs.length > 0 ? providedJobs : await getAllJobs();
+    let allJobs = [];
+    try {
+      allJobs = providedJobs && providedJobs.length > 0 ? providedJobs : await getAllJobs();
+      
+      // If no jobs were fetched, return an error
+      if (allJobs.length === 0) {
+        console.warn('No jobs available from any source');
+        return NextResponse.json(
+          { 
+            error: 'No jobs available',
+            errorType: 'no_jobs',
+            message: 'Unable to fetch job listings at the moment. The job APIs might be temporarily unavailable. Please try again later.' 
+          },
+          { status: 503 }
+        );
+      }
+    } catch (jobFetchError) {
+      console.error('Error fetching jobs:', jobFetchError);
+      // Continue with empty jobs array but log the error
+      allJobs = [];
+    }
     
     // Create a detailed summary of available jobs for the AI
     const jobsSummary = allJobs.slice(0, 150).map((job: any, index: number) => ({
@@ -258,14 +295,64 @@ Be conversational, friendly, and helpful with **proper markdown formatting**!`
     ];
 
     // Call OpenAI API
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o', // This model can browse the internet if needed
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 2000,
-    });
-
-    const aiResponse = completion.choices[0].message.content;
+    let aiResponse;
+    try {
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 2000,
+      });
+      
+      aiResponse = completion.choices[0].message.content;
+      
+      if (!aiResponse) {
+        throw new Error('Empty response from OpenAI');
+      }
+    } catch (openaiError: any) {
+      console.error('OpenAI API error:', openaiError);
+      
+      // Check for specific OpenAI errors
+      if (openaiError.status === 401) {
+        return NextResponse.json(
+          { 
+            error: 'Invalid OpenAI API key',
+            errorType: 'invalid_api_key',
+            message: 'The AI service is not configured correctly. Please contact support.' 
+          },
+          { status: 401 }
+        );
+      } else if (openaiError.status === 429) {
+        return NextResponse.json(
+          { 
+            error: 'Rate limit exceeded',
+            errorType: 'rate_limit',
+            message: 'Too many requests. Please wait a moment and try again.' 
+          },
+          { status: 429 }
+        );
+      } else if (openaiError.code === 'ENOTFOUND' || openaiError.code === 'ECONNREFUSED') {
+        return NextResponse.json(
+          { 
+            error: 'Network error',
+            errorType: 'network_error',
+            message: 'Unable to connect to the AI service. Please check your internet connection and try again.' 
+          },
+          { status: 503 }
+        );
+      }
+      
+      // Generic OpenAI error
+      return NextResponse.json(
+        { 
+          error: 'AI service error',
+          errorType: 'openai_error',
+          message: 'The AI assistant encountered an error. Please try again later.',
+          details: openaiError.message 
+        },
+        { status: 500 }
+      );
+    }
 
     // Parse job cards from AI response and enrich with full job data
     const jobCardRegex = /\[JOB_CARD\]([\s\S]*?)\[\/JOB_CARD\]/g;
@@ -301,8 +388,26 @@ Be conversational, friendly, and helpful with **proper markdown formatting**!`
 
   } catch (error: any) {
     console.error('Error in AI Jobs API:', error);
+    
+    // Determine error type
+    let errorType = 'unknown_error';
+    let errorMessage = 'An unexpected error occurred. Please try again.';
+    
+    if (error.message?.includes('JSON')) {
+      errorType = 'invalid_request';
+      errorMessage = 'Invalid request format. Please try again.';
+    } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+      errorType = 'network_error';
+      errorMessage = 'Network connection error. Please check your internet connection.';
+    }
+    
     return NextResponse.json(
-      { error: error.message || 'Failed to process request' },
+      { 
+        error: error.message || 'Failed to process request',
+        errorType: errorType,
+        message: errorMessage,
+        details: error.stack 
+      },
       { status: 500 }
     );
   }
