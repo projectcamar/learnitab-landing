@@ -6,9 +6,10 @@ import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc, FiDownload } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload, FiCpu } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
+import { useRouter } from 'next/navigation';
 import { Post } from '../models/Post';
 import { format, parseISO, isAfter, isBefore, addDays } from 'date-fns';
 import { CustomErrorBoundary } from '../components/ErrorBoundary';
@@ -381,6 +382,9 @@ const DEFAULT_COMPANY_LOGO = 'https://od.lk/s/OTZfMTAwNTkwMzk0Xw/Job.png';
 export default function Home() {
   const postsPerPage = 15;
 
+  // Initialize router
+  const router = useRouter();
+  
   // Initialize with empty arrays for SSR
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
@@ -1436,6 +1440,13 @@ export default function Home() {
                     </span>
                   </button>
                 ))}
+                <button
+                  className="flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md hover:from-purple-700 hover:to-pink-700 hover:shadow-lg transform hover:scale-105"
+                  onClick={() => router.push('/ai-jobs')}
+                >
+                  <FiCpu className="w-4 h-4" />
+                  <span>AI Jobs</span>
+                </button>
               </nav>
               <button 
                 className="md:hidden text-blue-900"
@@ -1446,6 +1457,44 @@ export default function Home() {
             </div>
           </div>
         </header>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setIsMobileMenuOpen(false)}>
+            <div className="bg-white w-64 h-full shadow-lg p-6" onClick={(e) => e.stopPropagation()}>
+              <nav className="flex flex-col space-y-3">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    className={`flex items-center px-4 py-3 rounded-md text-sm font-medium transition-all duration-200 ${
+                      currentCategory === category
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                    onClick={() => {
+                      setCurrentCategory(category);
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <span>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </span>
+                  </button>
+                ))}
+                <button
+                  className="flex items-center space-x-2 px-4 py-3 rounded-md text-sm font-medium transition-all duration-200 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md"
+                  onClick={() => {
+                    router.push('/ai-jobs');
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <FiCpu className="w-4 h-4" />
+                  <span>AI Jobs</span>
+                </button>
+              </nav>
+            </div>
+          </div>
+        )}
 
         {/* Main content */}
         <main className="flex flex-col md:flex-row -mx-2 relative z-20 h-[calc(100vh-80px)]">
