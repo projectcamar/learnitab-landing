@@ -165,14 +165,17 @@ export async function POST(request: NextRequest) {
     // Fetch all available jobs from APIs
     const allJobs = await getAllJobs();
     
-    // Create a summary of available jobs for the AI
-    const jobsSummary = allJobs.slice(0, 100).map(job => ({
+    // Create a detailed summary of available jobs for the AI
+    const jobsSummary = allJobs.slice(0, 150).map((job, index) => ({
+      id: index,
       title: job.title,
       company: job.company,
       location: job.location,
       type: job.type,
       source: job.source,
       salary: job.salary,
+      url: job.url,
+      description: job.description ? job.description.substring(0, 300) + '...' : 'No description',
       tags: job.tags || []
     }));
 
@@ -185,23 +188,64 @@ export async function POST(request: NextRequest) {
 Your capabilities:
 1. Analyze user preferences and requirements
 2. Search and filter through available job listings
-3. Provide personalized job recommendations
+3. Provide personalized job recommendations with FULL details
 4. Answer questions about job opportunities
 5. Help users understand job market trends
 
-When recommending jobs:
-- Consider the user's skills, experience level, and preferences
-- Match job requirements with user qualifications
-- Provide clear reasoning for recommendations
-- Include relevant details like company, location, type, and salary when available
-- Always format job recommendations as a structured list
+CRITICAL FORMATTING INSTRUCTIONS:
 
-Here's a sample of currently available jobs:
+**MARKDOWN FORMATTING:**
+- Use **bold** for emphasis on important points (e.g., **3-5 years experience**, **remote-first**)
+- Use *italic* for subtle emphasis or notes
+- Use bullet points (•) or numbered lists for clarity
+- Use proper paragraphs for readability
+- Make your responses visually engaging with proper formatting!
+
+**JOB RECOMMENDATIONS:**
+When recommending jobs, you MUST format them as interactive cards:
+
+🎯 I found **[X] jobs** that match your criteria:
+
+[JOB_CARD]
+Title: [Job Title]
+Company: [Company Name]
+Location: [Location]
+Type: [Job Type]
+Salary: [Salary]
+Source: [Source]
+Apply: [URL]
+[/JOB_CARD]
+
+**IMPORTANT RULES:**
+- Use the EXACT format above for each job
+- Include ALL available details (title, company, location, type, salary, source, url)
+- Always wrap job details in [JOB_CARD] tags
+- Be conversational and use **markdown formatting** in your explanations
+- Explain **WHY** these jobs are good matches with **bold** highlights
+- Use bullet points for listing requirements or benefits
+
+**Example Response Format:**
+"Great! I found **5 business analyst positions** that match your criteria. Here's why they're good fits:
+
+• **Strong match for your skills** - These roles require analytical thinking
+• **Remote-first companies** - All positions are 100% remote
+• **Competitive compensation** - Salary ranges from $70k-$120k
+
+[JOB_CARD sections here]
+
+Would you like me to find more positions or refine the search based on **specific criteria** like salary range or company size?"
+
+Available jobs database:
 ${JSON.stringify(jobsSummary, null, 2)}
 
-When a user asks for jobs, provide specific recommendations from this list, matching their criteria. If you need to search for more specific roles or can't find a perfect match in the current listings, you can suggest broader search strategies or ask clarifying questions.
+When a user asks for jobs:
+1. Search the database for matching jobs
+2. Select 3-5 best matches
+3. Format them using [JOB_CARD] tags
+4. Explain why they're good fits using **markdown formatting**
+5. Ask if they want to see more or refine the search
 
-Be conversational, friendly, and helpful. Focus on understanding what the user truly wants in their next role.`
+Be conversational, friendly, and helpful with **proper markdown formatting**!`
       },
       ...conversationHistory.map((msg: any) => ({
         role: msg.role,
@@ -223,16 +267,35 @@ Be conversational, friendly, and helpful. Focus on understanding what the user t
 
     const aiResponse = completion.choices[0].message.content;
 
-    // Extract job recommendations from AI response
-    // Try to match job titles mentioned in the AI response with actual jobs
-    const recommendedJobs = allJobs.filter(job => 
-      aiResponse?.toLowerCase().includes(job.title.toLowerCase().slice(0, 20)) ||
-      aiResponse?.toLowerCase().includes(job.company.toLowerCase())
-    ).slice(0, 10);
+    // Parse job cards from AI response and enrich with full job data
+    const jobCardRegex = /\[JOB_CARD\]([\s\S]*?)\[\/JOB_CARD\]/g;
+    const jobCards = [];
+    let match;
+    
+    while ((match = jobCardRegex.exec(aiResponse || '')) !== null) {
+      const cardContent = match[1];
+      const titleMatch = cardContent.match(/Title:\s*(.+?)\n/);
+      const companyMatch = cardContent.match(/Company:\s*(.+?)\n/);
+      
+      if (titleMatch && companyMatch) {
+        const title = titleMatch[1].trim();
+        const company = companyMatch[1].trim();
+        
+        // Find the actual job from database
+        const actualJob = allJobs.find(job => 
+          job.title.toLowerCase().includes(title.toLowerCase()) &&
+          job.company.toLowerCase().includes(company.toLowerCase())
+        );
+        
+        if (actualJob) {
+          jobCards.push(actualJob);
+        }
+      }
+    }
 
     return NextResponse.json({
       message: aiResponse,
-      recommendedJobs: recommendedJobs,
+      jobCards: jobCards,
       totalJobsAvailable: allJobs.length
     });
 
