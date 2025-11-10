@@ -636,13 +636,18 @@ Be conversational, friendly, and helpful with **proper markdown formatting**!`
     // Call OpenAI API with timeout (30 seconds max)
     let aiResponse;
     try {
-      const completionPromise = openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 2000,
-        timeout: 30000, // 30 second timeout for OpenAI SDK
-      });
+      // Create the completion request
+      const completionPromise = openai.chat.completions.create(
+        {
+          model: 'gpt-4o',
+          messages: messages,
+          temperature: 0.7,
+          max_tokens: 2000,
+        },
+        {
+          timeout: 30000, // 30 second timeout in options parameter
+        }
+      );
       
       // Add additional timeout wrapper for safety
       const completion = await withTimeout(
