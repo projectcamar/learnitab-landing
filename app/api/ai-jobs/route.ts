@@ -153,7 +153,7 @@ async function getAllJobs() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, conversationHistory } = await request.json();
+    const { message, conversationHistory, allJobs: providedJobs } = await request.json();
 
     if (!process.env.OPENAI_API_KEY || !openai) {
       return NextResponse.json(
@@ -162,11 +162,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch all available jobs from APIs
-    const allJobs = await getAllJobs();
+    // Use provided jobs from client if available, otherwise fetch from APIs
+    const allJobs = providedJobs && providedJobs.length > 0 ? providedJobs : await getAllJobs();
     
     // Create a detailed summary of available jobs for the AI
-    const jobsSummary = allJobs.slice(0, 150).map((job, index) => ({
+    const jobsSummary = allJobs.slice(0, 150).map((job: any, index: number) => ({
       id: index,
       title: job.title,
       company: job.company,
@@ -282,7 +282,7 @@ Be conversational, friendly, and helpful with **proper markdown formatting**!`
         const company = companyMatch[1].trim();
         
         // Find the actual job from database
-        const actualJob = allJobs.find(job => 
+        const actualJob = allJobs.find((job: any) => 
           job.title.toLowerCase().includes(title.toLowerCase()) &&
           job.company.toLowerCase().includes(company.toLowerCase())
         );

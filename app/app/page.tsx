@@ -417,6 +417,11 @@ export default function Home() {
         setCalendarEvents(JSON.parse(savedEvents));
       }
 
+      const savedAIJobsData = localStorage.getItem('ai-jobs-saved');
+      if (savedAIJobsData) {
+        setSavedAIJobs(JSON.parse(savedAIJobsData));
+      }
+
       setShowWelcome(true); // Set welcome screen after mount
     } catch (e) {
       console.error('Error initializing from localStorage:', e);
@@ -512,6 +517,10 @@ export default function Home() {
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  
+  // AI Jobs saved jobs states
+  const [savedAIJobs, setSavedAIJobs] = useState<any[]>([]);
+  const [selectedSavedJob, setSelectedSavedJob] = useState<any | null>(null);
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -841,6 +850,28 @@ export default function Home() {
     }
   };
 
+  // Function to save/unsave AI job
+  const toggleSaveAIJob = (job: any) => {
+    setSavedAIJobs(prev => {
+      const isAlreadySaved = prev.some(savedJob => savedJob.id === job.id || savedJob.url === job.url);
+      let newSaved;
+      
+      if (isAlreadySaved) {
+        newSaved = prev.filter(savedJob => savedJob.id !== job.id && savedJob.url !== job.url);
+      } else {
+        newSaved = [...prev, { ...job, savedAt: Date.now() }];
+      }
+      
+      localStorage.setItem('ai-jobs-saved', JSON.stringify(newSaved));
+      return newSaved;
+    });
+  };
+
+  // Check if job is saved
+  const isAIJobSaved = (job: any) => {
+    return savedAIJobs.some(savedJob => savedJob.id === job.id || savedJob.url === job.url);
+  };
+
   // AI Chatbot handler
   const handleSendMessage = async () => {
     if (!chatInput.trim() || isChatLoading) return;
@@ -854,6 +885,21 @@ export default function Home() {
     setIsChatLoading(true);
 
     try {
+      // Transform posts to match the expected job format for AI
+      const jobsForAI = posts.filter(p => p.category === 'jobs').map(post => ({
+        id: post._id,
+        title: post.title,
+        company: post.company || post.labels?.Company,
+        location: post.location,
+        type: post.workType,
+        description: typeof post.body === 'string' ? post.body : '',
+        url: post.link,
+        source: post.source,
+        salary: post.salary || 'Not specified',
+        logo: post.image,
+        date: post.created_at
+      }));
+
       const response = await fetch('/api/ai-jobs', {
         method: 'POST',
         headers: {
@@ -862,6 +908,7 @@ export default function Home() {
         body: JSON.stringify({
           message: userMessage,
           conversationHistory: chatMessages.map(msg => ({ role: msg.role, content: msg.content })),
+          allJobs: jobsForAI, // Pass existing jobs from the main page
         }),
       });
 
@@ -943,13 +990,143 @@ export default function Home() {
     localStorage.removeItem('ai-jobs-chat-history');
   };
 
+  // Render Saved Jobs Detail View
+  const renderSavedJobDetail = (job: any) => {
+    return (
+      <div className="p-6 space-y-4 h-full overflow-y-auto custom-scrollbar">
+        <button
+          onClick={() => setSelectedSavedJob(null)}
+          className="mb-4 text-blue-600 hover:text-blue-800 flex items-center gap-2"
+        >
+          ← Back to Saved Jobs
+        </button>
+        
+        <div className="bg-white rounded-xl p-6 shadow-lg space-y-4">
+          {/* Job Header */}
+          <div className="flex items-start gap-4 border-b pb-4">
+            {job.logo && (
+              <img
+                src={job.logo || job.company_logo}
+                alt={job.company}
+                className="w-20 h-20 rounded-xl object-cover border-2 border-gray-200 shadow-sm flex-shrink-0"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+            )}
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900">{job.title}</h2>
+              <p className="text-lg text-gray-600 mt-1">{job.company}</p>
+              <p className="text-sm text-gray-500 mt-1">📍 {job.location}</p>
+            </div>
+          </div>
+
+          {/* Job Details */}
+          <div className="flex gap-2 flex-wrap">
+            <span className="text-xs px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full font-medium">
+              {job.type}
+            </span>
+            <span className="text-xs px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full font-medium">
+              {job.source}
+            </span>
+            {job.salary && job.salary !== 'Not specified' && (
+              <span className="text-xs px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-full font-medium">
+                💰 {job.salary}
+              </span>
+            )}
+          </div>
+
+          {/* Job Description */}
+          {job.description && (
+            <div className="prose prose-sm max-w-none">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Job Description</h3>
+              <div 
+                className="text-gray-700 text-sm leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: job.description }}
+              />
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4 border-t">
+            <button 
+              onClick={() => toggleSaveAIJob(job)}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all text-sm font-semibold flex items-center gap-2"
+            >
+              <FiTrash2 size={14} /> Remove from Saved
+            </button>
+            <a
+              href={job.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all text-sm font-semibold text-center flex items-center justify-center gap-2"
+            >
+              Apply Now <FiLink size={14} />
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Render AI Jobs Chatbot Interface
   const renderAIJobsChatbot = () => {
     // Count total job cards in all messages
     const totalJobsRecommended = chatMessages.reduce((sum, msg) => sum + (msg.jobCards?.length || 0), 0);
     
     return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl shadow-2xl border border-blue-200">
+    <div className="flex h-full gap-4">
+      {/* Left Sidebar - Saved Jobs */}
+      <div className="w-80 bg-white rounded-xl shadow-2xl border border-gray-200 flex flex-col">
+        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-4 rounded-t-xl text-white">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <FiHeart className="fill-current" />
+            Saved Jobs ({savedAIJobs.length})
+          </h3>
+          <p className="text-xs text-blue-100 mt-1">Click to view details</p>
+        </div>
+        
+        {selectedSavedJob ? (
+          renderSavedJobDetail(selectedSavedJob)
+        ) : (
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            {savedAIJobs.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <FiHeart size={48} className="mx-auto mb-3 opacity-30" />
+                <p className="text-sm">No saved jobs yet</p>
+                <p className="text-xs mt-1">Save jobs from AI recommendations</p>
+              </div>
+            ) : (
+              savedAIJobs.map((job, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => setSelectedSavedJob(job)}
+                  className="bg-gradient-to-br from-white to-blue-50 rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 cursor-pointer p-3"
+                >
+                  <div className="flex items-start gap-3">
+                    {job.logo && (
+                      <img
+                        src={job.logo || job.company_logo}
+                        alt={job.company}
+                        className="w-12 h-12 rounded-lg object-cover border border-gray-200 flex-shrink-0"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-sm text-gray-900 truncate">
+                        {job.title}
+                      </h4>
+                      <p className="text-xs text-gray-600 truncate">{job.company}</p>
+                      <p className="text-xs text-gray-500 mt-1">{job.location}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Right Side - Chat Interface */}
+      <div className="flex-1 flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl shadow-2xl border border-blue-200">
       {/* Chat Header */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-5 rounded-t-xl text-white shadow-lg">
         <div className="flex items-center justify-between">
@@ -1039,8 +1216,7 @@ export default function Home() {
                       {msg.jobCards.map((job, jobIdx) => (
                         <div
                           key={jobIdx}
-                          className="bg-gradient-to-br from-white to-blue-50 rounded-xl border-2 border-blue-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] p-4"
-                          onClick={() => window.open(job.url, '_blank')}
+                          className="bg-gradient-to-br from-white to-blue-50 rounded-xl border-2 border-blue-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 p-4"
                         >
                           <div className="flex items-start gap-4">
                             {job.logo && (
@@ -1052,7 +1228,7 @@ export default function Home() {
                               />
                             )}
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-bold text-base text-gray-900 mb-1 hover:text-blue-600 transition-colors">
+                              <h4 className="font-bold text-base text-gray-900 mb-1">
                                 {job.title}
                               </h4>
                               <p className="text-sm text-gray-600 mb-2 flex items-center gap-2 flex-wrap">
@@ -1062,7 +1238,7 @@ export default function Home() {
                               </p>
                               
                               {/* Job Details Tags */}
-                              <div className="flex gap-2 flex-wrap mb-2">
+                              <div className="flex gap-2 flex-wrap mb-3">
                                 <span className="text-xs px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full font-medium">
                                   {job.type}
                                 </span>
@@ -1076,16 +1252,32 @@ export default function Home() {
                                 )}
                               </div>
                               
-                              {/* Apply Button */}
-                              <button 
-                                className="mt-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all text-xs font-semibold shadow-md hover:shadow-lg flex items-center gap-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(job.url, '_blank');
-                                }}
-                              >
-                                Apply Now <FiLink size={12} />
-                              </button>
+                              {/* Action Buttons */}
+                              <div className="flex gap-2">
+                                <button 
+                                  className={`px-4 py-2 rounded-lg transition-all text-xs font-semibold shadow-md hover:shadow-lg flex items-center gap-2 ${
+                                    isAIJobSaved(job)
+                                      ? 'bg-pink-500 text-white hover:bg-pink-600'
+                                      : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-pink-500 hover:text-pink-500'
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleSaveAIJob(job);
+                                  }}
+                                >
+                                  <FiHeart size={14} className={isAIJobSaved(job) ? 'fill-current' : ''} />
+                                  {isAIJobSaved(job) ? 'Saved' : 'Save Job'}
+                                </button>
+                                <button 
+                                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all text-xs font-semibold shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(job.url, '_blank');
+                                  }}
+                                >
+                                  Apply Now <FiLink size={12} />
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1141,6 +1333,7 @@ export default function Home() {
           <span className="text-base">💡</span>
           <span className="font-medium">Tip: Be specific about your skills and preferences for better recommendations</span>
         </p>
+      </div>
       </div>
     </div>
     );
