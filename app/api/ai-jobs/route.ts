@@ -164,7 +164,35 @@ async function getAllJobs() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, conversationHistory, allJobs: providedJobs } = await request.json();
+    // Parse request with error handling for large payloads
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError: any) {
+      console.error('Failed to parse request body:', parseError);
+      return NextResponse.json(
+        { 
+          error: 'Invalid request format',
+          errorType: 'invalid_request',
+          message: 'Unable to parse your request. If your message is very long, try a shorter one.' 
+        },
+        { status: 400 }
+      );
+    }
+    
+    const { message, conversationHistory, allJobs: providedJobs } = body;
+
+    // Validate required fields
+    if (!message || typeof message !== 'string') {
+      return NextResponse.json(
+        { 
+          error: 'Message is required',
+          errorType: 'invalid_request',
+          message: 'Please provide a valid message.' 
+        },
+        { status: 400 }
+      );
+    }
 
     // Check if OpenAI API key is configured
     if (!process.env.OPENAI_API_KEY || !openai) {
