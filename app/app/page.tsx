@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef, ReactElement, Key, JSXElementConstructor, ReactNode, Suspense } from 'react';
 import Image from 'next/image';
 import { useInView } from 'react-intersection-observer';
-import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
          FiBookOpen, FiUsers, FiDisc, FiDownload, FiSend, FiCpu } from 'react-icons/fi';
@@ -904,34 +903,45 @@ export default function Home() {
 
   // Render AI Jobs Chatbot Interface
   const renderAIJobsChatbot = () => (
-    <div className="flex flex-col h-full bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg">
+    <div className="flex flex-col h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl shadow-2xl border border-blue-200">
       {/* Chat Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-t-lg text-white">
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-5 rounded-t-xl text-white shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="bg-white/20 p-2 rounded-lg">
-            <FiCpu size={24} />
+          <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm shadow-inner">
+            <FiCpu size={26} className="animate-pulse" />
           </div>
-          <div>
-            <h2 className="text-lg font-bold">AI Jobs Assistant</h2>
-            <p className="text-sm text-blue-100">Powered by OpenAI • {aiRecommendedJobs.length} jobs recommended</p>
+          <div className="flex-1">
+            <h2 className="text-xl font-bold tracking-tight">Learnitab AI Jobs Assistant</h2>
+            <p className="text-sm text-blue-100 mt-0.5 flex items-center gap-2">
+              <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              Powered by OpenAI • {aiRecommendedJobs.length} jobs recommended
+            </p>
           </div>
         </div>
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
         {chatMessages.map((msg, idx) => (
           <div
             key={idx}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}
           >
             <div
-              className={`max-w-[80%] p-4 rounded-2xl shadow-md ${
+              className={`max-w-[85%] p-4 rounded-2xl shadow-lg ${
                 msg.role === 'user'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-sm'
-                  : 'bg-white text-gray-800 rounded-bl-sm border border-gray-200'
+                  ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white rounded-br-sm border-2 border-blue-400'
+                  : 'bg-white text-gray-800 rounded-bl-sm border-2 border-gray-200 hover:border-blue-200 transition-colors'
               }`}
             >
+              {msg.role === 'assistant' && (
+                <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
+                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-1.5 rounded-lg">
+                    <FiCpu size={14} className="text-white" />
+                  </div>
+                  <span className="text-xs font-semibold text-gray-600">AI Assistant</span>
+                </div>
+              )}
               <div className="whitespace-pre-wrap text-sm leading-relaxed">
                 {msg.content}
               </div>
@@ -940,12 +950,15 @@ export default function Home() {
         ))}
         
         {isChatLoading && (
-          <div className="flex justify-start">
-            <div className="bg-white p-4 rounded-2xl rounded-bl-sm shadow-md border border-gray-200">
-              <div className="flex gap-2">
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          <div className="flex justify-start animate-fadeIn">
+            <div className="bg-white p-5 rounded-2xl rounded-bl-sm shadow-lg border-2 border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2.5 h-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2.5 h-2.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+                <span className="text-xs text-gray-500 font-medium">AI is thinking...</span>
               </div>
             </div>
           </div>
@@ -956,31 +969,35 @@ export default function Home() {
 
       {/* Recommended Jobs Section */}
       {aiRecommendedJobs.length > 0 && (
-        <div className="border-t border-gray-200 bg-white p-4 max-h-60 overflow-y-auto custom-scrollbar">
-          <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-            <FiBriefcase className="text-blue-600" />
+        <div className="border-t-2 border-gradient-to-r from-blue-200 to-indigo-200 bg-gradient-to-br from-white to-blue-50 p-5 max-h-64 overflow-y-auto custom-scrollbar">
+          <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-1.5 rounded-lg">
+              <FiBriefcase className="text-white" size={16} />
+            </div>
             Recommended Jobs ({aiRecommendedJobs.length})
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {aiRecommendedJobs.slice(0, 5).map((job, idx) => (
               <div
                 key={idx}
-                className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100 hover:shadow-md transition-all cursor-pointer"
+                className="p-4 bg-white rounded-xl border-2 border-blue-100 hover:border-blue-300 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-[1.02]"
                 onClick={() => window.open(job.url, '_blank')}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-sm text-gray-900 truncate">
+                    <h4 className="font-bold text-sm text-gray-900 truncate mb-1">
                       {job.title}
                     </h4>
-                    <p className="text-xs text-gray-600 mt-1">
-                      {job.company} • {job.location}
+                    <p className="text-xs text-gray-600 mb-2 flex items-center gap-1">
+                      <span className="font-medium">{job.company}</span>
+                      <span>•</span>
+                      <span>{job.location}</span>
                     </p>
-                    <div className="flex gap-2 mt-2 flex-wrap">
-                      <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                    <div className="flex gap-2 flex-wrap">
+                      <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full font-medium">
                         {job.type}
                       </span>
-                      <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
+                      <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full font-medium">
                         {job.source}
                       </span>
                     </div>
@@ -989,7 +1006,7 @@ export default function Home() {
                     <img
                       src={job.logo}
                       alt={job.company}
-                      className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                      className="w-14 h-14 rounded-xl object-cover border-2 border-gray-200 shadow-sm"
                       onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   )}
@@ -1001,28 +1018,29 @@ export default function Home() {
       )}
 
       {/* Chat Input */}
-      <div className="bg-white border-t border-gray-200 p-4 rounded-b-lg">
-        <div className="flex gap-2">
+      <div className="bg-gradient-to-br from-white to-gray-50 border-t-2 border-blue-100 p-5 rounded-b-xl">
+        <div className="flex gap-3">
           <input
             type="text"
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder="Ask me about jobs... (e.g., 'Show me React developer positions')"
-            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            className="flex-1 px-5 py-3.5 rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm shadow-sm hover:border-blue-400 transition-all"
             disabled={isChatLoading}
           />
           <button
             onClick={handleSendMessage}
             disabled={isChatLoading || !chatInput.trim()}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg flex items-center gap-2"
+            className="px-7 py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg hover:shadow-xl flex items-center gap-2 transform hover:scale-105"
           >
             <FiSend size={18} />
             Send
           </button>
         </div>
-        <p className="text-xs text-gray-500 mt-2 text-center">
-          💡 Tip: Be specific about your skills and preferences for better recommendations
+        <p className="text-xs text-gray-600 mt-3 text-center flex items-center justify-center gap-2">
+          <span className="text-base">💡</span>
+          <span className="font-medium">Tip: Be specific about your skills and preferences for better recommendations</span>
         </p>
       </div>
     </div>
@@ -1602,7 +1620,7 @@ export default function Home() {
               <div className="flex items-center">
                 <div className="relative cursor-pointer" onClick={() => window.open('https://learnitab.com', '_blank')}>
                   <Image
-                    src={Logo}
+                    src="/images/Logo Learnitab.png"
                     alt="Learnitab Logo"
                     width={40}
                     height={40}
@@ -1624,17 +1642,19 @@ export default function Home() {
                 {categories.map((category) => (
                   <button
                     key={category}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
                       currentCategory === category
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md transform scale-105'
-                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105 border-2 border-blue-400'
+                        : 'bg-white text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 border-2 border-gray-200 hover:border-gray-300 shadow-md'
                     }`}
                     onClick={() => setCurrentCategory(category)}
                   >
-                    {category === 'ai-jobs' && <FiCpu size={16} />}
+                    {category === 'ai-jobs' && <FiCpu size={18} className="animate-pulse" />}
+                    {category === 'jobs' && <FiBriefcase size={18} />}
+                    {category === 'mentors' && <FiUsers size={18} />}
                     <span>
                       {category === 'ai-jobs' 
-                        ? 'AI Jobs' 
+                        ? 'Learnitab AI Jobs' 
                         : category.charAt(0).toUpperCase() + category.slice(1)
                       }
                     </span>
@@ -1648,6 +1668,38 @@ export default function Home() {
                 {isMobileMenuOpen ? <IoMdClose size={24} /> : <FiMenu size={24} />}
               </button>
             </div>
+            
+            {/* Mobile Menu Dropdown */}
+            {isMobileMenuOpen && (
+              <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-lg z-50 border-t border-gray-200">
+                <nav className="flex flex-col p-4 space-y-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                        currentCategory === category
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                      }`}
+                      onClick={() => {
+                        setCurrentCategory(category);
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      {category === 'ai-jobs' && <FiCpu size={20} className={currentCategory === category ? 'animate-pulse' : ''} />}
+                      {category === 'jobs' && <FiBriefcase size={20} />}
+                      {category === 'mentors' && <FiUsers size={20} />}
+                      <span>
+                        {category === 'ai-jobs' 
+                          ? 'Learnitab AI Jobs' 
+                          : category.charAt(0).toUpperCase() + category.slice(1)
+                        }
+                      </span>
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            )}
           </div>
         </header>
 
@@ -1792,8 +1844,23 @@ export default function Home() {
             66% { transform: translate(-20px, 20px) scale(0.9); }
           }
           
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
           .animate-blob {
             animation: blob 10s infinite ease-in-out;
+          }
+          
+          .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out;
           }
           
           .animation-delay-2000 {
