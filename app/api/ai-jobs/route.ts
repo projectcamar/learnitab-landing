@@ -12,6 +12,23 @@ if (process.env.OPENAI_API_KEY) {
   });
 }
 
+// ==================== BATCHING & CACHING STRATEGY ====================
+// In-memory cache untuk jobs dengan TTL (Time To Live)
+// Ini akan mengurangi fetch dari 5 APIs setiap request
+interface JobsCache {
+  data: any[];
+  timestamp: number;
+  expiresAt: number;
+}
+
+let jobsCache: JobsCache | null = null;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache
+const CACHE_STALE_WHILE_REVALIDATE = 10 * 60 * 1000; // 10 minutes stale-while-revalidate
+
+// Flag untuk prevent multiple simultaneous fetches (batching)
+let fetchInProgress = false;
+let fetchPromise: Promise<any[]> | null = null;
+
 // Job API fetching functions
 async function fetchRemotiveJobs() {
   try {
@@ -162,6 +179,73 @@ async function getAllJobs() {
   return allJobs;
 }
 
+// ==================== BATCHED & CACHED JOB FETCHING ====================
+// This function implements batching and caching to avoid fetching from APIs on every request
+async function getCachedJobsWithBatching(): Promise<any[]> {
+  const now = Date.now();
+  
+  // 1. CHECK CACHE: If cache is fresh, return immediately
+  if (jobsCache && now < jobsCache.expiresAt) {
+    console.log(`✅ Cache HIT - Using cached jobs (age: ${Math.floor((now - jobsCache.timestamp) / 1000)}s)`);
+    return jobsCache.data;
+  }
+  
+  // 2. STALE-WHILE-REVALIDATE: If cache is stale but within revalidate window
+  if (jobsCache && now < jobsCache.timestamp + CACHE_STALE_WHILE_REVALIDATE) {
+    console.log(`⚠️ Cache STALE - Returning stale data while revalidating in background`);
+    
+    // Return stale data immediately
+    const staleData = jobsCache.data;
+    
+    // Trigger background revalidation (fire-and-forget)
+    if (!fetchInProgress) {
+      fetchInProgress = true;
+      getAllJobs()
+        .then(freshJobs => {
+          jobsCache = {
+            data: freshJobs,
+            timestamp: Date.now(),
+            expiresAt: Date.now() + CACHE_TTL
+          };
+          console.log(`✅ Background revalidation completed - Cache updated with ${freshJobs.length} jobs`);
+        })
+        .catch(err => console.error('Background revalidation failed:', err))
+        .finally(() => {
+          fetchInProgress = false;
+          fetchPromise = null;
+        });
+    }
+    
+    return staleData;
+  }
+  
+  // 3. BATCHING: If fetch is already in progress, wait for it
+  if (fetchInProgress && fetchPromise) {
+    console.log(`⏳ Fetch in progress - Batching request (waiting for existing fetch)`);
+    return fetchPromise;
+  }
+  
+  // 4. CACHE MISS: Fetch fresh data
+  console.log(`❌ Cache MISS - Fetching fresh jobs from all APIs`);
+  fetchInProgress = true;
+  fetchPromise = getAllJobs()
+    .then(jobs => {
+      jobsCache = {
+        data: jobs,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + CACHE_TTL
+      };
+      console.log(`✅ Cache updated with ${jobs.length} jobs (TTL: ${CACHE_TTL / 1000}s)`);
+      return jobs;
+    })
+    .finally(() => {
+      fetchInProgress = false;
+      fetchPromise = null;
+    });
+  
+  return fetchPromise;
+}
+
 // RAG: Filter and rank jobs based on relevance to user query
 // Returns top N most relevant jobs to minimize payload size
 function filterRelevantJobs(jobs: any[], userQuery: string, limit: number = 20): any[] {
@@ -268,10 +352,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use provided jobs from client if available, otherwise fetch from APIs
+    // Use provided jobs from client if available, otherwise fetch from APIs WITH BATCHING & CACHING
     let allJobs = [];
     try {
-      allJobs = providedJobs && providedJobs.length > 0 ? providedJobs : await getAllJobs();
+      allJobs = providedJobs && providedJobs.length > 0 ? providedJobs : await getCachedJobsWithBatching();
       
       // If no jobs were fetched, return an error
       if (allJobs.length === 0) {
@@ -291,8 +375,12 @@ export async function POST(request: NextRequest) {
       allJobs = [];
     }
     
-    // RAG APPROACH: Filter jobs based on user query to reduce payload size
-    // Instead of sending 150 jobs, we now filter to only the most relevant 20 jobs
+    // ==================== RAG APPROACH ====================
+    // Filter jobs based on user query to reduce payload size
+    // Combined with BATCHING & CACHING above:
+    // - BEFORE: Every request fetches 150+ jobs from 5 APIs (slow, expensive)
+    // - AFTER: Use cached jobs (5min TTL) + RAG filtering (fast, efficient)
+    // Result: Only 20 most relevant jobs sent to OpenAI
     const relevantJobs = filterRelevantJobs(allJobs, message, 20);
     console.log(`RAG: Reduced from ${allJobs.length} to ${relevantJobs.length} relevant jobs`);
     
@@ -512,16 +600,27 @@ Be conversational, friendly, and helpful with **proper markdown formatting**!`
   }
 }
 
-// GET endpoint to fetch all available jobs
+// GET endpoint to fetch all available jobs WITH BATCHING & CACHING
 export async function GET() {
   try {
-    const allJobs = await getAllJobs();
+    const allJobs = await getCachedJobsWithBatching();
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       jobs: allJobs,
       totalCount: allJobs.length,
-      sources: ['Remotive', 'Jobicy', 'Arbeitnow', 'RemoteOK', 'Web3.career']
+      sources: ['Remotive', 'Jobicy', 'Arbeitnow', 'RemoteOK', 'Web3.career'],
+      cached: jobsCache ? {
+        age: Math.floor((Date.now() - jobsCache.timestamp) / 1000),
+        expiresIn: Math.floor((jobsCache.expiresAt - Date.now()) / 1000)
+      } : null
     });
+    
+    // Add cache headers for client-side caching
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    response.headers.set('CDN-Cache-Control', 'public, s-maxage=300');
+    response.headers.set('Vercel-CDN-Cache-Control', 'public, s-maxage=300');
+    
+    return response;
   } catch (error: any) {
     console.error('Error fetching jobs:', error);
     return NextResponse.json(
