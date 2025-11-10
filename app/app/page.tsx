@@ -500,10 +500,15 @@ export default function Home() {
   const [showMobileDetail, setShowMobileDetail] = useState(false);
 
   // AI Jobs chatbot states
-  const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
+  type ChatMessage = {
+    role: 'user' | 'assistant';
+    content: string;
+    jobCards?: any[];
+  };
+  
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
-  const [aiRecommendedJobs, setAiRecommendedJobs] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const { ref, inView } = useInView({
@@ -842,7 +847,7 @@ export default function Home() {
     setChatInput('');
     
     // Add user message to chat
-    const newMessages = [...chatMessages, { role: 'user' as const, content: userMessage }];
+    const newMessages: ChatMessage[] = [...chatMessages, { role: 'user' as const, content: userMessage }];
     setChatMessages(newMessages);
     setIsChatLoading(true);
 
@@ -854,21 +859,25 @@ export default function Home() {
         },
         body: JSON.stringify({
           message: userMessage,
-          conversationHistory: chatMessages,
+          conversationHistory: chatMessages.map(msg => ({ role: msg.role, content: msg.content })),
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
+        // Parse job cards from the message
+        let messageContent = data.message || '';
+        const jobCards = data.jobCards || [];
+        
+        // Remove [JOB_CARD] tags from message content for cleaner display
+        messageContent = messageContent.replace(/\[JOB_CARD\][\s\S]*?\[\/JOB_CARD\]/g, '').trim();
+        
         setChatMessages([...newMessages, { 
           role: 'assistant' as const, 
-          content: data.message 
+          content: messageContent,
+          jobCards: jobCards
         }]);
-        
-        if (data.recommendedJobs && data.recommendedJobs.length > 0) {
-          setAiRecommendedJobs(data.recommendedJobs);
-        }
       } else {
         setChatMessages([...newMessages, { 
           role: 'assistant' as const, 
@@ -891,32 +900,77 @@ export default function Home() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
-  // Initialize AI chat with welcome message
+  // Load chat history from localStorage
   useEffect(() => {
-    if (currentCategory === 'ai-jobs' && chatMessages.length === 0) {
-      setChatMessages([{
-        role: 'assistant',
-        content: '👋 Hi! I\'m your AI job search assistant. I can help you find the perfect remote job from thousands of listings across Remotive, Jobicy, Arbeitnow, RemoteOK, and Web3.career.\n\nTell me about your skills, experience, and what kind of role you\'re looking for, and I\'ll recommend the best matches for you!\n\nFor example, you could say:\n• "I\'m looking for senior React developer positions"\n• "Show me entry-level data science jobs"\n• "I need remote marketing roles with good salary"'
-      }]);
+    if (currentCategory === 'ai-jobs') {
+      try {
+        const savedChat = localStorage.getItem('ai-jobs-chat-history');
+        if (savedChat) {
+          const parsed = JSON.parse(savedChat);
+          setChatMessages(parsed);
+        } else if (chatMessages.length === 0) {
+          // Initialize with welcome message
+          setChatMessages([{
+            role: 'assistant',
+            content: '👋 Hi! I\'m your AI job search assistant. I can help you find the perfect remote job from thousands of listings across Remotive, Jobicy, Arbeitnow, RemoteOK, and Web3.career.\n\nTell me about your skills, experience, and what kind of role you\'re looking for, and I\'ll recommend the best matches for you!\n\nFor example, you could say:\n• "I\'m looking for senior React developer positions"\n• "Show me entry-level data science jobs"\n• "I need remote marketing roles with good salary"'
+          }]);
+        }
+      } catch (e) {
+        console.error('Error loading chat history:', e);
+      }
     }
   }, [currentCategory]);
+  
+  // Save chat history to localStorage whenever it changes
+  useEffect(() => {
+    if (currentCategory === 'ai-jobs' && chatMessages.length > 0) {
+      try {
+        localStorage.setItem('ai-jobs-chat-history', JSON.stringify(chatMessages));
+      } catch (e) {
+        console.error('Error saving chat history:', e);
+      }
+    }
+  }, [chatMessages, currentCategory]);
+  
+  // Function to clear chat history
+  const clearChatHistory = () => {
+    setChatMessages([{
+      role: 'assistant',
+      content: '👋 Hi! I\'m your AI job search assistant. I can help you find the perfect remote job from thousands of listings across Remotive, Jobicy, Arbeitnow, RemoteOK, and Web3.career.\n\nTell me about your skills, experience, and what kind of role you\'re looking for, and I\'ll recommend the best matches for you!\n\nFor example, you could say:\n• "I\'m looking for senior React developer positions"\n• "Show me entry-level data science jobs"\n• "I need remote marketing roles with good salary"'
+    }]);
+    localStorage.removeItem('ai-jobs-chat-history');
+  };
 
   // Render AI Jobs Chatbot Interface
-  const renderAIJobsChatbot = () => (
+  const renderAIJobsChatbot = () => {
+    // Count total job cards in all messages
+    const totalJobsRecommended = chatMessages.reduce((sum, msg) => sum + (msg.jobCards?.length || 0), 0);
+    
+    return (
     <div className="flex flex-col h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl shadow-2xl border border-blue-200">
       {/* Chat Header */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-5 rounded-t-xl text-white shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm shadow-inner">
-            <FiCpu size={26} className="animate-pulse" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm shadow-inner">
+              <FiCpu size={26} className="animate-pulse" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-xl font-bold tracking-tight">Learnitab AI Jobs Assistant</h2>
+              <p className="text-sm text-blue-100 mt-0.5 flex items-center gap-2">
+                <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                Powered by OpenAI • {totalJobsRecommended} jobs recommended
+              </p>
+            </div>
           </div>
-          <div className="flex-1">
-            <h2 className="text-xl font-bold tracking-tight">Learnitab AI Jobs Assistant</h2>
-            <p className="text-sm text-blue-100 mt-0.5 flex items-center gap-2">
-              <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              Powered by OpenAI • {aiRecommendedJobs.length} jobs recommended
-            </p>
-          </div>
+          <button
+            onClick={clearChatHistory}
+            className="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-all flex items-center gap-2 text-sm"
+            title="Clear chat history"
+          >
+            <FiTrash2 size={18} />
+            <span className="hidden md:inline">Clear</span>
+          </button>
         </div>
       </div>
 
@@ -928,23 +982,92 @@ export default function Home() {
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}
           >
             <div
-              className={`max-w-[85%] p-4 rounded-2xl shadow-lg ${
+              className={`${msg.role === 'user' ? 'max-w-[85%]' : 'max-w-[95%]'} ${
                 msg.role === 'user'
-                  ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white rounded-br-sm border-2 border-blue-400'
-                  : 'bg-white text-gray-800 rounded-bl-sm border-2 border-gray-200 hover:border-blue-200 transition-colors'
+                  ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white rounded-2xl rounded-br-sm border-2 border-blue-400 p-4 shadow-lg'
+                  : ''
               }`}
             >
-              {msg.role === 'assistant' && (
-                <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
-                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-1.5 rounded-lg">
-                    <FiCpu size={14} className="text-white" />
+              {msg.role === 'user' ? (
+                <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                  {msg.content}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {/* AI Message Content */}
+                  <div className="bg-white text-gray-800 rounded-2xl rounded-bl-sm border-2 border-gray-200 hover:border-blue-200 transition-colors p-4 shadow-lg">
+                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
+                      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-1.5 rounded-lg">
+                        <FiCpu size={14} className="text-white" />
+                      </div>
+                      <span className="text-xs font-semibold text-gray-600">AI Assistant</span>
+                    </div>
+                    <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                      {msg.content}
+                    </div>
                   </div>
-                  <span className="text-xs font-semibold text-gray-600">AI Assistant</span>
+                  
+                  {/* Job Cards - Integrated inline with message */}
+                  {msg.jobCards && msg.jobCards.length > 0 && (
+                    <div className="space-y-2 mt-3">
+                      {msg.jobCards.map((job, jobIdx) => (
+                        <div
+                          key={jobIdx}
+                          className="bg-gradient-to-br from-white to-blue-50 rounded-xl border-2 border-blue-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] p-4"
+                          onClick={() => window.open(job.url, '_blank')}
+                        >
+                          <div className="flex items-start gap-4">
+                            {job.logo && (
+                              <img
+                                src={job.logo || job.company_logo}
+                                alt={job.company}
+                                className="w-16 h-16 rounded-xl object-cover border-2 border-gray-200 shadow-sm flex-shrink-0"
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                              />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-bold text-base text-gray-900 mb-1 hover:text-blue-600 transition-colors">
+                                {job.title}
+                              </h4>
+                              <p className="text-sm text-gray-600 mb-2 flex items-center gap-2 flex-wrap">
+                                <span className="font-semibold">{job.company}</span>
+                                <span className="text-gray-400">•</span>
+                                <span>{job.location}</span>
+                              </p>
+                              
+                              {/* Job Details Tags */}
+                              <div className="flex gap-2 flex-wrap mb-2">
+                                <span className="text-xs px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full font-medium">
+                                  {job.type}
+                                </span>
+                                <span className="text-xs px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full font-medium">
+                                  {job.source}
+                                </span>
+                                {job.salary && job.salary !== 'Not specified' && (
+                                  <span className="text-xs px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-full font-medium">
+                                    💰 {job.salary}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {/* Apply Button */}
+                              <button 
+                                className="mt-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all text-xs font-semibold shadow-md hover:shadow-lg flex items-center gap-2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(job.url, '_blank');
+                                }}
+                              >
+                                Apply Now <FiLink size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                {msg.content}
-              </div>
             </div>
           </div>
         ))}
@@ -966,56 +1089,6 @@ export default function Home() {
         
         <div ref={chatEndRef} />
       </div>
-
-      {/* Recommended Jobs Section */}
-      {aiRecommendedJobs.length > 0 && (
-        <div className="border-t-2 border-gradient-to-r from-blue-200 to-indigo-200 bg-gradient-to-br from-white to-blue-50 p-5 max-h-64 overflow-y-auto custom-scrollbar">
-          <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-1.5 rounded-lg">
-              <FiBriefcase className="text-white" size={16} />
-            </div>
-            Recommended Jobs ({aiRecommendedJobs.length})
-          </h3>
-          <div className="space-y-3">
-            {aiRecommendedJobs.slice(0, 5).map((job, idx) => (
-              <div
-                key={idx}
-                className="p-4 bg-white rounded-xl border-2 border-blue-100 hover:border-blue-300 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-[1.02]"
-                onClick={() => window.open(job.url, '_blank')}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-sm text-gray-900 truncate mb-1">
-                      {job.title}
-                    </h4>
-                    <p className="text-xs text-gray-600 mb-2 flex items-center gap-1">
-                      <span className="font-medium">{job.company}</span>
-                      <span>•</span>
-                      <span>{job.location}</span>
-                    </p>
-                    <div className="flex gap-2 flex-wrap">
-                      <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full font-medium">
-                        {job.type}
-                      </span>
-                      <span className="text-xs px-2.5 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full font-medium">
-                        {job.source}
-                      </span>
-                    </div>
-                  </div>
-                  {job.logo && (
-                    <img
-                      src={job.logo}
-                      alt={job.company}
-                      className="w-14 h-14 rounded-xl object-cover border-2 border-gray-200 shadow-sm"
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Chat Input */}
       <div className="bg-gradient-to-br from-white to-gray-50 border-t-2 border-blue-100 p-5 rounded-b-xl">
@@ -1044,7 +1117,8 @@ export default function Home() {
         </p>
       </div>
     </div>
-  );
+    );
+  };
 
   // Update renderSearchBar function
   const renderSearchBar = () => (
