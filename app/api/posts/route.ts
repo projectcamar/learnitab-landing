@@ -6,6 +6,13 @@ export const dynamic = "force-static";
 
 export async function GET() {
   try {
+    if (!clientPromise) {
+      return NextResponse.json({ 
+        error: 'MongoDB not configured. Please set MONGODB_URI in your environment variables.',
+        data: { mentors: [] }
+      }, { status: 200 });
+    }
+
     const client = await clientPromise;
     const db = client.db('learnitabDatabase');
     const categories = ['internship', 'competitions', 'scholarships', 'volunteers', 'events', 'mentors'];
@@ -21,6 +28,9 @@ export async function GET() {
     return NextResponse.json({ data: allData });
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to fetch posts',
+      data: { mentors: [] }
+    }, { status: 500 });
   }
 }
