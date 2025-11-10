@@ -1078,7 +1078,7 @@ export default function Home() {
           // Initialize with welcome message
           setChatMessages([{
             role: 'assistant',
-            content: '👋 Hi! I\'m your AI job search assistant. I can help you find the perfect remote job from thousands of listings across Remotive, Jobicy, Arbeitnow, RemoteOK, and Web3.career.\n\nTell me about your skills, experience, and what kind of role you\'re looking for, and I\'ll recommend the best matches for you!\n\nFor example, you could say:\n• "I\'m looking for senior React developer positions"\n• "Show me entry-level data science jobs"\n• "I need remote marketing roles with good salary"'
+            content: '👋 Hi! I\'m your AI job search assistant. I have access to remote job listings and can help you:\n\n• **Find specific remote jobs** based on your skills\n• Give job search advice and strategies\n• Help with resume and interview tips\n• Provide career guidance\n\n**Try asking:**\n• "Show me React developer jobs"\n• "Find me data science positions"\n• "I need remote marketing jobs"'
           }]);
         }
       } catch (e) {
@@ -1102,7 +1102,7 @@ export default function Home() {
   const clearChatHistory = () => {
     setChatMessages([{
       role: 'assistant',
-      content: '👋 Hi! I\'m your AI job search assistant. I can help you find the perfect remote job from thousands of listings across Remotive, Jobicy, Arbeitnow, RemoteOK, and Web3.career.\n\nTell me about your skills, experience, and what kind of role you\'re looking for, and I\'ll recommend the best matches for you!\n\nFor example, you could say:\n• "I\'m looking for senior React developer positions"\n• "Show me entry-level data science jobs"\n• "I need remote marketing roles with good salary"'
+      content: '👋 Hi! I\'m your AI job search assistant. I have access to remote job listings and can help you:\n\n• **Find specific remote jobs** based on your skills\n• Give job search advice and strategies\n• Help with resume and interview tips\n• Provide career guidance\n\n**Try asking:**\n• "Show me React developer jobs"\n• "Find me data science positions"\n• "I need remote marketing jobs"'
     }]);
     localStorage.removeItem('ai-jobs-chat-history');
   };
@@ -1255,7 +1255,7 @@ export default function Home() {
               <h2 className="text-xl font-bold tracking-tight">Learnitab AI Jobs Assistant</h2>
               <p className="text-sm text-blue-100 mt-0.5 flex items-center gap-2">
                 <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                Powered by OpenAI • {totalJobsRecommended} jobs recommended
+                Powered by OpenAI • {totalJobsRecommended} jobs saved
               </p>
             </div>
           </div>
@@ -1433,7 +1433,7 @@ export default function Home() {
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Ask me about jobs... (e.g., 'Show me React developer positions')"
+            placeholder="Ask me about jobs... (e.g., 'Show me React developer jobs')"
             className="flex-1 px-5 py-3.5 rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm shadow-sm hover:border-blue-400 transition-all"
             disabled={isChatLoading}
           />
