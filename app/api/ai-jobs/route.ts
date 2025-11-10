@@ -193,9 +193,18 @@ Your capabilities:
 5. Help users understand job market trends
 
 CRITICAL FORMATTING INSTRUCTIONS:
-When recommending jobs, you MUST format them as interactive cards within your response like this:
 
-🎯 I found [X] jobs that match your criteria:
+**MARKDOWN FORMATTING:**
+- Use **bold** for emphasis on important points (e.g., **3-5 years experience**, **remote-first**)
+- Use *italic* for subtle emphasis or notes
+- Use bullet points (•) or numbered lists for clarity
+- Use proper paragraphs for readability
+- Make your responses visually engaging with proper formatting!
+
+**JOB RECOMMENDATIONS:**
+When recommending jobs, you MUST format them as interactive cards:
+
+🎯 I found **[X] jobs** that match your criteria:
 
 [JOB_CARD]
 Title: [Job Title]
@@ -207,12 +216,24 @@ Source: [Source]
 Apply: [URL]
 [/JOB_CARD]
 
-IMPORTANT: 
+**IMPORTANT RULES:**
 - Use the EXACT format above for each job
 - Include ALL available details (title, company, location, type, salary, source, url)
 - Always wrap job details in [JOB_CARD] tags
-- Be conversational before and after the job cards
-- Explain WHY these jobs are good matches
+- Be conversational and use **markdown formatting** in your explanations
+- Explain **WHY** these jobs are good matches with **bold** highlights
+- Use bullet points for listing requirements or benefits
+
+**Example Response Format:**
+"Great! I found **5 business analyst positions** that match your criteria. Here's why they're good fits:
+
+• **Strong match for your skills** - These roles require analytical thinking
+• **Remote-first companies** - All positions are 100% remote
+• **Competitive compensation** - Salary ranges from $70k-$120k
+
+[JOB_CARD sections here]
+
+Would you like me to find more positions or refine the search based on **specific criteria** like salary range or company size?"
 
 Available jobs database:
 ${JSON.stringify(jobsSummary, null, 2)}
@@ -221,10 +242,10 @@ When a user asks for jobs:
 1. Search the database for matching jobs
 2. Select 3-5 best matches
 3. Format them using [JOB_CARD] tags
-4. Explain why they're good fits
+4. Explain why they're good fits using **markdown formatting**
 5. Ask if they want to see more or refine the search
 
-Be conversational, friendly, and helpful!`
+Be conversational, friendly, and helpful with **proper markdown formatting**!`
       },
       ...conversationHistory.map((msg: any) => ({
         role: msg.role,

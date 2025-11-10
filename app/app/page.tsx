@@ -13,6 +13,8 @@ import { format, parseISO, isAfter, isBefore, addDays } from 'date-fns';
 import { CustomErrorBoundary } from '../components/ErrorBoundary';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import { useSearchParams } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // @ts-ignore
 console.error = (...args: any) => {
@@ -1002,8 +1004,32 @@ export default function Home() {
                       </div>
                       <span className="text-xs font-semibold text-gray-600">AI Assistant</span>
                     </div>
-                    <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                      {msg.content}
+                    <div className="markdown-content text-sm leading-relaxed prose prose-sm max-w-none">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          // Custom styling untuk markdown elements
+                          strong: ({node, ...props}) => <strong className="font-bold text-gray-900" {...props} />,
+                          em: ({node, ...props}) => <em className="italic text-gray-800" {...props} />,
+                          ul: ({node, ...props}) => <ul className="list-disc list-inside space-y-1 my-2" {...props} />,
+                          ol: ({node, ...props}) => <ol className="list-decimal list-inside space-y-1 my-2" {...props} />,
+                          li: ({node, ...props}) => <li className="text-gray-700 ml-2" {...props} />,
+                          p: ({node, ...props}) => <p className="my-2 text-gray-800" {...props} />,
+                          h1: ({node, ...props}) => <h1 className="text-xl font-bold text-gray-900 mt-4 mb-2" {...props} />,
+                          h2: ({node, ...props}) => <h2 className="text-lg font-bold text-gray-900 mt-3 mb-2" {...props} />,
+                          h3: ({node, ...props}) => <h3 className="text-base font-bold text-gray-900 mt-2 mb-1" {...props} />,
+                          code: ({node, inline, ...props}: any) => 
+                            inline ? (
+                              <code className="px-1.5 py-0.5 bg-gray-100 text-blue-600 rounded text-xs font-mono" {...props} />
+                            ) : (
+                              <code className="block p-2 bg-gray-100 text-blue-600 rounded text-xs font-mono overflow-x-auto my-2" {...props} />
+                            ),
+                          a: ({node, ...props}) => <a className="text-blue-600 hover:text-blue-800 underline font-medium" {...props} />,
+                          blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-600 my-2" {...props} />,
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
                     </div>
                   </div>
                   
@@ -1990,6 +2016,76 @@ export default function Home() {
             100% {
               background-position: -200% 0;
             }
+          }
+        `}</style>
+
+        <style jsx global>{`
+          /* Enhanced markdown styling for AI responses */
+          .markdown-content {
+            line-height: 1.6;
+          }
+          
+          .markdown-content strong {
+            font-weight: 700;
+            color: #1f2937;
+          }
+          
+          .markdown-content em {
+            font-style: italic;
+            color: #374151;
+          }
+          
+          .markdown-content ul,
+          .markdown-content ol {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+          }
+          
+          .markdown-content li {
+            margin-left: 0.5rem;
+            line-height: 1.75;
+          }
+          
+          .markdown-content p {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+          }
+          
+          .markdown-content p:first-child {
+            margin-top: 0;
+          }
+          
+          .markdown-content p:last-child {
+            margin-bottom: 0;
+          }
+          
+          .markdown-content h1,
+          .markdown-content h2,
+          .markdown-content h3 {
+            font-weight: 700;
+            line-height: 1.25;
+          }
+          
+          .markdown-content code {
+            font-family: 'Courier New', monospace;
+          }
+          
+          .markdown-content a {
+            transition: color 0.2s ease;
+          }
+          
+          .markdown-content blockquote {
+            margin: 0.5rem 0;
+          }
+          
+          /* Better spacing for nested lists */
+          .markdown-content ul ul,
+          .markdown-content ol ol,
+          .markdown-content ul ol,
+          .markdown-content ol ul {
+            margin-top: 0.25rem;
+            margin-bottom: 0.25rem;
+            margin-left: 1rem;
           }
         `}</style>
 
