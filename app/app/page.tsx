@@ -1297,88 +1297,166 @@ export default function Home() {
     const totalJobsRecommended = chatMessages.reduce((sum, msg) => sum + (msg.jobCards?.length || 0), 0);
     
     return (
-    <div className="flex h-full gap-4">
+    <div className="flex h-full gap-3">
       {/* Left Sidebar - Saved Jobs */}
-      <div className="w-80 bg-white rounded-xl shadow-2xl border border-gray-200 flex flex-col">
-        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-4 rounded-t-xl text-white">
-          <h3 className="text-lg font-bold flex items-center gap-2">
-            <FiHeart className="fill-current" />
+      <div className="w-64 bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col">
+        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-2.5 rounded-t-xl text-white">
+          <h3 className="text-sm font-bold flex items-center gap-1.5">
+            <FiHeart className="fill-current" size={14} />
             Saved Jobs ({savedAIJobs.length})
           </h3>
-          <p className="text-xs text-blue-100 mt-1">Click to view details</p>
+          <p className="text-xs text-blue-100 mt-0.5">Click to view details</p>
         </div>
         
-        {selectedSavedJob ? (
-          renderSavedJobDetail(selectedSavedJob)
-        ) : (
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-            {savedAIJobs.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <FiHeart size={48} className="mx-auto mb-3 opacity-30" />
-                <p className="text-sm">No saved jobs yet</p>
-                <p className="text-xs mt-1">Save jobs from AI recommendations</p>
-              </div>
-            ) : (
-              savedAIJobs.map((job, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setSelectedSavedJob(job)}
-                  className="bg-gradient-to-br from-white to-blue-50 rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 cursor-pointer p-3"
-                >
-                  <div className="flex items-start gap-3">
-                    {job.logo && (
-                      <img
-                        src={job.logo || job.company_logo}
-                        alt={job.company}
-                        className="w-12 h-12 rounded-lg object-cover border border-gray-200 flex-shrink-0"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-sm text-gray-900 truncate">
-                        {job.title}
-                      </h4>
-                      <p className="text-xs text-gray-600 truncate">{job.company}</p>
-                      <p className="text-xs text-gray-500 mt-1">{job.location}</p>
-                    </div>
+        <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+          {savedAIJobs.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <FiHeart size={32} className="mx-auto mb-2 opacity-30" />
+              <p className="text-xs">No saved jobs yet</p>
+              <p className="text-xs mt-0.5">Save jobs from AI recommendations</p>
+            </div>
+          ) : (
+            savedAIJobs.map((job, idx) => (
+              <div
+                key={idx}
+                onClick={() => setSelectedSavedJob(job)}
+                className="bg-gradient-to-br from-white to-blue-50 rounded-lg border border-blue-200 hover:border-blue-400 hover:shadow-md transition-all duration-300 cursor-pointer p-2"
+              >
+                <div className="flex items-start gap-2">
+                  {job.logo && (
+                    <img
+                      src={job.logo || job.company_logo}
+                      alt={job.company}
+                      className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-xs text-gray-900 truncate">
+                      {job.title}
+                    </h4>
+                    <p className="text-xs text-gray-600 truncate">{job.company}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 truncate">{job.location}</p>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        )}
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
       {/* Right Side - Chat Interface */}
-      <div className="flex-1 flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl shadow-2xl border border-blue-200">
+      <div className="flex-1 flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl shadow-lg border border-blue-200 relative">
       {/* Chat Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-5 rounded-t-xl text-white shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-2.5 rounded-t-xl text-white shadow-md">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm shadow-inner">
-              <FiCpu size={26} className="animate-pulse" />
+          <div className="flex items-center gap-2">
+            <div className="bg-white/20 p-1.5 rounded-lg backdrop-blur-sm">
+              <FiCpu size={18} className="animate-pulse" />
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold tracking-tight">Learnitab AI Jobs Assistant</h2>
-              <p className="text-sm text-blue-100 mt-0.5 flex items-center gap-2">
-                <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              <h2 className="text-sm font-bold tracking-tight">Learnitab AI Jobs Assistant</h2>
+              <p className="text-xs text-blue-100 flex items-center gap-1.5">
+                <span className="inline-block w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
                 Powered by OpenAI • {totalJobsRecommended} jobs recommended
               </p>
             </div>
           </div>
           <button
             onClick={clearChatHistory}
-            className="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-all flex items-center gap-2 text-sm"
+            className="bg-white/20 hover:bg-white/30 p-1.5 rounded-lg transition-all flex items-center gap-1.5 text-xs"
             title="Clear chat history"
           >
-            <FiTrash2 size={18} />
+            <FiTrash2 size={14} />
             <span className="hidden md:inline">Clear</span>
           </button>
         </div>
       </div>
 
+      {/* Saved Job Detail Overlay */}
+      {selectedSavedJob && (
+        <div className="absolute inset-0 bg-white z-50 rounded-xl flex flex-col">
+          <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-3 rounded-t-xl text-white flex items-center justify-between">
+            <h3 className="text-sm font-bold">Job Details</h3>
+            <button
+              onClick={() => setSelectedSavedJob(null)}
+              className="bg-white/20 hover:bg-white/30 p-1.5 rounded-lg transition-all"
+            >
+              <IoMdClose size={18} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            <div className="bg-white rounded-xl p-4 shadow-lg space-y-3">
+              {/* Job Header */}
+              <div className="flex items-start gap-3 border-b pb-3">
+                {selectedSavedJob.logo && (
+                  <img
+                    src={selectedSavedJob.logo || selectedSavedJob.company_logo}
+                    alt={selectedSavedJob.company}
+                    className="w-16 h-16 rounded-xl object-cover border-2 border-gray-200 shadow-sm flex-shrink-0"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                )}
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-gray-900">{selectedSavedJob.title}</h2>
+                  <p className="text-base text-gray-600 mt-1">{selectedSavedJob.company}</p>
+                  <p className="text-sm text-gray-500 mt-0.5">📍 {selectedSavedJob.location}</p>
+                </div>
+              </div>
+
+              {/* Job Details */}
+              <div className="flex gap-2 flex-wrap">
+                <span className="text-xs px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full font-medium">
+                  {selectedSavedJob.type}
+                </span>
+                <span className="text-xs px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full font-medium">
+                  {selectedSavedJob.source}
+                </span>
+                {selectedSavedJob.salary && selectedSavedJob.salary !== 'Not specified' && (
+                  <span className="text-xs px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-full font-medium">
+                    💰 {selectedSavedJob.salary}
+                  </span>
+                )}
+              </div>
+
+              {/* Job Description */}
+              {selectedSavedJob.description && (
+                <div className="prose prose-sm max-w-none">
+                  <h3 className="text-base font-semibold text-gray-900 mb-2">Job Description</h3>
+                  <div 
+                    className="text-gray-700 text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: selectedSavedJob.description }}
+                  />
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-3 border-t">
+                <button 
+                  onClick={() => {
+                    toggleSaveAIJob(selectedSavedJob);
+                    setSelectedSavedJob(null);
+                  }}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all text-sm font-semibold flex items-center gap-2"
+                >
+                  <FiTrash2 size={14} /> Remove from Saved
+                </button>
+                <a
+                  href={selectedSavedJob.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all text-sm font-semibold text-center flex items-center justify-center gap-2"
+                >
+                  Apply Now <FiLink size={14} />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
         {chatMessages.map((msg, idx) => (
           <div
             key={idx}
@@ -1533,29 +1611,29 @@ export default function Home() {
       </div>
 
       {/* Chat Input */}
-      <div className="bg-gradient-to-br from-white to-gray-50 border-t-2 border-blue-100 p-5 rounded-b-xl">
-        <div className="flex gap-3">
+      <div className="bg-gradient-to-br from-white to-gray-50 border-t border-blue-100 p-3 rounded-b-xl">
+        <div className="flex gap-2">
           <input
             type="text"
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder="Ask me about jobs... (e.g., 'Show me React developer positions')"
-            className="flex-1 px-5 py-3.5 rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm shadow-sm hover:border-blue-400 transition-all"
+            className="flex-1 px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm shadow-sm hover:border-blue-400 transition-all"
             disabled={isChatLoading}
           />
           <button
             onClick={handleSendMessage}
             disabled={isChatLoading || !chatInput.trim()}
-            className="px-7 py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg hover:shadow-xl flex items-center gap-2 transform hover:scale-105"
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-md hover:shadow-lg flex items-center gap-1.5"
           >
-            <FiSend size={18} />
-            Send
+            <FiSend size={14} />
+            <span className="text-xs">Send</span>
           </button>
         </div>
-        <p className="text-xs text-gray-600 mt-3 text-center flex items-center justify-center gap-2">
-          <span className="text-base">💡</span>
-          <span className="font-medium">Tip: Be specific about your skills and preferences for better recommendations</span>
+        <p className="text-xs text-gray-600 mt-2 text-center flex items-center justify-center gap-1.5">
+          <span className="text-sm">💡</span>
+          <span>Tip: Be specific about your skills for better recommendations</span>
         </p>
       </div>
       </div>
