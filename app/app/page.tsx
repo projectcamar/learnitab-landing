@@ -885,21 +885,8 @@ export default function Home() {
     setIsChatLoading(true);
 
     try {
-      // Transform posts to match the expected job format for AI
-      const jobsForAI = posts.filter(p => p.category === 'jobs').map(post => ({
-        id: post._id,
-        title: post.title,
-        company: post.company || post.labels?.Company,
-        location: post.location,
-        type: post.workType,
-        description: typeof post.body === 'string' ? post.body : '',
-        url: post.link,
-        source: post.source,
-        salary: post.salary || 'Not specified',
-        logo: post.image,
-        date: post.created_at
-      }));
-
+      // Don't send all jobs in the request body to avoid payload size issues
+      // The backend will fetch jobs from APIs if needed
       const response = await fetch('/api/ai-jobs', {
         method: 'POST',
         headers: {
@@ -908,7 +895,7 @@ export default function Home() {
         body: JSON.stringify({
           message: userMessage,
           conversationHistory: chatMessages.map(msg => ({ role: msg.role, content: msg.content })),
-          allJobs: jobsForAI, // Pass existing jobs from the main page
+          // allJobs removed to prevent payload size errors - backend will fetch jobs
         }),
       });
 
@@ -916,25 +903,54 @@ export default function Home() {
       let data;
       const contentType = response.headers.get('content-type');
       
-      if (contentType && contentType.includes('application/json')) {
+      // Handle specific HTTP status codes first
+      if (response.status === 413) {
+        data = {
+          error: 'Request payload too large',
+          errorType: 'payload_too_large',
+          message: 'The request was too large. Please try a shorter message or refresh the page to reset the conversation.'
+        };
+      } else if (response.status === 502 || response.status === 503 || response.status === 504) {
+        data = {
+          error: 'Server temporarily unavailable',
+          errorType: 'server_unavailable',
+          message: 'The server is temporarily unavailable or overloaded. Please try again in a few moments.'
+        };
+      } else if (contentType && contentType.includes('application/json')) {
         try {
           data = await response.json();
         } catch (jsonError: any) {
           console.error('Failed to parse JSON response:', jsonError);
-          throw new Error(`Invalid JSON response from server: ${jsonError.message}`);
+          data = {
+            error: 'Invalid JSON response',
+            errorType: 'invalid_response',
+            message: 'The server returned an invalid response. Please try again.'
+          };
         }
       } else {
         // Response is not JSON, try to get the text content
         const textResponse = await response.text();
-        console.error('Non-JSON response received:', textResponse);
+        console.error('Non-JSON response received. Status:', response.status, 'Body:', textResponse);
         
-        // Create a proper error object
+        // Create a proper error object based on status code and content
+        let errorMessage = 'The server returned an unexpected response. Please try again.';
+        let errorType = 'invalid_response';
+        
+        if (textResponse.toLowerCase().includes('too large') || textResponse.toLowerCase().includes('payload')) {
+          errorMessage = 'The request was too large. Please try a shorter message or refresh the page.';
+          errorType = 'payload_too_large';
+        } else if (textResponse.toLowerCase().includes('timeout')) {
+          errorMessage = 'The request timed out. Please try again with a simpler query.';
+          errorType = 'timeout';
+        } else if (response.status >= 500) {
+          errorMessage = 'The server encountered an error. Please try again later.';
+          errorType = 'server_error';
+        }
+        
         data = {
           error: textResponse || 'Server returned a non-JSON response',
-          errorType: 'invalid_response',
-          message: textResponse.includes('413') || textResponse.toLowerCase().includes('too large')
-            ? 'The request was too large. This might be due to too many jobs being sent to the AI. Please try refreshing the page and try again.'
-            : 'The server returned an unexpected response. Please try again.'
+          errorType: errorType,
+          message: errorMessage
         };
       }
 
@@ -960,7 +976,7 @@ export default function Home() {
             case 'missing_api_key':
             case 'invalid_api_key':
               errorMessage = '🔑 **AI Service Configuration Error**\n\n' + 
-                (data.message || 'The AI assistant is not configured properly. Please make sure the OpenAI API key is set correctly in your Vercel environment variables.');
+                (data.message || 'The AI assistant is not configured properly. Please make sure the OpenAI API key is set correctly in your environment variables.');
               break;
             case 'rate_limit':
               errorMessage = '⏱️ **Rate Limit Reached**\n\n' + 
@@ -977,6 +993,19 @@ export default function Home() {
             case 'openai_error':
               errorMessage = '🤖 **AI Service Error**\n\n' + 
                 (data.message || 'The AI assistant encountered an error while processing your request. Please try again.');
+              break;
+            case 'payload_too_large':
+              errorMessage = '📦 **Request Too Large**\n\n' + 
+                (data.message || 'Your request is too large. Try:\n\n• Using a shorter message\n• Starting a new conversation (refresh the page)\n• Being more specific in your query');
+              break;
+            case 'timeout':
+              errorMessage = '⏱️ **Request Timed Out**\n\n' + 
+                (data.message || 'The request took too long to process. Please try again with a simpler query.');
+              break;
+            case 'server_unavailable':
+            case 'server_error':
+              errorMessage = '🔧 **Server Error**\n\n' + 
+                (data.message || 'The server encountered an error or is temporarily unavailable. Please try again in a few moments.');
               break;
             case 'invalid_response':
               errorMessage = '⚠️ **Server Response Error**\n\n' + 
