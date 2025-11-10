@@ -4,6 +4,9 @@ import OpenAI from 'openai';
 // This route requires dynamic rendering
 export const dynamic = 'force-dynamic';
 
+// Route timeout - max 55 seconds (Vercel/Netlify limit is 60s)
+export const maxDuration = 55;
+
 // Initialize OpenAI only when API key is available
 let openai: OpenAI | null = null;
 if (process.env.OPENAI_API_KEY) {
@@ -29,12 +32,102 @@ const CACHE_STALE_WHILE_REVALIDATE = 10 * 60 * 1000; // 10 minutes stale-while-r
 let fetchInProgress = false;
 let fetchPromise: Promise<any[]> | null = null;
 
-// Job API fetching functions
+// ==================== CIRCUIT BREAKER PATTERN ====================
+// Prevents cascading failures by tracking API errors and temporarily disabling failing APIs
+interface CircuitBreakerState {
+  failures: number;
+  lastFailureTime: number;
+  isOpen: boolean; // true = circuit open (API disabled temporarily)
+}
+
+const circuitBreakers: Map<string, CircuitBreakerState> = new Map();
+const CIRCUIT_BREAKER_THRESHOLD = 3; // Open circuit after 3 consecutive failures
+const CIRCUIT_BREAKER_TIMEOUT = 60000; // Try again after 60 seconds
+const CIRCUIT_BREAKER_RESET_SUCCESS_COUNT = 2; // Reset after 2 successful calls
+
+function checkCircuitBreaker(apiName: string): boolean {
+  const state = circuitBreakers.get(apiName);
+  if (!state) return true; // No state = circuit closed, allow request
+  
+  if (state.isOpen) {
+    const timeSinceLastFailure = Date.now() - state.lastFailureTime;
+    if (timeSinceLastFailure > CIRCUIT_BREAKER_TIMEOUT) {
+      console.log(`🔄 Circuit breaker for ${apiName} attempting reset (timeout reached)`);
+      state.isOpen = false;
+      state.failures = 0;
+      return true;
+    }
+    console.log(`⚠️ Circuit breaker OPEN for ${apiName} (${Math.floor((CIRCUIT_BREAKER_TIMEOUT - timeSinceLastFailure) / 1000)}s remaining)`);
+    return false;
+  }
+  
+  return true;
+}
+
+function recordCircuitBreakerSuccess(apiName: string) {
+  const state = circuitBreakers.get(apiName);
+  if (state && state.failures > 0) {
+    state.failures = Math.max(0, state.failures - 1);
+    console.log(`✅ ${apiName} success - circuit breaker failures: ${state.failures}`);
+    if (state.failures === 0) {
+      circuitBreakers.delete(apiName);
+    }
+  }
+}
+
+function recordCircuitBreakerFailure(apiName: string) {
+  let state = circuitBreakers.get(apiName);
+  if (!state) {
+    state = { failures: 0, lastFailureTime: 0, isOpen: false };
+    circuitBreakers.set(apiName, state);
+  }
+  
+  state.failures++;
+  state.lastFailureTime = Date.now();
+  
+  if (state.failures >= CIRCUIT_BREAKER_THRESHOLD) {
+    state.isOpen = true;
+    console.error(`🔴 Circuit breaker OPENED for ${apiName} after ${state.failures} failures`);
+  } else {
+    console.warn(`⚠️ ${apiName} failure ${state.failures}/${CIRCUIT_BREAKER_THRESHOLD}`);
+  }
+}
+
+// ==================== TIMEOUT UTILITIES ====================
+// Helper function to add timeout to fetch requests
+function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs: number = 10000): Promise<Response> {
+  return Promise.race([
+    fetch(url, options),
+    new Promise<Response>((_, reject) => 
+      setTimeout(() => reject(new Error(`Request timeout after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+}
+
+// Helper function to add timeout to any async operation
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, operation: string = 'Operation'): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => 
+      setTimeout(() => reject(new Error(`${operation} timeout after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+}
+
+// ==================== JOB API FETCHING WITH TIMEOUTS ====================
+// Job API fetching functions with circuit breaker
 async function fetchRemotiveJobs() {
+  const apiName = 'Remotive';
+  if (!checkCircuitBreaker(apiName)) {
+    console.log(`⏭️ Skipping ${apiName} (circuit breaker open)`);
+    return [];
+  }
+  
   try {
-    const response = await fetch('https://remotive.com/api/remote-jobs');
+    const response = await fetchWithTimeout('https://remotive.com/api/remote-jobs', {}, 8000);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
-    return data.jobs.map((job: any) => ({
+    const jobs = data.jobs.map((job: any) => ({
       id: job.id.toString(),
       title: job.title,
       company: job.company_name,
@@ -47,17 +140,27 @@ async function fetchRemotiveJobs() {
       logo: job.company_logo,
       date: job.publication_date
     }));
+    recordCircuitBreakerSuccess(apiName);
+    return jobs;
   } catch (error) {
     console.error('Error fetching Remotive jobs:', error);
+    recordCircuitBreakerFailure(apiName);
     return [];
   }
 }
 
 async function fetchJobicyJobs() {
+  const apiName = 'Jobicy';
+  if (!checkCircuitBreaker(apiName)) {
+    console.log(`⏭️ Skipping ${apiName} (circuit breaker open)`);
+    return [];
+  }
+  
   try {
-    const response = await fetch('https://jobicy.com/api/v2/remote-jobs?count=50');
+    const response = await fetchWithTimeout('https://jobicy.com/api/v2/remote-jobs?count=50', {}, 8000);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
-    return data.jobs.map((job: any) => ({
+    const jobs = data.jobs.map((job: any) => ({
       id: job.id,
       title: job.jobTitle,
       company: job.companyName,
@@ -72,17 +175,27 @@ async function fetchJobicyJobs() {
       logo: job.companyLogo,
       date: job.pubDate
     }));
+    recordCircuitBreakerSuccess(apiName);
+    return jobs;
   } catch (error) {
     console.error('Error fetching Jobicy jobs:', error);
+    recordCircuitBreakerFailure(apiName);
     return [];
   }
 }
 
 async function fetchArbeitnowJobs() {
+  const apiName = 'Arbeitnow';
+  if (!checkCircuitBreaker(apiName)) {
+    console.log(`⏭️ Skipping ${apiName} (circuit breaker open)`);
+    return [];
+  }
+  
   try {
-    const response = await fetch('https://www.arbeitnow.com/api/job-board-api');
+    const response = await fetchWithTimeout('https://www.arbeitnow.com/api/job-board-api', {}, 8000);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
-    return data.data.map((job: any) => ({
+    const jobs = data.data.map((job: any) => ({
       id: job.slug,
       title: job.title,
       company: job.company_name,
@@ -95,23 +208,33 @@ async function fetchArbeitnowJobs() {
       tags: job.tags,
       date: new Date(job.created_at * 1000).toISOString()
     }));
+    recordCircuitBreakerSuccess(apiName);
+    return jobs;
   } catch (error) {
     console.error('Error fetching Arbeitnow jobs:', error);
+    recordCircuitBreakerFailure(apiName);
     return [];
   }
 }
 
 async function fetchRemoteOKJobs() {
+  const apiName = 'RemoteOK';
+  if (!checkCircuitBreaker(apiName)) {
+    console.log(`⏭️ Skipping ${apiName} (circuit breaker open)`);
+    return [];
+  }
+  
   try {
-    const response = await fetch('https://remoteok.com/api?limit=100', {
+    const response = await fetchWithTimeout('https://remoteok.com/api?limit=100', {
       headers: {
         'User-Agent': 'Learnitab (https://learnitab.com)'
       }
-    });
+    }, 8000);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     const jobs = data.slice(1); // Skip metadata
     
-    return jobs.map((job: any) => ({
+    const mappedJobs = jobs.map((job: any) => ({
       id: job.id,
       title: job.position,
       company: job.company,
@@ -127,17 +250,27 @@ async function fetchRemoteOKJobs() {
       tags: job.tags,
       date: job.date
     }));
+    recordCircuitBreakerSuccess(apiName);
+    return mappedJobs;
   } catch (error) {
     console.error('Error fetching RemoteOK jobs:', error);
+    recordCircuitBreakerFailure(apiName);
     return [];
   }
 }
 
 async function fetchWeb3Jobs() {
+  const apiName = 'Web3.career';
+  if (!checkCircuitBreaker(apiName)) {
+    console.log(`⏭️ Skipping ${apiName} (circuit breaker open)`);
+    return [];
+  }
+  
   try {
-    const response = await fetch('https://web3.career/api/v1/jobs');
+    const response = await fetchWithTimeout('https://web3.career/api/v1/jobs', {}, 8000);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
-    return data.jobs?.map((job: any) => ({
+    const jobs = data.jobs?.map((job: any) => ({
       id: job.id,
       title: job.title,
       company: job.company_name,
@@ -150,8 +283,11 @@ async function fetchWeb3Jobs() {
       logo: job.company_logo,
       date: job.published_at
     })) || [];
+    recordCircuitBreakerSuccess(apiName);
+    return jobs;
   } catch (error) {
     console.error('Error fetching Web3 jobs:', error);
+    recordCircuitBreakerFailure(apiName);
     return [];
   }
 }
@@ -354,25 +490,42 @@ export async function POST(request: NextRequest) {
 
     // Use provided jobs from client if available, otherwise fetch from APIs WITH BATCHING & CACHING
     let allJobs = [];
+    let jobsFetchedSuccessfully = false;
     try {
       allJobs = providedJobs && providedJobs.length > 0 ? providedJobs : await getCachedJobsWithBatching();
+      jobsFetchedSuccessfully = allJobs.length > 0;
       
-      // If no jobs were fetched, return an error
+      // If no jobs were fetched, provide a fallback response instead of error
       if (allJobs.length === 0) {
-        console.warn('No jobs available from any source');
-        return NextResponse.json(
-          { 
-            error: 'No jobs available',
-            errorType: 'no_jobs',
-            message: 'Unable to fetch job listings at the moment. The job APIs might be temporarily unavailable. Please try again later.' 
-          },
-          { status: 503 }
-        );
+        console.warn('No jobs available from any source - using fallback response');
+        
+        // Instead of returning an error, provide a helpful fallback message
+        const fallbackMessage = `I apologize, but I'm currently unable to fetch job listings from our partner sites. This could be due to:\n\n` +
+          `• **Temporary API unavailability** - The job boards might be experiencing high traffic\n` +
+          `• **Network connectivity issues** - There might be a temporary connection problem\n` +
+          `• **Rate limiting** - We may have reached temporary API limits\n\n` +
+          `**What you can do:**\n` +
+          `• Wait a few minutes and try again\n` +
+          `• Visit these job boards directly:\n` +
+          `  - [Remotive](https://remotive.com)\n` +
+          `  - [RemoteOK](https://remoteok.com)\n` +
+          `  - [We Work Remotely](https://weworkremotely.com)\n` +
+          `• Try a different search query when the service is back\n\n` +
+          `I'll be ready to help you search through thousands of jobs once the connection is restored! 🚀`;
+        
+        return NextResponse.json({
+          message: fallbackMessage,
+          jobCards: [],
+          totalJobsAvailable: 0,
+          relevantJobsCount: 0,
+          fallbackMode: true
+        });
       }
     } catch (jobFetchError) {
       console.error('Error fetching jobs:', jobFetchError);
-      // Continue with empty jobs array but log the error
+      // Continue with empty jobs array and provide fallback
       allJobs = [];
+      jobsFetchedSuccessfully = false;
     }
     
     // ==================== RAG APPROACH ====================
@@ -480,15 +633,23 @@ Be conversational, friendly, and helpful with **proper markdown formatting**!`
       }
     ];
 
-    // Call OpenAI API
+    // Call OpenAI API with timeout (30 seconds max)
     let aiResponse;
     try {
-      const completion = await openai.chat.completions.create({
+      const completionPromise = openai.chat.completions.create({
         model: 'gpt-4o',
         messages: messages,
         temperature: 0.7,
         max_tokens: 2000,
+        timeout: 30000, // 30 second timeout for OpenAI SDK
       });
+      
+      // Add additional timeout wrapper for safety
+      const completion = await withTimeout(
+        completionPromise,
+        35000, // 35 seconds total (5s buffer)
+        'OpenAI API call'
+      );
       
       aiResponse = completion.choices[0].message.content;
       
@@ -525,6 +686,15 @@ Be conversational, friendly, and helpful with **proper markdown formatting**!`
             message: 'Unable to connect to the AI service. Please check your internet connection and try again.' 
           },
           { status: 503 }
+        );
+      } else if (openaiError.message?.includes('timeout')) {
+        return NextResponse.json(
+          { 
+            error: 'Request timeout',
+            errorType: 'timeout',
+            message: 'The AI service took too long to respond. Please try again with a simpler query or try again later.' 
+          },
+          { status: 504 }
         );
       }
       
@@ -601,7 +771,38 @@ Be conversational, friendly, and helpful with **proper markdown formatting**!`
 }
 
 // GET endpoint to fetch all available jobs WITH BATCHING & CACHING
-export async function GET() {
+// Also serves as health check endpoint
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const healthCheck = searchParams.get('health') === 'true';
+  
+  // Health check mode - return system status
+  if (healthCheck) {
+    const circuitBreakerStatus = Array.from(circuitBreakers.entries()).map(([api, state]) => ({
+      api,
+      status: state.isOpen ? 'OPEN (disabled)' : 'CLOSED (active)',
+      failures: state.failures,
+      lastFailure: state.lastFailureTime ? new Date(state.lastFailureTime).toISOString() : null
+    }));
+    
+    return NextResponse.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      cache: jobsCache ? {
+        hasData: true,
+        jobCount: jobsCache.data.length,
+        age: Math.floor((Date.now() - jobsCache.timestamp) / 1000),
+        expiresIn: Math.floor((jobsCache.expiresAt - Date.now()) / 1000),
+        isStale: Date.now() > jobsCache.expiresAt
+      } : {
+        hasData: false
+      },
+      circuitBreakers: circuitBreakerStatus.length > 0 ? circuitBreakerStatus : 'All APIs healthy',
+      openaiConfigured: !!process.env.OPENAI_API_KEY
+    });
+  }
+  
+  // Regular GET - fetch jobs
   try {
     const allJobs = await getCachedJobsWithBatching();
     
