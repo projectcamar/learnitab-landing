@@ -912,9 +912,33 @@ export default function Home() {
         }),
       });
 
-      const data = await response.json();
+      // Check if response is JSON before parsing
+      let data;
+      const contentType = response.headers.get('content-type');
+      
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          data = await response.json();
+        } catch (jsonError: any) {
+          console.error('Failed to parse JSON response:', jsonError);
+          throw new Error(`Invalid JSON response from server: ${jsonError.message}`);
+        }
+      } else {
+        // Response is not JSON, try to get the text content
+        const textResponse = await response.text();
+        console.error('Non-JSON response received:', textResponse);
+        
+        // Create a proper error object
+        data = {
+          error: textResponse || 'Server returned a non-JSON response',
+          errorType: 'invalid_response',
+          message: textResponse.includes('413') || textResponse.toLowerCase().includes('too large')
+            ? 'The request was too large. This might be due to too many jobs being sent to the AI. Please try refreshing the page and try again.'
+            : 'The server returned an unexpected response. Please try again.'
+        };
+      }
 
-      if (response.ok) {
+      if (response.ok && data && !data.error) {
         // Parse job cards from the message
         let messageContent = data.message || '';
         const jobCards = data.jobCards || [];
@@ -953,6 +977,10 @@ export default function Home() {
             case 'openai_error':
               errorMessage = '🤖 **AI Service Error**\n\n' + 
                 (data.message || 'The AI assistant encountered an error while processing your request. Please try again.');
+              break;
+            case 'invalid_response':
+              errorMessage = '⚠️ **Server Response Error**\n\n' + 
+                (data.message || 'The server returned an unexpected response. Please try again.');
               break;
             default:
               errorMessage = '❌ **Error**\n\n' + (data.message || data.error || errorMessage);
