@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import Logo from '/public/images/Logo Learnitab.png';
 import { FiSearch, FiHeart, FiCalendar, FiRotateCw, FiMenu, FiLinkedin, 
          FiInstagram, FiLink, FiTrash2, FiBriefcase, FiAward, 
-         FiBookOpen, FiUsers, FiDisc, FiDownload } from 'react-icons/fi';
+         FiBookOpen, FiUsers, FiDisc, FiDownload, FiSend, FiMessageCircle } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import { SiProducthunt } from 'react-icons/si';
 import { Post } from '../models/Post';
@@ -484,7 +484,7 @@ export default function Home() {
     </button>
   );
 
-  const categories = ['jobs', 'mentors'];
+  const categories = ['jobs', 'ai-jobs', 'mentors'];
   const listRef = useRef<HTMLDivElement>(null);
   const [showCalendarPanel, setShowCalendarPanel] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Post | null>(null);
@@ -499,6 +499,13 @@ export default function Home() {
   // Add new state for mobile view control
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMobileDetail, setShowMobileDetail] = useState(false);
+
+  // AI Jobs chat state
+  const [chatMessages, setChatMessages] = useState<Array<{role: string, content: string}>>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [recommendedJobs, setRecommendedJobs] = useState<any[]>([]);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -1380,6 +1387,209 @@ export default function Home() {
     }
   };
 
+  // AI Jobs chat handlers
+  const handleChatSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!chatInput.trim() || isChatLoading) return;
+
+    const userMessage = chatInput.trim();
+    setChatInput('');
+    
+    // Add user message to chat
+    const newMessages = [...chatMessages, { role: 'user', content: userMessage }];
+    setChatMessages(newMessages);
+    setIsChatLoading(true);
+
+    try {
+      const response = await fetch('/api/ai-jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages })
+      });
+
+      const data = await response.json();
+      
+      if (data.response) {
+        setChatMessages([...newMessages, { role: 'assistant', content: data.response }]);
+        if (data.jobs && data.jobs.length > 0) {
+          setRecommendedJobs(data.jobs);
+        }
+      }
+    } catch (error) {
+      console.error('Error chatting with AI:', error);
+      setChatMessages([...newMessages, { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.' 
+      }]);
+    } finally {
+      setIsChatLoading(false);
+      // Scroll to bottom
+      setTimeout(() => {
+        if (chatContainerRef.current) {
+          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+      }, 100);
+    }
+  };
+
+  // Render AI Jobs chat interface
+  const renderAIJobsChat = () => (
+    <div className="h-full flex flex-col">
+      {/* Chat Header */}
+      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-t-lg">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+            <FiMessageCircle size={24} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold">AI Job Assistant</h2>
+            <p className="text-sm text-white/80">Ask me anything about job opportunities!</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Chat Messages */}
+      <div 
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50"
+        style={{ maxHeight: 'calc(100vh - 400px)' }}
+      >
+        {chatMessages.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FiMessageCircle size={40} className="text-purple-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Start a Conversation</h3>
+            <p className="text-gray-600 mb-6">Ask me about jobs and I'll help you find the perfect match!</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+              <button
+                onClick={() => {
+                  setChatInput('Show me remote software engineering jobs');
+                  setTimeout(() => handleChatSubmit(), 100);
+                }}
+                className="p-4 bg-white rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all text-left"
+              >
+                <div className="font-medium text-gray-900">💻 Software Engineering</div>
+                <div className="text-sm text-gray-600">Remote positions</div>
+              </button>
+              <button
+                onClick={() => {
+                  setChatInput('What are the best Web3 jobs available?');
+                  setTimeout(() => handleChatSubmit(), 100);
+                }}
+                className="p-4 bg-white rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all text-left"
+              >
+                <div className="font-medium text-gray-900">🌐 Web3 Opportunities</div>
+                <div className="text-sm text-gray-600">Blockchain & crypto</div>
+              </button>
+              <button
+                onClick={() => {
+                  setChatInput('Find me entry-level design jobs');
+                  setTimeout(() => handleChatSubmit(), 100);
+                }}
+                className="p-4 bg-white rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all text-left"
+              >
+                <div className="font-medium text-gray-900">🎨 Design Positions</div>
+                <div className="text-sm text-gray-600">Entry-level roles</div>
+              </button>
+              <button
+                onClick={() => {
+                  setChatInput('What marketing jobs pay over $80k?');
+                  setTimeout(() => handleChatSubmit(), 100);
+                }}
+                className="p-4 bg-white rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all text-left"
+              >
+                <div className="font-medium text-gray-900">📱 Marketing Roles</div>
+                <div className="text-sm text-gray-600">High-paying positions</div>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {chatMessages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[80%] rounded-lg p-4 ${
+                    msg.role === 'user'
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
+                      : 'bg-white text-gray-900 border border-gray-200'
+                  }`}
+                >
+                  <div className="flex items-start gap-2">
+                    {msg.role === 'assistant' && (
+                      <FiMessageCircle className="text-purple-600 flex-shrink-0 mt-1" />
+                    )}
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {isChatLoading && (
+              <div className="flex justify-start">
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                    <span className="text-gray-600">Thinking...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Recommended Jobs Section */}
+      {recommendedJobs.length > 0 && (
+        <div className="border-t border-gray-200 bg-white p-4 max-h-48 overflow-y-auto">
+          <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <FiBriefcase className="text-purple-600" />
+            Recommended Jobs
+          </h3>
+          <div className="space-y-2">
+            {recommendedJobs.map((job, idx) => (
+              <a
+                key={idx}
+                href={job.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-3 bg-gray-50 hover:bg-purple-50 rounded-lg border border-gray-200 hover:border-purple-300 transition-all"
+              >
+                <div className="font-medium text-gray-900">{job.title}</div>
+                <div className="text-sm text-gray-600">{job.company} • {job.location}</div>
+                <div className="text-xs text-purple-600 mt-1">{job.source} • {job.type}</div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Chat Input */}
+      <div className="border-t border-gray-200 p-4 bg-white rounded-b-lg">
+        <form onSubmit={handleChatSubmit} className="flex gap-2">
+          <input
+            type="text"
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            placeholder="Ask about jobs, skills, career advice..."
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            disabled={isChatLoading}
+          />
+          <button
+            type="submit"
+            disabled={!chatInput.trim() || isChatLoading}
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+          >
+            <FiSend />
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+
   return (
     <CustomErrorBoundary>
       <div className="h-screen overflow-hidden w-full flex flex-col relative">
@@ -1424,15 +1634,18 @@ export default function Home() {
                 {categories.map((category) => (
                   <button
                     key={category}
-                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                       currentCategory === category
                         ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md transform scale-105'
                         : 'bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                     onClick={() => setCurrentCategory(category)}
                   >
+                    {category === 'jobs' && <FiBriefcase />}
+                    {category === 'ai-jobs' && <FiMessageCircle />}
+                    {category === 'mentors' && <FiUsers />}
                     <span>
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                      {category === 'ai-jobs' ? 'AI Jobs' : category.charAt(0).toUpperCase() + category.slice(1)}
                     </span>
                   </button>
                 ))}
@@ -1449,40 +1662,51 @@ export default function Home() {
 
         {/* Main content */}
         <main className="flex flex-col md:flex-row -mx-2 relative z-20 h-[calc(100vh-80px)]">
-          {/* List View - update background */}
-          <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden bg-transparent ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
-            {/* Search bar container - keep white background */}
-            <div className="bg-white rounded-lg shadow-lg transition-all duration-300">
-              {renderSearchBar()}
-            </div>
-
-            {/* List container - keep white background */}
-            <div 
-              ref={listRef}
-              className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white rounded-lg shadow-lg"
-              style={{ height: 'calc(100vh - 224px)' }}
-            >
-              <div className="p-4 space-y-4">
-                {showSaved ? 
-                  renderPosts(posts.filter(post => isFavorited(post.title))) :
-                  renderPosts(getSortedPosts(getFilteredPosts()))
-                }
+          {currentCategory === 'ai-jobs' ? (
+            /* AI Jobs Chat View - Full Width */
+            <div className="w-full p-4 bg-transparent">
+              <div className="bg-white rounded-xl shadow-lg h-full">
+                {renderAIJobsChat()}
               </div>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* List View - update background */}
+              <div className={`w-full md:w-2/5 flex flex-col gap-4 p-4 overflow-hidden bg-transparent ${showMobileDetail ? 'hidden md:flex' : 'flex'}`}>
+                {/* Search bar container - keep white background */}
+                <div className="bg-white rounded-lg shadow-lg transition-all duration-300">
+                  {renderSearchBar()}
+                </div>
 
-          {/* Detail View - update background */}
-          <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar detail-view-container font-['Plus_Jakarta_Sans'] bg-transparent 
-            ${showMobileDetail ? 'fixed inset-0 z-50 bg-transparent' : 'hidden md:block'}`}>
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              {selectedPostTitle ? (
-                posts.filter(post => post.title === selectedPostTitle)
-                  .map(post => displayFullPost(post))[0]
-              ) : (
-                renderWelcomeScreen()
-              )}
-            </div>
-          </div>
+                {/* List container - keep white background */}
+                <div 
+                  ref={listRef}
+                  className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white rounded-lg shadow-lg"
+                  style={{ height: 'calc(100vh - 224px)' }}
+                >
+                  <div className="p-4 space-y-4">
+                    {showSaved ? 
+                      renderPosts(posts.filter(post => isFavorited(post.title))) :
+                      renderPosts(getSortedPosts(getFilteredPosts()))
+                    }
+                  </div>
+                </div>
+              </div>
+
+              {/* Detail View - update background */}
+              <div className={`w-full md:w-3/5 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar detail-view-container font-['Plus_Jakarta_Sans'] bg-transparent 
+                ${showMobileDetail ? 'fixed inset-0 z-50 bg-transparent' : 'hidden md:block'}`}>
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  {selectedPostTitle ? (
+                    posts.filter(post => post.title === selectedPostTitle)
+                      .map(post => displayFullPost(post))[0]
+                  ) : (
+                    renderWelcomeScreen()
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </main>
 
         {/* Mobile-friendly modals */}
